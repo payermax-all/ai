@@ -1,0 +1,23 @@
+.vscode/
+.DS_Store
+**/.DS_Store
+._*
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+
+**/__pycache__/
+*.pyc
+
+.payermax/skill-trace/events.jsonl
+.payermax/skill-trace/current.json
+.payermax/skill-trace/_validate_smoke/
+retrieval-sync-report.md
+dist/
+
+# Internal development files (not part of the skill distribution)
+design/
+scripts/
+validate_skills.py
+TODO.md

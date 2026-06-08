@@ -1,0 +1,7 @@
+interface:
+  display_name: "PayerMax Integration Assistant"
+  short_description: "Single-entry assistant for PayerMax scenario analysis, integration solution generation, and code implementation"
+  default_prompt: "Use $payermax-integration-assistant to understand my business needs, generate a PayerMax integration solution document, and then help me implement the integration."
+
+policy:
+  allow_implicit_invocation: true
