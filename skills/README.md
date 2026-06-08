@@ -12,20 +12,20 @@ AI Skill for integrating PayerMax payment services. Supports standard acquiring 
 ## Install
 
 ```bash
-npx skills add github.com/nicepaymax/ai-integration-skills --skill payermax-integration-assistant
+npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant
 ```
 
 Or install to a specific agent:
 
 ```bash
 # Kiro
-npx skills add github.com/nicepaymax/ai-integration-skills --skill payermax-integration-assistant -a kiro-cli
+npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant -a kiro-cli
 
 # Cursor
-npx skills add github.com/nicepaymax/ai-integration-skills --skill payermax-integration-assistant -a cursor
+npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant -a cursor
 
 # Trae
-npx skills add github.com/nicepaymax/ai-integration-skills --skill payermax-integration-assistant -a trae
+npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant -a trae
 ```
 
 ## Usage

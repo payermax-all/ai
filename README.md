@@ -5,7 +5,7 @@ Agent skills for integrating PayerMax payment services.
 ## Install
 
 ```bash
-npx skills add github.com/nicepaymax/ai-integration-skills --skill payermax-integration-assistant
+npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant
 ```
 
 ## Skills
