@@ -4,9 +4,33 @@ Agent skills for integrating PayerMax payment services.
 
 ## Install
 
+### Option 1: Agent Skills CLI (Recommended)
+
+Uses the [Agent Skills](https://agentskills.io/) open standard. Skills will be installed to `.agents/skills/` directory.
+
 ```bash
 npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant
 ```
+
+> **Note:** The `-a` flag syncs the skill to a specific agent's directory for discovery, but the source of truth remains `.agents/skills/`.
+
+### Option 2: Manual Installation
+
+Clone this repository and copy the skill directory into your agent's skills folder:
+
+```bash
+git clone https://github.com/payermax-all/ai.git
+```
+
+Then copy `skills/payermax-integration-assistant` to your agent's skills directory, for example:
+
+| Agent | Target Path |
+|---|---|
+| Kiro | `.kiro/skills/payermax-integration-assistant` |
+| Claude Code | `.claude/skills/payermax-integration-assistant` |
+| Codex | `.codex/skills/payermax-integration-assistant` |
+| Qoder | `.qoder/skills/payermax-integration-assistant` |
+| Trae | `.trae/skills/payermax-integration-assistant` |
 
 ## Skills
 
@@ -30,7 +54,7 @@ The agent handles the rest — clarifies requirements, generates a solution docu
 
 ## Supported Agents
 
-Works with any agent that supports the [Agent Skills](https://agentskills.io) standard, including Kiro, Cursor, Claude Code, Trae, Codex, and 60+ others.
+Works with any agent that supports the [Agent Skills](https://agentskills.io/) standard, including Kiro, Cursor, Claude Code, Trae, Codex, and 60+ others.
 
 ## Resources
 
