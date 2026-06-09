@@ -90,6 +90,10 @@ scenario_profile:
 - environment configuration
 - testing and go-live checklist
 
+<!-- Include if dispute capability requested: -->
+- dispute/chargeback notification handling
+- dispute case query and response
+
 <!-- Include for subscription (merchant_manage / auto_debit): -->
 - token storage and management
 - token unbind flow

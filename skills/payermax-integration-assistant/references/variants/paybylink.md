@@ -13,7 +13,7 @@ Use this variant when the merchant wants to generate payment links for customers
 
 | Topic | URL to fetch |
 |---|---|
-| PayByLink integration flow | `https://docs-v2.payermax.com/202506-version/acquiring/start-integration/create-payment/paybylink.md` |
+| PayByLink integration flow | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/create-payment/paybylink.md` |
 | Payment result (callback + query) | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/related-capabilities/payment-result.md` |
 | Refund | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/related-capabilities/refund.md` |
 

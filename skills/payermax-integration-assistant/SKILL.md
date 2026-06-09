@@ -284,6 +284,7 @@ After completing the steps above, review the gathered information and present 2�
 | Card selected | Do you need to restrict card brands (e.g., Visa/Mastercard only)? / 是否需要限制卡品牌（如仅 Visa/Mastercard）？ |
 | APM selected | Are there specific APM wallets/methods you want to prioritize or exclude? / 是否有特定的 APM 钱包/方式需要优先或排除？ |
 | Multi-terminal | Which terminals do you need to support: web, H5 (mobile browser), native app, or all? / 需要支持哪些终端：Web、H5（移动浏览器）、原生 App，还是全部？ |
+| Any product | Do you need to handle payment disputes/chargebacks (receive notifications, query cases, submit evidence)? / 是否需要处理支付争议/拒付（接收通知、查询案件、提交证据）？ |
 
 **Rules:**
 - Select 2–4 questions maximum — do not overwhelm the user
@@ -409,6 +410,7 @@ When the scenario involves specific integration modes, you MUST read the corresp
 | Condition | Must read | Contains |
 | --- | --- | --- |
 | `integration_mode == drop_in` | `references/shared/drop-in-frontend.md` | CDN URL, SDK initialization pattern (`PMdropin.create`), payment flow, API version requirements, test panel template |
+| User confirmed dispute/chargeback capability | `references/shared/dispute.md` | Chargeback notification, case query, case response |
 
 **Hard rule:** If `integration_mode == drop_in` and you did NOT read `references/shared/drop-in-frontend.md`, your frontend code is unreliable. Read it before generating ANY frontend or Drop-In related code.
 
@@ -508,6 +510,11 @@ For subscription (merchant manage / auto debit), also include:
 - Callback handler for `collectResultNotifyUrl`
 - `/orderQuery` — fallback query
 
+If dispute/chargeback capability requested, also include:
+- Callback handler for `chargeBaclNotifyUrl` (chargeback notification)
+- `/caseSearch` — query dispute case details
+- `/caseReplay` — respond to dispute (accept or challenge)
+
 ### Connectivity tests (MANDATORY — do not skip)
 
 **Hard rule:** You MUST generate connectivity test code. This is NOT optional. If you do not generate tests, the implementation is incomplete.
@@ -528,6 +535,7 @@ Required test paths (based on product):
 - Drop-In: add `/applyDropinSession`
 - Subscription (PMX manage): add `/subscriptionCreate`, `/subscriptionQuery`, `/subscriptionCancel`
 - Subscription (merchant/auto-debit): same as Standard Acquiring (`/orderAndPay`, `/orderQuery`)
+- Dispute (if requested): `/caseSearch`, `/caseReplay`
 
 Each test file must include:
 - A comment block at the top explaining how to run it (e.g., `mvn test`, `pytest`, `npm test`)
@@ -666,6 +674,7 @@ Before presenting the implementation to the user, verify against the deliverable
 - [ ] Base URL uses `pay-gate-uat.payermax.com` (sandbox) or `pay-gate.payermax.com` (production) — NOT `api.payermax.com`?
 - [ ] Run instructions provided (how to configure, test, and start)?
 - [ ] Setup Guide generated (`SETUP_GUIDE.md` with configuration steps, test instructions, production checklist)?
+- [ ] If dispute capability requested: chargeback notification handler + `/caseSearch` + `/caseReplay` implemented?
 
 **If any item is unchecked, generate it now before responding to the user.**
 
@@ -696,6 +705,7 @@ Fetch official API Markdown only for lines explicitly flagged as `verify-in-open
 | `references/variants/*.md` | Branch-specific stance per integration mode (standard acquiring) |
 | `references/variants/subscription/*.md` | Branch-specific stance per subscription scenario |
 | `references/shared/drop-in-frontend.md` | Drop-In frontend SDK guide (shared across all scenarios) |
+| `references/shared/dispute.md` | Dispute/chargeback capability (optional, cross-scenario) |
 | `references/output/` | Solution and summary templates |
 | `shared-models/scenario-profile.yaml` | Canonical scenario profile schema |
 
