@@ -27,6 +27,7 @@ Single entry skill for all PayerMax payment integration help.
 | Subscription | non_periodic_auto_debit | APM | cashier-full_payment_method, cashier-specified_payment_method | orderAndPay (bind + debit) | `references/variants/subscription/auto-debit.md` |
 
 **Constraint:** When Payment Method Type = APM, Integration Mode `drop_in` is not available.
+**Constraint:** When Product = Subscription, Integration Mode `paybylink` is not available.
 **Note:** Integration Mode `paybylink` and `direct_api` support all payment method types without restriction.
 
 ## Workflow overview
@@ -144,7 +145,7 @@ Analyze the project for frontend complexity signals (custom checkout page with c
 > | **cashier-full_payment_method（全量收银台）** | PayerMax hosts the full payment page, displays all available payment methods / PayerMax 托管完整支付页面，展示所有可用支付方式 | Fastest integration; no frontend work; maximum payment method coverage / 最快集成；无需前端开发；支付方式覆盖最全 |
 > | **cashier-specified_payment_method（指定支付方式）** | PayerMax hosts the payment page, but only shows payment methods you specify / PayerMax 托管支付页面，但仅展示您指定的支付方式 | When you want to control which methods are shown / 需要控制展示哪些支付方式时 |
 > | **drop_in（前置组件）** | Embed PayerMax UI components (card form, Google Pay, Apple Pay) on your own page / 在您自己的页面嵌入 PayerMax UI 组件（卡表单、Google Pay、Apple Pay） | Custom UX without PCI-DSS; only supports Card/ApplePay/GooglePay (not APM) / 自定义体验且无需 PCI-DSS；仅支持 Card/ApplePay/GooglePay（不支持 APM） |
-> | **paybylink（链接支付）** | Generate a payment link that users access via URL or QR code; PayerMax hosts the payment page / 生成支付链接，用户通过 URL 或二维码访问；PayerMax 托管支付页面 | Offline scenarios, social sharing, no redirect flow needed; supports all payment methods / 线下场景、社交分享、无需重定向流程；支持所有支付方式 |
+> | **paybylink（链接支付）** | Generate a payment link that users access via URL or QR code; PayerMax hosts the payment page / 生成支付链接，用户通过 URL 或二维码访问；PayerMax 托管支付页面 | Offline scenarios, social sharing, no redirect flow needed; supports all payment methods; Standard Acquiring only (not available for Subscription) / 线下场景、社交分享、无需重定向流程；支持所有支付方式；仅标准收单可用（订阅代扣不可用） |
 > | **direct_api（纯API）** | Merchant builds their own checkout page; full control over UX; requires handling redirects and 3DS/wallet authentication / 商户自建收银页面；完全控制 UX；需处理重定向和 3DS/钱包认证 | Maximum customization; higher development cost / 最大化定制；开发成本较高 |
 >
 > Checkout Page Construction Method comparison: https://docs-v2.payermax.com/en/doc-center/acquiring/introduction/integration-mode.html
