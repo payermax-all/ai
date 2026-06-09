@@ -146,6 +146,7 @@ Analyze the project for frontend complexity signals (custom checkout page → dr
 >
 > Checkout Page Construction Method comparison: https://docs-v2.payermax.com/en/doc-center/acquiring/introduction/integration-mode.html
 > Drop-In component guide: https://docs-v2.payermax.com/en/doc-center/acquiring/start-integration/create-payment/frontend-component.html
+> Live demo (try each checkout experience): https://docs.payermax.com/payDemo/index.html
 >
 > Please select one / 请选择一项: **cashier-full_payment_method（全量收银台）** / **cashier-specified_payment_method（指定支付方式）** / **drop_in（前置组件）**
 
@@ -625,6 +626,7 @@ Every outbound PayerMax API call must have a validation layer:
 - Do not mark payment successful on front callback alone
 - Do not invent CDN URLs, SDK parameters, or field names from memory
 - Do not hardcode placeholders in test classes
+- Do not use `api.payermax.com` — this domain does not exist. The correct API base URL is `pay-gate-uat.payermax.com` (sandbox) / `pay-gate.payermax.com` (production)
 
 ### Generate Setup Guide
 
@@ -639,6 +641,7 @@ Before presenting the implementation to the user, verify against the deliverable
 - [ ] Request signing utility generated (sign outbound + verify inbound)?
 - [ ] Connectivity tests generated (one per outbound API path, reads from config)?
 - [ ] All code reads credentials from config file (no hardcoded placeholders)?
+- [ ] Base URL uses `pay-gate-uat.payermax.com` (sandbox) or `pay-gate.payermax.com` (production) — NOT `api.payermax.com`?
 - [ ] Run instructions provided (how to configure, test, and start)?
 - [ ] Setup Guide generated (`SETUP_GUIDE.md` with configuration steps, test instructions, production checklist)?
 
