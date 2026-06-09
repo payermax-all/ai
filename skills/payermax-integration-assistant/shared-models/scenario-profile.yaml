@@ -1,0 +1,268 @@
+version: 0.2
+description: Canonical normalized scenario profile for the PayerMax acquiring router and cashier workflow.
+
+notes:
+  - Prefer API-close enum values so downstream code generation can map to PayerMax fields with minimal translation.
+  - For cashier card filtering, scenario_profile.card_org maps to request field paymentDetail.allowedCardOrg.
+
+profile:
+  domain:
+    type: enum
+    required: true
+    values:
+      - acquiring
+
+  customer_product:
+    type: enum
+    required: true
+    values:
+      - acquiring_standard
+      - acquiring_tokenization
+      - receipt_standard
+      - receipt_bill_payment
+      - receipt_subscription
+      - receipt_remittance
+      - receipt_va
+      - payout
+      - funds_transfer
+
+  integration_mode:
+    type: enum
+    required: true
+    values:
+      - cashier
+      - direct_api
+      - drop_in
+      - pay_by_link
+      - api_only
+
+  cashier_variant:
+    type: enum
+    required_if:
+      integration_mode: cashier
+    values:
+      - full_payment_method
+      - specified_payment_method
+
+  merchant_type:
+    type: enum
+    required: true
+    values:
+      - direct_merchant
+      - institution_merchant
+      - platform_merchant
+      - isv
+
+  service_mode:
+    type: enum
+    required: false
+    values:
+      - gateway
+      - standard
+      - custody
+
+  transaction_mode:
+    type: enum
+    required: true
+    values:
+      - sales
+
+  tokenization_enabled:
+    type: boolean
+    required: true
+
+  token_type:
+    type: enum
+    required_if:
+      tokenization_enabled: true
+    values:
+      - payermax_token
+      - external_token
+
+  industry_type:
+    type: enum
+    required: false
+    values:
+      - ecommerce
+      - digital
+      - gaming
+      - travel
+      - education
+      - saas
+      - other
+
+  payment_method_type:
+    type: list
+    item_type: enum
+    required_if:
+      cashier_variant: specified_payment_method
+    values:
+      - CARD
+      - GOOGLEPAY
+      - APPLEPAY
+      - WALLET
+      - NET_BANKING
+      - PAYLATER
+      - BANKTRANSFER
+      - CARRIER_BILLING
+      - OTC
+      - BILL_PAYMENT
+      - PREPAID_CARD
+      - REMITTANCE
+
+  target_org:
+    type: list
+    item_type: string
+    required: false
+    description: Specific acquiring institution, bank, wallet, or target organization for non-card cashier narrowing.
+
+  card_org:
+    type: list
+    item_type: string
+    required: false
+    description: Card scheme such as VISA or Mastercard when CARD is selected. Maps to paymentDetail.allowedCardOrg in cashier requests.
+
+  payment_method_selection_level:
+    type: enum
+    required: false
+    values:
+      - none
+      - method_type_only
+      - method_type_plus_target_org
+      - card_scheme
+
+  country:
+    type: string
+    required: false
+
+  currency:
+    type: string
+    required: false
+
+  terminal:
+    type: enum
+    required: false
+    values:
+      - web
+      - h5
+      - app
+      - multi_terminal
+
+  subscription_scenario:
+    type: enum
+    required_if:
+      customer_product: receipt_subscription
+    values:
+      - pmx_manage_plan
+      - merchant_manage_plan
+      - non_periodic_auto_debit
+
+  subscription_payment_method:
+    type: enum
+    required_if:
+      customer_product: receipt_subscription
+    values:
+      - CARD
+      - APM
+      - APPLEPAY
+      - GOOGLEPAY
+
+  subscription_integration_mode:
+    type: enum
+    required_if:
+      customer_product: receipt_subscription
+    description: Integration mode for subscription activation/binding step. Same options as standard acquiring but APM cannot use drop_in.
+    values:
+      - cashier-full_payment_method
+      - cashier-specified_payment_method
+      - drop_in
+
+  notes:
+    type: list
+    item_type: string
+    required: false
+
+validation_rules:
+  - id: cashier_tokenization_needs_specified_method
+    when:
+      integration_mode: cashier
+      tokenization_enabled: true
+    assert:
+      cashier_variant: specified_payment_method
+    on_fail: Tokenization in cashier mode does not support full-payment-method cashier.
+
+  - id: specified_method_requires_payment_method_type
+    when:
+      integration_mode: cashier
+      cashier_variant: specified_payment_method
+    assert_non_empty:
+      - payment_method_type
+    on_fail: Specified-payment-method cashier requires payment_method_type.
+
+  - id: tokenization_requires_token_type
+    when:
+      tokenization_enabled: true
+    assert_non_empty:
+      - token_type
+    on_fail: Tokenization requires token_type.
+
+  - id: card_scheme_only_for_card
+    when_contains:
+      card_org: true
+    assert_contains:
+      payment_method_type: CARD
+    on_fail: card_org should only be used when CARD is selected, and should be rendered into paymentDetail.allowedCardOrg.
+
+  - id: target_org_requires_payment_method_type
+    when_contains:
+      target_org: true
+    assert_non_empty:
+      - payment_method_type
+    on_fail: target_org requires payment_method_type.
+
+  - id: target_org_not_for_card
+    when_contains:
+      target_org: true
+    assert_not_contains:
+      payment_method_type: CARD
+    on_fail: target_org is for non-card cashier narrowing. Use card_org for CARD flows.
+
+  - id: full_cashier_forbids_narrowing_fields
+    when:
+      integration_mode: cashier
+      cashier_variant: full_payment_method
+    assert_empty:
+      - payment_method_type
+      - target_org
+      - card_org
+    on_fail: Full cashier must not contain payment method narrowing fields. Rewrite the branch to specified_payment_method.
+
+  - id: subscription_requires_scenario
+    when:
+      customer_product: receipt_subscription
+    assert_non_empty:
+      - subscription_scenario
+    on_fail: Subscription product requires subscription_scenario.
+
+  - id: subscription_requires_payment_method
+    when:
+      customer_product: receipt_subscription
+    assert_non_empty:
+      - subscription_payment_method
+    on_fail: Subscription product requires subscription_payment_method.
+
+  - id: subscription_apm_no_dropin
+    when:
+      customer_product: receipt_subscription
+      subscription_payment_method: APM
+    assert_not_equals:
+      subscription_integration_mode: drop_in
+    on_fail: APM does not support drop_in integration mode for subscription. Use cashier-full_payment_method or cashier-specified_payment_method.
+
+defaults:
+  domain: acquiring
+  integration_mode: cashier
+  transaction_mode: sales
+  tokenization_enabled: false
+  payment_method_selection_level: none
+  notes: []
