@@ -17,8 +17,8 @@ Single entry skill for all PayerMax payment integration help.
 
 | Payment Product | Scenario | Payment Method Type | Integration Mode | Core API Name | Variant file |
 | --- | --- | --- | --- | --- | --- |
-| Standard Acquiring | default | Card/ApplePay/GooglePay | cashier-full_payment_method, cashier-specified_payment_method, drop_in | orderAndPay | `references/variants/full-payment-method.md` / `specified-payment-method.md` / `drop-in.md` |
-| Standard Acquiring | default | APM | cashier-full_payment_method, cashier-specified_payment_method | orderAndPay | `references/variants/full-payment-method.md` / `specified-payment-method.md` |
+| Standard Acquiring | default | Card/ApplePay/GooglePay | cashier-full_payment_method, cashier-specified_payment_method, drop_in, paybylink, direct_api | orderAndPay, createPaybylink | `references/variants/full-payment-method.md` / `specified-payment-method.md` / `drop-in.md` / `paybylink.md` / `direct-api.md` |
+| Standard Acquiring | default | APM | cashier-full_payment_method, cashier-specified_payment_method, paybylink, direct_api | orderAndPay, createPaybylink | `references/variants/full-payment-method.md` / `specified-payment-method.md` / `paybylink.md` / `direct-api.md` |
 | Subscription | pmx_manage_plan | Card/ApplePay/GooglePay | cashier-full_payment_method, cashier-specified_payment_method, drop_in | subscriptionCreate + orderAndPay | `references/variants/subscription/pmx-manage.md` |
 | Subscription | pmx_manage_plan | APM | cashier-full_payment_method, cashier-specified_payment_method | subscriptionCreate + orderAndPay | `references/variants/subscription/pmx-manage.md` |
 | Subscription | merchant_manage_plan | Card/ApplePay/GooglePay | cashier-full_payment_method, cashier-specified_payment_method, drop_in | orderAndPay (bind + debit) | `references/variants/subscription/merchant-manage.md` |
@@ -27,6 +27,8 @@ Single entry skill for all PayerMax payment integration help.
 | Subscription | non_periodic_auto_debit | APM | cashier-full_payment_method, cashier-specified_payment_method | orderAndPay (bind + debit) | `references/variants/subscription/auto-debit.md` |
 
 **Constraint:** When Payment Method Type = APM, Integration Mode `drop_in` is not available.
+**Constraint:** When Product = Subscription, Integration Mode `paybylink` is not available.
+**Note:** Integration Mode `paybylink` and `direct_api` support all payment method types without restriction.
 
 ## Workflow overview
 
@@ -50,10 +52,10 @@ Then follow the **structured clarification flow** below. Before asking any quest
 
 1. **Product (Step 1)**: If the user does NOT mention subscription/recurring/auto-debit/订阅/代扣/续费 keywords → auto-select **Standard Acquiring**, skip Step 1. If the user DOES mention these keywords → auto-select **Subscription**, skip Step 1.
 2. **Scenario (Step 2)**: If product = Standard Acquiring → scenario = `default`, always skip Step 2.
-3. **Integration Mode (Step 3)**: If the user does NOT clearly indicate a preference (cashier vs drop-in) → must ask. This step is rarely skippable.
+3. **Integration Mode (Step 3)**: If the user does NOT clearly indicate a preference (cashier vs drop-in vs paybylink vs direct API) → must ask. This step is rarely skippable.
 4. **Payment Methods (Step 4)**: If the user explicitly names payment methods or APM brands (e.g., "TNG", "DANA", "card payment", "信用卡") → auto-select the corresponding types, skip Step 4.
 5. **APM specifics**: If the user already named specific APM methods (e.g., "TNG") or countries (e.g., "Malaysia", "马来西亚") → auto-select, skip the APM sub-step.
-6. **Payment Methods for Full Cashier**: If integration mode = `cashier-full_payment_method` → auto-select "All available payment methods", skip Step 4 and APM sub-step.
+6. **Payment Methods for Full Cashier/PayByLink**: If integration mode = `cashier-full_payment_method` or `paybylink` → auto-select "All available payment methods", skip Step 4 and APM sub-step.
 
 **Inference examples:**
 
@@ -128,9 +130,9 @@ Wait for user selection. Then:
 
 ### Build a payments page (single select)
 
-**Skip if:** User explicitly states cashier or drop-in preference in their prompt (e.g., "收银台", "cashier", "前置组件", "drop-in", "embed component"). Otherwise, must ask.
+**Skip if:** User explicitly states cashier, drop-in, paybylink, or direct API preference in their prompt (e.g., "收银台", "cashier", "前置组件", "drop-in", "embed component", "链接支付", "paybylink", "支付链接", "纯API", "direct API", "自建收银页"). Otherwise, must ask.
 
-Analyze the project for frontend complexity signals (custom checkout page → drop_in; no frontend / simple redirect → cashier).
+Analyze the project for frontend complexity signals (custom checkout page with card form / 3DS handling → direct_api; custom checkout page with embedded components → drop_in; no frontend / simple redirect → cashier; offline/sharing scenarios → paybylink).
 
 **Stop and ask:**
 
@@ -143,23 +145,27 @@ Analyze the project for frontend complexity signals (custom checkout page → dr
 > | **cashier-full_payment_method（全量收银台）** | PayerMax hosts the full payment page, displays all available payment methods / PayerMax 托管完整支付页面，展示所有可用支付方式 | Fastest integration; no frontend work; maximum payment method coverage / 最快集成；无需前端开发；支付方式覆盖最全 |
 > | **cashier-specified_payment_method（指定支付方式）** | PayerMax hosts the payment page, but only shows payment methods you specify / PayerMax 托管支付页面，但仅展示您指定的支付方式 | When you want to control which methods are shown / 需要控制展示哪些支付方式时 |
 > | **drop_in（前置组件）** | Embed PayerMax UI components (card form, Google Pay, Apple Pay) on your own page / 在您自己的页面嵌入 PayerMax UI 组件（卡表单、Google Pay、Apple Pay） | Custom UX without PCI-DSS; only supports Card/ApplePay/GooglePay (not APM) / 自定义体验且无需 PCI-DSS；仅支持 Card/ApplePay/GooglePay（不支持 APM） |
+> | **paybylink（链接支付）** | Generate a payment link that users access via URL or QR code; PayerMax hosts the payment page / 生成支付链接，用户通过 URL 或二维码访问；PayerMax 托管支付页面 | Offline scenarios, social sharing, no redirect flow needed; supports all payment methods; Standard Acquiring only (not available for Subscription) / 线下场景、社交分享、无需重定向流程；支持所有支付方式；仅标准收单可用（订阅代扣不可用） |
+> | **direct_api（纯API）** | Merchant builds their own checkout page; full control over UX; requires handling redirects and 3DS/wallet authentication / 商户自建收银页面；完全控制 UX；需处理重定向和 3DS/钱包认证 | Maximum customization; higher development cost / 最大化定制；开发成本较高 |
 >
 > Checkout Page Construction Method comparison: https://docs-v2.payermax.com/en/doc-center/acquiring/introduction/integration-mode.html
 > Drop-In component guide: https://docs-v2.payermax.com/en/doc-center/acquiring/start-integration/create-payment/frontend-component.html
 > Live demo (try each checkout experience): https://docs.payermax.com/payDemo/index.html
 >
-> Please select one / 请选择一项: **cashier-full_payment_method（全量收银台）** / **cashier-specified_payment_method（指定支付方式）** / **drop_in（前置组件）**
+> Please select one / 请选择一项: **cashier-full_payment_method（全量收银台）** / **cashier-specified_payment_method（指定支付方式）** / **drop_in（前置组件）** / **paybylink（链接支付）** / **direct_api（纯API）**
 
 Wait for user selection. Then set `integration_mode` accordingly:
 - `cashier-full_payment_method` → `integration_mode: cashier`, `cashier_variant: full_payment_method`
 - `cashier-specified_payment_method` → `integration_mode: cashier`, `cashier_variant: specified_payment_method`
 - `drop_in` → `integration_mode: drop_in`
+- `paybylink` → `integration_mode: paybylink`
+- `direct_api` → `integration_mode: direct_api`
 
 ### Add payment methods
 
 **Skip if:** 
 - User explicitly names payment methods or APM brands in the prompt (e.g., "TNG", "DANA", "card", "Apple Pay", "信用卡") → auto-select the corresponding payment method types and skip this step.
-- Integration Mode = `cashier-full_payment_method` → auto-select "All available payment methods", skip this step and APM sub-step.
+- Integration Mode = `cashier-full_payment_method` or `paybylink` → auto-select "All available payment methods", skip this step and APM sub-step.
 
 Analyze the project for target market signals (Southeast Asia → Card + APM; Global/US/EU → Card; etc.).
 
@@ -218,7 +224,7 @@ Wait for user selection. Set `payment_method_type` accordingly.
 
 **Skip if:** 
 - User already named specific APM methods (e.g., "TNG", "DANA", "KakaoPay") or specific countries (e.g., "Malaysia", "Indonesia", "马来西亚") in the original prompt → use those directly, skip this step.
-- Integration Mode = `cashier-full_payment_method` → skip (full cashier shows all APMs automatically).
+- Integration Mode = `cashier-full_payment_method` or `paybylink` → skip (full cashier and paybylink show all payment methods automatically).
 
 **Only ask this if the user selected APM in the previous step AND did not already specify which APMs or countries.**
 
@@ -279,6 +285,7 @@ After completing the steps above, review the gathered information and present 2�
 | Card selected | Do you need to restrict card brands (e.g., Visa/Mastercard only)? / 是否需要限制卡品牌（如仅 Visa/Mastercard）？ |
 | APM selected | Are there specific APM wallets/methods you want to prioritize or exclude? / 是否有特定的 APM 钱包/方式需要优先或排除？ |
 | Multi-terminal | Which terminals do you need to support: web, H5 (mobile browser), native app, or all? / 需要支持哪些终端：Web、H5（移动浏览器）、原生 App，还是全部？ |
+| Any product | Do you need to handle payment disputes/chargebacks (receive notifications, query cases, submit evidence)? / 是否需要处理支付争议/拒付（接收通知、查询案件、提交证据）？ |
 
 **Rules:**
 - Select 2–4 questions maximum — do not overwhelm the user
@@ -297,9 +304,11 @@ Use these signals to generate default recommendations:
 | Project is e-commerce / one-time purchase | Product = Standard Acquiring |
 | Project has no frontend code or minimal frontend | Integration Mode = cashier-full_payment_method |
 | Project has custom checkout page / React/Vue payment form | Integration Mode = drop_in |
+| Project has custom checkout page with card form / 3DS handling / full payment control | Integration Mode = direct_api |
 | Target market is Southeast Asia (ID, MY, TH, PH, VN) | Payment Method = Card + APM |
 | Target market is Korea | Payment Method = Card + APM (KakaoPay/NaverPay) |
 | Target market is Global / US / EU | Payment Method = Card |
+| Project mentions offline/QR/sharing scenarios | Integration Mode = paybylink |
 | Cannot determine from project context | Use most common: Standard Acquiring / cashier-full_payment_method / Card |
 
 ### Route to variant
@@ -311,12 +320,14 @@ After all 4 steps are complete, use the router (`references/router.md`) to norma
 | Standard Acquiring | default | cashier-full_payment_method | `references/variants/full-payment-method.md` |
 | Standard Acquiring | default | cashier-specified_payment_method | `references/variants/specified-payment-method.md` |
 | Standard Acquiring | default | drop_in | `references/variants/drop-in.md` |
+| Standard Acquiring | default | paybylink | `references/variants/paybylink.md` |
+| Standard Acquiring | default | direct_api | `references/variants/direct-api.md` |
 | Standard Acquiring | default (tokenization) | cashier-specified_payment_method | `references/variants/tokenization.md` |
 | Subscription | pmx_manage_plan | cashier-full_payment_method, cashier-specified_payment_method, drop_in | `references/variants/subscription/pmx-manage.md` |
 | Subscription | merchant_manage_plan | cashier-full_payment_method, cashier-specified_payment_method, drop_in | `references/variants/subscription/merchant-manage.md` |
 | Subscription | non_periodic_auto_debit | cashier-full_payment_method, cashier-specified_payment_method, drop_in | `references/variants/subscription/auto-debit.md` |
 
-**Constraint:** When `payment_method_type = APM`, `drop_in` is not available — route to `cashier-full_payment_method` or `cashier-specified_payment_method` only.
+**Constraint:** When `payment_method_type = APM`, `drop_in` is not available — route to `cashier-full_payment_method`, `cashier-specified_payment_method`, `paybylink`, or `direct_api`.
 
 ## Phase 2: Generate solution document
 
@@ -400,6 +411,7 @@ When the scenario involves specific integration modes, you MUST read the corresp
 | Condition | Must read | Contains |
 | --- | --- | --- |
 | `integration_mode == drop_in` | `references/shared/drop-in-frontend.md` | CDN URL, SDK initialization pattern (`PMdropin.create`), payment flow, API version requirements, test panel template |
+| User confirmed dispute/chargeback capability | `references/shared/dispute.md` | Chargeback notification, case query, case response |
 
 **Hard rule:** If `integration_mode == drop_in` and you did NOT read `references/shared/drop-in-frontend.md`, your frontend code is unreliable. Read it before generating ANY frontend or Drop-In related code.
 
@@ -473,6 +485,17 @@ This rule applies to ALL scenarios (standard acquiring AND subscription). The va
 
 For drop-in, also include `/applyDropinSession` and frontend JS code.
 
+For paybylink, also include:
+- `/createPaybylink` — create payment link
+- `/queryPaybylink` — query link status
+- `/expirePaybylink` — expire payment link
+- Callback handler for `payLinkResultNotifyUrl` (payment result notification)
+
+For direct_api, also handle:
+- redirectUrl processing (redirect user to payment channel for authentication)
+- 3DS authentication flow (if Card)
+- Google Pay / Apple Pay client-side token passing (if applicable)
+
 For subscription (PMX manage), also include:
 - `/subscriptionCreate` — create subscription plan
 - `/orderAndPay` — activate subscription (first payment)
@@ -487,6 +510,11 @@ For subscription (merchant manage / auto debit), also include:
 - `/removePaymentToken` — unbind payment method (token removal)
 - Callback handler for `collectResultNotifyUrl`
 - `/orderQuery` — fallback query
+
+If dispute/chargeback capability requested, also include:
+- Callback handler for `chargeBaclNotifyUrl` (chargeback notification)
+- `/caseSearch` — query dispute case details
+- `/caseReplay` — respond to dispute (accept or challenge)
 
 ### Connectivity tests (MANDATORY — do not skip)
 
@@ -503,9 +531,12 @@ Generate **one runnable test per outbound API path**. Each test must follow this
 
 Required test paths (based on product):
 - Standard Acquiring: `/orderAndPay`, `/orderQuery`, `/refund`, `/refundQuery`
+- Direct API: `/orderAndPay`, `/orderQuery`, `/refund`, `/refundQuery`
+- PayByLink: `/createPaybylink`, `/queryPaybylink`, `/expirePaybylink`, `/orderQuery`, `/refund`, `/refundQuery`
 - Drop-In: add `/applyDropinSession`
 - Subscription (PMX manage): add `/subscriptionCreate`, `/subscriptionQuery`, `/subscriptionCancel`
 - Subscription (merchant/auto-debit): same as Standard Acquiring (`/orderAndPay`, `/orderQuery`)
+- Dispute (if requested): `/caseSearch`, `/caseReplay`
 
 Each test file must include:
 - A comment block at the top explaining how to run it (e.g., `mvn test`, `pytest`, `npm test`)
@@ -644,6 +675,7 @@ Before presenting the implementation to the user, verify against the deliverable
 - [ ] Base URL uses `pay-gate-uat.payermax.com` (sandbox) or `pay-gate.payermax.com` (production) — NOT `api.payermax.com`?
 - [ ] Run instructions provided (how to configure, test, and start)?
 - [ ] Setup Guide generated (`SETUP_GUIDE.md` with configuration steps, test instructions, production checklist)?
+- [ ] If dispute capability requested: chargeback notification handler + `/caseSearch` + `/caseReplay` implemented?
 
 **If any item is unchecked, generate it now before responding to the user.**
 
@@ -674,6 +706,7 @@ Fetch official API Markdown only for lines explicitly flagged as `verify-in-open
 | `references/variants/*.md` | Branch-specific stance per integration mode (standard acquiring) |
 | `references/variants/subscription/*.md` | Branch-specific stance per subscription scenario |
 | `references/shared/drop-in-frontend.md` | Drop-In frontend SDK guide (shared across all scenarios) |
+| `references/shared/dispute.md` | Dispute/chargeback capability (optional, cross-scenario) |
 | `references/output/` | Solution and summary templates |
 | `shared-models/scenario-profile.yaml` | Canonical scenario profile schema |
 

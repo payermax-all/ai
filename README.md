@@ -36,7 +36,7 @@ Then copy `skills/payermax-integration-assistant` to your agent's skills directo
 
 | Skill | Description |
 |---|---|
-| [payermax-integration-assistant](skills/payermax-integration-assistant) | Guides AI agents through PayerMax payment integration — standard acquiring (cashier, drop-in) and subscription billing (PMX-managed, merchant-managed, auto-debit) |
+| [payermax-integration-assistant](skills/payermax-integration-assistant) | Guides AI agents through PayerMax payment integration — standard acquiring (cashier, drop-in, direct API, paybylink) and subscription billing (PMX-managed, merchant-managed, auto-debit) |
 
 ## Usage
 

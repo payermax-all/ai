@@ -102,18 +102,28 @@ function initComponentForMethod(method) {
         applepayInstance = PMdropin.create('applepay', { clientKey, sessionKey, sandbox });
         applepayInstance.mount('#applepay-container');
         applepayInstance.on('load', ...); // handle unsupported environment
+        applepayInstance.on('payButtonClick', async () => {
+            const result = await applepayInstance.emit('canMakePayment');
+            // ... proceed with paymentToken
+        });
     }
     if (method === 'googlepay' && !googlepayInstance) {
         googlepayInstance = PMdropin.create('googlepay', { clientKey, sessionKey, sandbox });
         googlepayInstance.mount('#googlepay-container');
         googlepayInstance.on('load', ...); // handle unsupported environment
+        googlepayInstance.on('payButtonClick', async () => {
+            const result = await googlepayInstance.emit('canMakePayment');
+            // ... proceed with paymentToken
+        });
     }
 }
 
-// Pay button handler
+// Pay button handler — CARD ONLY
+// Google Pay and Apple Pay are button-type components that trigger payment from their SDK-rendered button.
+// The external "Pay" button should only be used for the Card component.
 payButton.onclick = async () => {
-    const instance = { card: cardInstance, applepay: applepayInstance, googlepay: googlepayInstance }[activeMethod];
-    const result = await instance.emit('canMakePayment');
+    if (activeMethod !== 'card') return; // Wallet components use their own button
+    const result = await cardInstance.emit('canMakePayment');
     // ... proceed with paymentToken
 };
 ```
@@ -126,6 +136,17 @@ Apple Pay and Google Pay components may fail to load in certain environments (wr
 - Do NOT throw an error or block other payment methods
 - The "Pay" button should remain disabled for that method only
 
+### Environment requirements for wallet components
+
+| Component | Requirement | Failure behavior |
+|---|---|---|
+| Google Pay | Page must be served over **HTTPS**. HTTP access will prevent the Google Pay payment sheet from launching. | `load` event returns non-SUCCESS code |
+| Apple Pay | Must run on **iOS device or Safari browser** (macOS). Other browsers/platforms cannot invoke Apple Pay. | `load` event returns non-SUCCESS code |
+
+**Implementation guidance:**
+- When generating test/development instructions, remind the developer that Google Pay requires HTTPS (suggest using a local HTTPS proxy or tunnel like ngrok for testing)
+- When generating environment checks, detect protocol and browser/platform to show appropriate warnings before mounting wallet components
+
 ### Single payment method case
 
 When `payment_method_type` has exactly **one** entry, skip the tab selector entirely and mount only that single component — no tabs needed.
@@ -133,6 +154,82 @@ When `payment_method_type` has exactly **one** entry, skip the tab selector enti
 ### Hard rule
 
 If `integration_mode == drop_in` AND `payment_method_type` contains multiple entries, you MUST generate the multi-component tab pattern. Generating only a single component (e.g., card-only) when the user explicitly requested multiple methods is a **bug**.
+
+## Wallet components: Google Pay / Apple Pay
+
+Google Pay and Apple Pay are **button-type components** — their payment flow is triggered by the SDK's built-in button, not by an external "Pay" button controlled by the merchant.
+
+### Event model difference from Card
+
+| Component | Payment trigger | External "Pay" button |
+|---|---|---|
+| Card | Merchant calls `emit('canMakePayment')` on external button click | Required |
+| Google Pay | SDK button click → `payButtonClick` event → merchant calls `emit('canMakePayment')` in the event handler | Must be HIDDEN when Google Pay tab is active |
+| Apple Pay | SDK button click → `payButtonClick` event → merchant calls `emit('canMakePayment')` in the event handler | Must be HIDDEN when Apple Pay tab is active |
+
+### Implementation pattern
+
+```javascript
+// For Google Pay / Apple Pay: listen to payButtonClick, then call canMakePayment
+googlepayInstance.on('payButtonClick', async () => {
+    const result = await googlepayInstance.emit('canMakePayment');
+    // ... proceed with paymentToken
+});
+```
+
+**Hard rule:** Do NOT call `emit('canMakePayment')` on Google Pay / Apple Pay from an external button click handler. The SDK will reject it. Always trigger from `payButtonClick` event.
+
+### Subscription-specific: Google Pay canMakePayment parameters
+
+When `customer_product == receipt_subscription` AND `payment_method_type` includes GOOGLEPAY, the `emit('canMakePayment')` call **MUST** include `subscriptionPlan` and `mitManagementUrl` parameters. Calling without these parameters will result in `MIT_PARAMS_VALIDATION_ERROR`.
+
+**Card components do NOT need these parameters** — only Google Pay and Apple Pay in subscription mode.
+
+**Parameter requirements differ by subscription scenario:**
+
+| Subscription Scenario | `mitManagementUrl` | `subscriptionPlan` |
+|---|---|---|
+| `pmx_manage_plan` (SCHEDULED) | Required | Required |
+| `merchant_manage_plan` (SCHEDULED) | Required | Required |
+| `non_periodic_auto_debit` (UNSCHEDULED) | Required | Not required |
+
+**Example — merchant_manage_plan (SCHEDULED):**
+
+```javascript
+// Subscription mode (SCHEDULED): Google Pay canMakePayment with full parameters
+googlepayInstance.on('payButtonClick', async () => {
+    const result = await googlepayInstance.emit('canMakePayment', {
+        subscriptionPlan: {
+            planId: 'plan_xxx',           // subscription plan ID
+            planName: 'Monthly Premium',   // plan display name
+            billingCycle: 'MONTHLY',       // billing cycle
+            amount: '9.99',               // amount per period
+            currency: 'USD'               // currency
+        },
+        mitManagementUrl: 'https://merchant.com/manage-subscription' // merchant subscription management page URL
+    });
+    // ... proceed with paymentToken
+});
+```
+
+**Example — non_periodic_auto_debit (UNSCHEDULED):**
+
+```javascript
+// Auto debit mode (UNSCHEDULED): Google Pay canMakePayment with mitManagementUrl only
+googlepayInstance.on('payButtonClick', async () => {
+    const result = await googlepayInstance.emit('canMakePayment', {
+        mitManagementUrl: 'https://merchant.com/manage-subscription' // merchant subscription management page URL
+    });
+    // ... proceed with paymentToken
+});
+```
+
+**When to use:** Only when ALL of these conditions are true:
+- `integration_mode == drop_in`
+- `customer_product == receipt_subscription`
+- `payment_method_type` includes `GOOGLEPAY` or `APPLEPAY`
+
+**Hard rule:** When generating Drop-In frontend code for subscription + GOOGLEPAY/APPLEPAY, the `canMakePayment` call parameters MUST be copied from the frontend example code in the fetched payment-method-specific integration doc (from the variant file's Step 1 table). Do NOT construct parameters from the description above — use the official example as the authoritative source. If the fetched doc's example and this file's description conflict, the fetched doc wins.
 
 ## Fetch frontend API docs before generating frontend code
 
@@ -336,3 +433,5 @@ Source: https://docs-v2.payermax.com/en/doc-center/receipt/test-cases.md (sectio
 - 3DS authentication may be triggered for card payments; the component handles the redirect flow
 - Do not ignore `data.status` in the `/orderAndPay` synchronous response — for Drop-In card payments without 3DS, the final result (`SUCCESS`) may arrive synchronously without callback
 - `expireTime` must be ≥ 1800 and ≤ 86400
+- Google Pay / Apple Pay in subscription mode: `emit('canMakePayment')` MUST include `mitManagementUrl` (always required). Additionally, `subscriptionPlan` is required for SCHEDULED (merchant-manage) but not for UNSCHEDULED (auto-debit). Calling without required parameters will result in `MIT_PARAMS_VALIDATION_ERROR`.
+- Google Pay / Apple Pay components use `payButtonClick` event to trigger payment — do NOT rely on an external button to call `canMakePayment` for these methods. The external "Pay" button is for Card component only.

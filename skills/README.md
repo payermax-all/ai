@@ -1,12 +1,12 @@
 # PayerMax Integration Assistant
 
-AI Skill for integrating PayerMax payment services. Supports standard acquiring (cashier, drop-in) and subscription billing (PayerMax-managed plans, merchant-managed plans, non-periodic auto debit).
+AI Skill for integrating PayerMax payment services. Supports standard acquiring (cashier, drop-in, direct API, paybylink) and subscription billing (PayerMax-managed plans, merchant-managed plans, non-periodic auto debit).
 
 ## Supported Products
 
 | Product | Scenarios |
 | --- | --- |
-| **Standard Acquiring** | Cashier (full/specified payment method), Drop-In, Tokenization |
+| **Standard Acquiring** | Cashier (full/specified payment method), Drop-In, Direct API, PayByLink, Tokenization |
 | **Subscription** | PayerMax Manage Plans, Merchant Manage Plans, Non-Periodic Auto Debit |
 
 ## Install
