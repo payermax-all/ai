@@ -218,6 +218,8 @@ googlepayInstance.on('payButtonClick', async () => {
 - `customer_product == receipt_subscription`
 - `payment_method_type` includes `GOOGLEPAY` or `APPLEPAY`
 
+**Hard rule:** When generating Drop-In frontend code for subscription + GOOGLEPAY/APPLEPAY, the `canMakePayment` call parameters MUST be copied from the frontend example code in the fetched payment-method-specific integration doc (from the variant file's Step 1 table). Do NOT construct parameters from the description above — use the official example as the authoritative source. If the fetched doc's example and this file's description conflict, the fetched doc wins.
+
 ## Fetch frontend API docs before generating frontend code
 
 When generating Drop-In frontend code, you **must** use the official frontend API documentation for the relevant payment method(s) as the source of truth for:
