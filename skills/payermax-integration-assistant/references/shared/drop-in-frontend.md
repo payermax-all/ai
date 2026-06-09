@@ -136,6 +136,17 @@ Apple Pay and Google Pay components may fail to load in certain environments (wr
 - Do NOT throw an error or block other payment methods
 - The "Pay" button should remain disabled for that method only
 
+### Environment requirements for wallet components
+
+| Component | Requirement | Failure behavior |
+|---|---|---|
+| Google Pay | Page must be served over **HTTPS**. HTTP access will prevent the Google Pay payment sheet from launching. | `load` event returns non-SUCCESS code |
+| Apple Pay | Must run on **iOS device or Safari browser** (macOS). Other browsers/platforms cannot invoke Apple Pay. | `load` event returns non-SUCCESS code |
+
+**Implementation guidance:**
+- When generating test/development instructions, remind the developer that Google Pay requires HTTPS (suggest using a local HTTPS proxy or tunnel like ngrok for testing)
+- When generating environment checks, detect protocol and browser/platform to show appropriate warnings before mounting wallet components
+
 ### Single payment method case
 
 When `payment_method_type` has exactly **one** entry, skip the tab selector entirely and mount only that single component — no tabs needed.
