@@ -174,8 +174,18 @@ When `customer_product == receipt_subscription` AND `payment_method_type` includ
 
 **Card components do NOT need these parameters** — only Google Pay and Apple Pay in subscription mode.
 
+**Parameter requirements differ by subscription scenario:**
+
+| Subscription Scenario | `mitManagementUrl` | `subscriptionPlan` |
+|---|---|---|
+| `pmx_manage_plan` (SCHEDULED) | Required | Required |
+| `merchant_manage_plan` (SCHEDULED) | Required | Required |
+| `non_periodic_auto_debit` (UNSCHEDULED) | Required | Not required |
+
+**Example — merchant_manage_plan (SCHEDULED):**
+
 ```javascript
-// Subscription mode: Google Pay canMakePayment with required parameters
+// Subscription mode (SCHEDULED): Google Pay canMakePayment with full parameters
 googlepayInstance.on('payButtonClick', async () => {
     const result = await googlepayInstance.emit('canMakePayment', {
         subscriptionPlan: {
@@ -185,6 +195,18 @@ googlepayInstance.on('payButtonClick', async () => {
             amount: '9.99',               // amount per period
             currency: 'USD'               // currency
         },
+        mitManagementUrl: 'https://merchant.com/manage-subscription' // merchant subscription management page URL
+    });
+    // ... proceed with paymentToken
+});
+```
+
+**Example — non_periodic_auto_debit (UNSCHEDULED):**
+
+```javascript
+// Auto debit mode (UNSCHEDULED): Google Pay canMakePayment with mitManagementUrl only
+googlepayInstance.on('payButtonClick', async () => {
+    const result = await googlepayInstance.emit('canMakePayment', {
         mitManagementUrl: 'https://merchant.com/manage-subscription' // merchant subscription management page URL
     });
     // ... proceed with paymentToken
@@ -401,5 +423,5 @@ Source: https://docs-v2.payermax.com/en/doc-center/receipt/test-cases.md (sectio
 - 3DS authentication may be triggered for card payments; the component handles the redirect flow
 - Do not ignore `data.status` in the `/orderAndPay` synchronous response — for Drop-In card payments without 3DS, the final result (`SUCCESS`) may arrive synchronously without callback
 - `expireTime` must be ≥ 1800 and ≤ 86400
-- Google Pay / Apple Pay in subscription mode: `emit('canMakePayment')` MUST include `subscriptionPlan` and `mitManagementUrl` parameters. Calling without parameters will result in `MIT_PARAMS_VALIDATION_ERROR`.
+- Google Pay / Apple Pay in subscription mode: `emit('canMakePayment')` MUST include `mitManagementUrl` (always required). Additionally, `subscriptionPlan` is required for SCHEDULED (merchant-manage) but not for UNSCHEDULED (auto-debit). Calling without required parameters will result in `MIT_PARAMS_VALIDATION_ERROR`.
 - Google Pay / Apple Pay components use `payButtonClick` event to trigger payment — do NOT rely on an external button to call `canMakePayment` for these methods. The external "Pay" button is for Card component only.
