@@ -102,18 +102,28 @@ function initComponentForMethod(method) {
         applepayInstance = PMdropin.create('applepay', { clientKey, sessionKey, sandbox });
         applepayInstance.mount('#applepay-container');
         applepayInstance.on('load', ...); // handle unsupported environment
+        applepayInstance.on('payButtonClick', async () => {
+            const result = await applepayInstance.emit('canMakePayment');
+            // ... proceed with paymentToken
+        });
     }
     if (method === 'googlepay' && !googlepayInstance) {
         googlepayInstance = PMdropin.create('googlepay', { clientKey, sessionKey, sandbox });
         googlepayInstance.mount('#googlepay-container');
         googlepayInstance.on('load', ...); // handle unsupported environment
+        googlepayInstance.on('payButtonClick', async () => {
+            const result = await googlepayInstance.emit('canMakePayment');
+            // ... proceed with paymentToken
+        });
     }
 }
 
-// Pay button handler
+// Pay button handler — CARD ONLY
+// Google Pay and Apple Pay are button-type components that trigger payment from their SDK-rendered button.
+// The external "Pay" button should only be used for the Card component.
 payButton.onclick = async () => {
-    const instance = { card: cardInstance, applepay: applepayInstance, googlepay: googlepayInstance }[activeMethod];
-    const result = await instance.emit('canMakePayment');
+    if (activeMethod !== 'card') return; // Wallet components use their own button
+    const result = await cardInstance.emit('canMakePayment');
     // ... proceed with paymentToken
 };
 ```
@@ -133,6 +143,61 @@ When `payment_method_type` has exactly **one** entry, skip the tab selector enti
 ### Hard rule
 
 If `integration_mode == drop_in` AND `payment_method_type` contains multiple entries, you MUST generate the multi-component tab pattern. Generating only a single component (e.g., card-only) when the user explicitly requested multiple methods is a **bug**.
+
+## Wallet components: Google Pay / Apple Pay
+
+Google Pay and Apple Pay are **button-type components** — their payment flow is triggered by the SDK's built-in button, not by an external "Pay" button controlled by the merchant.
+
+### Event model difference from Card
+
+| Component | Payment trigger | External "Pay" button |
+|---|---|---|
+| Card | Merchant calls `emit('canMakePayment')` on external button click | Required |
+| Google Pay | SDK button click → `payButtonClick` event → merchant calls `emit('canMakePayment')` in the event handler | Must be HIDDEN when Google Pay tab is active |
+| Apple Pay | SDK button click → `payButtonClick` event → merchant calls `emit('canMakePayment')` in the event handler | Must be HIDDEN when Apple Pay tab is active |
+
+### Implementation pattern
+
+```javascript
+// For Google Pay / Apple Pay: listen to payButtonClick, then call canMakePayment
+googlepayInstance.on('payButtonClick', async () => {
+    const result = await googlepayInstance.emit('canMakePayment');
+    // ... proceed with paymentToken
+});
+```
+
+**Hard rule:** Do NOT call `emit('canMakePayment')` on Google Pay / Apple Pay from an external button click handler. The SDK will reject it. Always trigger from `payButtonClick` event.
+
+### Subscription-specific: Google Pay canMakePayment parameters
+
+When `customer_product == receipt_subscription` AND `payment_method_type` includes GOOGLEPAY, the `emit('canMakePayment')` call **MUST** include `subscriptionPlan` and `mitManagementUrl` parameters. Calling without these parameters will result in `MIT_PARAMS_VALIDATION_ERROR`.
+
+**Card components do NOT need these parameters** — only Google Pay and Apple Pay in subscription mode.
+
+```javascript
+// Subscription mode: Google Pay canMakePayment with required parameters
+googlepayInstance.on('payButtonClick', async () => {
+    const result = await googlepayInstance.emit('canMakePayment', {
+        subscriptionPlan: {
+            planId: 'plan_xxx',           // subscription plan ID
+            planName: 'Monthly Premium',   // plan display name
+            billingCycle: 'MONTHLY',       // billing cycle
+            amount: '9.99',               // amount per period
+            currency: 'USD'               // currency
+        },
+        mitManagementUrl: 'https://merchant.com/manage-subscription' // merchant subscription management page URL
+    });
+    // ... proceed with paymentToken
+});
+```
+
+**When to use:** Only when ALL of these conditions are true:
+- `integration_mode == drop_in`
+- `customer_product == receipt_subscription`
+- `payment_method_type` includes `GOOGLEPAY` or `APPLEPAY`
+
+**Source:** Fetch the Google Pay subscription doc for full parameter details:
+`https://docs-v2.payermax.com/en/doc-center/receipt/subscription/googlepay/subscription-merchant-management.md`
 
 ## Fetch frontend API docs before generating frontend code
 
@@ -336,3 +401,5 @@ Source: https://docs-v2.payermax.com/en/doc-center/receipt/test-cases.md (sectio
 - 3DS authentication may be triggered for card payments; the component handles the redirect flow
 - Do not ignore `data.status` in the `/orderAndPay` synchronous response — for Drop-In card payments without 3DS, the final result (`SUCCESS`) may arrive synchronously without callback
 - `expireTime` must be ≥ 1800 and ≤ 86400
+- Google Pay / Apple Pay in subscription mode: `emit('canMakePayment')` MUST include `subscriptionPlan` and `mitManagementUrl` parameters. Calling without parameters will result in `MIT_PARAMS_VALIDATION_ERROR`.
+- Google Pay / Apple Pay components use `payButtonClick` event to trigger payment — do NOT rely on an external button to call `canMakePayment` for these methods. The external "Pay" button is for Card component only.

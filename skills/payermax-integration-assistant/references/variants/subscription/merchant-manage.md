@@ -57,6 +57,8 @@ Based on the user's selected payment method type, fetch the corresponding integr
 | APPLEPAY | `https://docs-v2.payermax.com/en/doc-center/receipt/subscription/applepay/subscription-merchant-management.md` |
 | GOOGLEPAY | `https://docs-v2.payermax.com/en/doc-center/receipt/subscription/googlepay/subscription-merchant-management.md` |
 
+**Note:** When `integration_mode == drop_in` and GOOGLEPAY is selected, the frontend `canMakePayment` call requires additional `subscriptionPlan` and `mitManagementUrl` parameters. See `references/shared/drop-in-frontend.md` section "Subscription-specific: Google Pay canMakePayment parameters" for details.
+
 This doc contains the **complete integration flow** with request/response examples. Use it as the **authoritative reference** for implementation details.
 
 ### Step 2: Fetch API docs
