@@ -218,9 +218,6 @@ googlepayInstance.on('payButtonClick', async () => {
 - `customer_product == receipt_subscription`
 - `payment_method_type` includes `GOOGLEPAY` or `APPLEPAY`
 
-**Source:** Fetch the Google Pay subscription doc for full parameter details:
-`https://docs-v2.payermax.com/en/doc-center/receipt/subscription/googlepay/subscription-merchant-management.md`
-
 ## Fetch frontend API docs before generating frontend code
 
 When generating Drop-In frontend code, you **must** use the official frontend API documentation for the relevant payment method(s) as the source of truth for:
