@@ -75,12 +75,6 @@ Describe your payment needs to the AI agent:
 
 > I want to integrate PayerMax subscription billing for my SaaS product, with monthly card payments.
 
-The agent will ask follow-up questions to clarify:
-- Target country/market
-- Checkout page approach (cashier, drop-in)
-- Payment methods needed
-- For subscription: scenario type, payment method
-
 After confirmation, the agent handles the rest — clarifies requirements, generates a solution document, and produces implementation code.
 
 ## Supported Agents
