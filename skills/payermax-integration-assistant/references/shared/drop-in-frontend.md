@@ -214,11 +214,17 @@ When `customer_product == receipt_subscription` AND `payment_method_type` includ
 googlepayInstance.on('payButtonClick', async () => {
     const result = await googlepayInstance.emit('canMakePayment', {
         subscriptionPlan: {
-            planId: 'plan_xxx',           // subscription plan ID
-            planName: 'Monthly Premium',   // plan display name
-            billingCycle: 'MONTHLY',       // billing cycle
-            amount: '9.99',               // amount per period
-            currency: 'USD'               // currency
+            "subject": "subject",
+            "description": "PMMAX First Periodic Payment.",
+            "totalPeriods": 12,
+            "periodRule": {
+                "periodUnit": "M", // Payment frequency: Monthly (M), Daily (D), Weekly (W), Yearly (Y)
+                "periodCount": 1 // Payment every 1 month
+            },
+            "periodAmount": { // Fixed period payment amount
+                "amount": 404.35,
+                "currency": "SAR"
+            }
         },
         mitManagementUrl: 'https://merchant.com/manage-subscription' // merchant subscription management page URL
     });
