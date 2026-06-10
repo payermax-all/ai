@@ -35,12 +35,6 @@ npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant
 
 # Trae
 npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant -a trae
-
-# Qwen-code
-npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant -a qwen-code
-
-# Windsurf
-npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant -a windsurf
 ```
 
 ### Option 2: Manual Installation
@@ -53,13 +47,25 @@ git clone https://github.com/payermax-all/ai.git
 
 Then copy `skills/payermax-integration-assistant` to your agent's skills directory, for example:
 
-| Agent | Target Path |
-|---|---|
-| Kiro | `.kiro/skills/payermax-integration-assistant` |
-| Claude Code | `.claude/skills/payermax-integration-assistant` |
-| Codex | `.codex/skills/payermax-integration-assistant` |
-| Qoder | `.qoder/skills/payermax-integration-assistant` |
-| Trae | `.trae/skills/payermax-integration-assistant` |
+```bash
+# Claude Code
+.claude/skills/payermax-integration-assistant
+
+# Codex
+.codex/skills/payermax-integration-assistant
+
+# Kiro
+.kiro/skills/payermax-integration-assistant
+
+# Cursor
+.cursor/skills/payermax-integration-assistant
+
+# Qoder
+.qoder/skills/payermax-integration-assistant
+
+# Trae
+.trae/skills/payermax-integration-assistant
+```
 
 ## Usage
 
@@ -69,30 +75,20 @@ Describe your payment needs to the AI agent:
 
 > I want to integrate PayerMax subscription billing for my SaaS product, with monthly card payments.
 
-The AI will ask follow-up questions to clarify:
+The agent will ask follow-up questions to clarify:
 - Target country/market
 - Checkout page approach (cashier, drop-in)
 - Payment methods needed
 - For subscription: scenario type, payment method
 
-After confirmation, the AI generates the complete integration code.
+After confirmation, the agent handles the rest — clarifies requirements, generates a solution document, and produces implementation code.
 
-## Repository Structure
+## Supported Agents
 
-```
-skills/
-└── payermax-integration-assistant/    ← the skill
-    ├── SKILL.md                       ← entry point
-    ├── references/
-    │   ├── router.md
-    │   ├── shared/
-    │   ├── variants/
-    │   └── output/
-    └── shared-models/
-```
+Works with any agent that supports the [Agent Skills](https://agentskills.io/) standard, including Kiro, Cursor, Claude Code, Trae, Codex, and 60+ others.
 
 ## Resources
 
-- PayerMax Documentation: https://docs-v2.payermax.com
-- Developer Center: https://developer.payermax.com
-- Agent Skills Specification: https://agentskills.io
+- [PayerMax Documentation](https://docs-v2.payermax.com)
+- [PayerMax Developer Center](https://developer.payermax.com)
+- [Agent Skills Specification](https://agentskills.io)
