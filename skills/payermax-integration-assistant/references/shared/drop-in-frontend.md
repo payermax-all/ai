@@ -145,7 +145,21 @@ Apple Pay and Google Pay components may fail to load in certain environments (wr
 
 **Implementation guidance:**
 - When generating test/development instructions, remind the developer that Google Pay requires HTTPS (suggest using a local HTTPS proxy or tunnel like ngrok for testing)
-- When generating environment checks, detect protocol and browser/platform to show appropriate warnings before mounting wallet components
+- Do NOT perform a pre-check that prevents mounting — always attempt to mount the component and let the SDK determine availability via the `load` event
+- **Google Pay HTTPS check:** Google Pay will `load` successfully even on HTTP, but clicking the button will silently fail (payment sheet won't launch). Add a protocol check inside the `payButtonClick` handler — if `window.location.protocol !== 'https:'`, show a warning in the container instead of calling `canMakePayment`:
+  ```javascript
+  googlepayInstance.on('payButtonClick', async () => {
+      if (window.location.protocol !== 'https:') {
+          document.getElementById('googlepay-container').innerHTML =
+              '<div style="color:#856404;background:#fff3cd;padding:12px;border-radius:4px;">' +
+              '⚠️ Google Pay requires HTTPS. Payment sheet cannot launch over HTTP.</div>';
+          return;
+      }
+      // ... normal canMakePayment flow
+  });
+  ```
+- **Apple Pay:** In non-Safari/non-iOS environments, the `load` event returns `code !== 'SUCCESS'` and the button won't render. Display a message in the container:
+  - "Apple Pay failed to load. Requires iOS device or Safari browser on macOS."
 
 ### Single payment method case
 
@@ -200,11 +214,17 @@ When `customer_product == receipt_subscription` AND `payment_method_type` includ
 googlepayInstance.on('payButtonClick', async () => {
     const result = await googlepayInstance.emit('canMakePayment', {
         subscriptionPlan: {
-            planId: 'plan_xxx',           // subscription plan ID
-            planName: 'Monthly Premium',   // plan display name
-            billingCycle: 'MONTHLY',       // billing cycle
-            amount: '9.99',               // amount per period
-            currency: 'USD'               // currency
+            "subject": "subject",
+            "description": "PMMAX First Periodic Payment.",
+            "totalPeriods": 12,
+            "periodRule": {
+                "periodUnit": "M", // Payment frequency: Monthly (M), Daily (D), Weekly (W), Yearly (Y)
+                "periodCount": 1 // Payment every 1 month
+            },
+            "periodAmount": { // Fixed period payment amount
+                "amount": 404.35,
+                "currency": "SAR"
+            }
         },
         mitManagementUrl: 'https://merchant.com/manage-subscription' // merchant subscription management page URL
     });
