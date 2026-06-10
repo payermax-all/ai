@@ -12,7 +12,7 @@ Uses the [Agent Skills](https://agentskills.io/) open standard. Skills will be i
 npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant
 ```
 
-> **Note:** The `-a` flag syncs the skill to a specific agent's directory for discovery, but the source of truth remains `.agents/skills/`.
+> **Note:** The Agent Skills global installation mode (`-g` flag) has varying compatibility across different agents. We strongly recommend installing in project mode (default) or using Manual Installation below for the most reliable experience.
 
 ### Option 2: Manual Installation
 
