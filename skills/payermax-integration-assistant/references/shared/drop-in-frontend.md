@@ -146,9 +146,20 @@ Apple Pay and Google Pay components may fail to load in certain environments (wr
 **Implementation guidance:**
 - When generating test/development instructions, remind the developer that Google Pay requires HTTPS (suggest using a local HTTPS proxy or tunnel like ngrok for testing)
 - Do NOT perform a pre-check that prevents mounting — always attempt to mount the component and let the SDK determine availability via the `load` event
-- When the wallet component's `load` event returns `code !== 'SUCCESS'`, display a helpful message inside the component container explaining possible causes:
-  - Google Pay: "Google Pay failed to load. Possible cause: page must be served over HTTPS."
-  - Apple Pay: "Apple Pay failed to load. Possible cause: requires iOS device or Safari browser on macOS."
+- **Google Pay HTTPS check:** Google Pay will `load` successfully even on HTTP, but clicking the button will silently fail (payment sheet won't launch). Add a protocol check inside the `payButtonClick` handler — if `window.location.protocol !== 'https:'`, show a warning in the container instead of calling `canMakePayment`:
+  ```javascript
+  googlepayInstance.on('payButtonClick', async () => {
+      if (window.location.protocol !== 'https:') {
+          document.getElementById('googlepay-container').innerHTML =
+              '<div style="color:#856404;background:#fff3cd;padding:12px;border-radius:4px;">' +
+              '⚠️ Google Pay requires HTTPS. Payment sheet cannot launch over HTTP.</div>';
+          return;
+      }
+      // ... normal canMakePayment flow
+  });
+  ```
+- **Apple Pay:** In non-Safari/non-iOS environments, the `load` event returns `code !== 'SUCCESS'` and the button won't render. Display a message in the container:
+  - "Apple Pay failed to load. Requires iOS device or Safari browser on macOS."
 
 ### Single payment method case
 
