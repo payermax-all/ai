@@ -11,22 +11,55 @@ AI Skill for integrating PayerMax payment services. Supports standard acquiring 
 
 ## Install
 
-```bash
-npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant
-```
+### Option 1: Agent Skills CLI
 
-Or install to a specific agent:
+Uses the [Agent Skills](https://agentskills.io/) open standard. If your agent is not listed in the [Agent Skills Supported Agent List](https://github.com/vercel-labs/skills#supported-agents), please use *Option 2: Manual Installation* instead.
+
+Below are installation commands for common agents. For more agents, see the [Agent Skills Supported Agent List](https://github.com/vercel-labs/skills#supported-agents).
 
 ```bash
+# Claude Code
+npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant -a claude-code
+
+# Codex
+npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant -a codex
+
 # Kiro
 npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant -a kiro-cli
 
 # Cursor
 npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant -a cursor
 
+# Qoder
+npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant -a qoder
+
 # Trae
 npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant -a trae
+
+# Qwen-code
+npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant -a qwen-code
+
+# Windsurf
+npx skills add github.com/payermax-all/ai --skill payermax-integration-assistant -a windsurf
 ```
+
+### Option 2: Manual Installation
+
+Clone this repository and copy the skill directory into your agent's skills folder:
+
+```bash
+git clone https://github.com/payermax-all/ai.git
+```
+
+Then copy `skills/payermax-integration-assistant` to your agent's skills directory, for example:
+
+| Agent | Target Path |
+|---|---|
+| Kiro | `.kiro/skills/payermax-integration-assistant` |
+| Claude Code | `.claude/skills/payermax-integration-assistant` |
+| Codex | `.codex/skills/payermax-integration-assistant` |
+| Qoder | `.qoder/skills/payermax-integration-assistant` |
+| Trae | `.trae/skills/payermax-integration-assistant` |
 
 ## Usage
 
