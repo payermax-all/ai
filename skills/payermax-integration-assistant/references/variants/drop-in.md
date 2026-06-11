@@ -20,17 +20,17 @@ Use this variant when the merchant wants to embed PayerMax's pre-built payment U
 
 ### Step 2: Fetch API docs
 
-1. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderAndPay_for-drop-dont-copy-me_.md`
-2. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_applyDropinSession.md`
-3. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderConfirm.md`
-4. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderQuery.md`
-5. `https://docs.payermax.com/api/cn/collectResultNotifyUrl.md`
-6. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_confirmPayment.md`
-7. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refund.md`
-8. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refundQuery.md`
-9. `https://docs.payermax.com/api/cn/RefundResultNotifyUrl.md`
-10. `https://docs.payermax.com/api/cn/pageReturn.md`
-11. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_applyDDC.md`
+1. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderAndPay_for-drop-dont-copy-me_.md`
+2. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_applyDropinSession.md`
+3. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderConfirm.md`
+4. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderQuery.md`
+5. `https://docs.payermax.com/api/New%20Version/en/v1.0/collectResultNotifyUrl.md`
+6. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_confirmPayment.md`
+7. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refund.md`
+8. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refundQuery.md`
+9. `https://docs.payermax.com/api/New%20Version/en/v1.0/RefundResultNotifyUrl.md`
+10. `https://docs.payermax.com/api/New%20Version/en/v1.0/pageReturn.md`
+11. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_applyDDC.md`
 
 ## Product advantages
 

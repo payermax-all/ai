@@ -63,13 +63,13 @@ This doc contains the **complete integration flow** with request/response exampl
 
 ### Step 2: Fetch API docs
 
-1. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderAndPay.md`
-2. `https://docs.payermax.com/api/cn/collectResultNotifyUrl.md`
-3. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderQuery.md`
-4. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_removePaymentToken.md`
-5. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refund.md`
-6. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refundQuery.md`
-7. (If drop-in mode) `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_applyDropinSession.md`
+1. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderAndPay.md`
+2. `https://docs.payermax.com/api/New%20Version/en/v1.0/collectResultNotifyUrl.md`
+3. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderQuery.md`
+4. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_removePaymentToken.md`
+5. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refund.md`
+6. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refundQuery.md`
+7. (If drop-in mode) `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_applyDropinSession.md`
 
 ### Step 3 (conditional): If integration_mode == drop_in
 

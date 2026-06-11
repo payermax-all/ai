@@ -19,14 +19,14 @@ Use this variant when the merchant wants to generate payment links for customers
 
 ### Step 2: Fetch API docs
 
-1. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_createPaybylink.md`
-2. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_queryPaybylink.md`
-3. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_expirePaybylink.md`
-4. `https://docs.payermax.com/api/cn/payLinkResultNotifyUrl.md`
-5. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderQuery.md`
-6. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refund.md`
-7. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refundQuery.md`
-8. `https://docs.payermax.com/api/cn/RefundResultNotifyUrl.md`
+1. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_createPaybylink.md`
+2. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_queryPaybylink.md`
+3. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_expirePaybylink.md`
+4. `https://docs.payermax.com/api/New%20Version/en/v1.0/payLinkResultNotifyUrl.md`
+5. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderQuery.md`
+6. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refund.md`
+7. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refundQuery.md`
+8. `https://docs.payermax.com/api/New%20Version/en/v1.0/RefundResultNotifyUrl.md`
 
 ## Merchant behavior
 

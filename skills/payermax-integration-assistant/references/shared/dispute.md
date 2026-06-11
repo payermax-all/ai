@@ -16,9 +16,9 @@ Optional capability for handling payment disputes and chargebacks.
 
 ### Step 2: Fetch API docs
 
-1. `https://docs.payermax.com/api/cn/chargeBaclNotifyUrl.md`
-2. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_caseReplay.md`
-3. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_caseSearch.md`
+1. `https://docs.payermax.com/api/New%20Version/en/v1.0/chargeBaclNotifyUrl.md`
+2. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_caseReplay.md`
+3. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_caseSearch.md`
 
 ## Implementation focus
 

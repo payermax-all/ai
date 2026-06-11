@@ -29,12 +29,12 @@ Use this variant when the merchant builds their own checkout page and calls Paye
 
 ### Step 2: Fetch API docs
 
-1. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderAndPay_delSuffixStart1.md`
-2. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderQuery.md`
-3. `https://docs.payermax.com/api/cn/collectResultNotifyUrl.md`
-4. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refund.md`
-5. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refundQuery.md`
-6. `https://docs.payermax.com/api/cn/RefundResultNotifyUrl.md`
+1. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderAndPay_delSuffixStart1.md`
+2. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderQuery.md`
+3. `https://docs.payermax.com/api/New%20Version/en/v1.0/collectResultNotifyUrl.md`
+4. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refund.md`
+5. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refundQuery.md`
+6. `https://docs.payermax.com/api/New%20Version/en/v1.0/RefundResultNotifyUrl.md`
 
 ## Merchant behavior
 
