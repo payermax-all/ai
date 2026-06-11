@@ -14,9 +14,9 @@ Use this variant when the merchant wants to embed PayerMax's pre-built payment U
 
 | Topic | URL to fetch |
 |---|---|
-| Drop-In payment creation | `https://docs.payermax.com/en/doc-center/acquiring/start-integration/create-payment/frontend-component.md` |
-| Payment result (callback + query) | `https://docs.payermax.com/en/doc-center/acquiring/start-integration/related-capabilities/payment-result.md` |
-| Refund | `https://docs.payermax.com/en/doc-center/acquiring/start-integration/related-capabilities/refund.md` |
+| Drop-In payment creation | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/create-payment/frontend-component.md` |
+| Payment result (callback + query) | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/payment-result.md` |
+| Refund | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/refund.md` |
 
 ### Step 2: Fetch API docs
 

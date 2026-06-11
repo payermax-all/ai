@@ -215,7 +215,7 @@ Available options depend on Step 3 selection:
 > Please select one or more / 请选择一项或多项: **Card** / **ApplePay** / **GooglePay** / **APM**
 
 Agent internal reference (for fetching content, use `.md` URLs):
-- Payment method list: https://docs.payermax.com/en/doc-center/acquiring/payment-methods.md
+- Payment method list: https://docs.payermax.com/en/202506-version/acquiring/payment-methods.md
 - Subscription payment methods: https://docs-v2.payermax.com/en/doc-center/acquiring/subscription.md
 
 Wait for user selection. Set `payment_method_type` accordingly.
@@ -628,8 +628,8 @@ Key format reference: https://docs-v2.payermax.com/en/doc-center/developer/confi
 #### Mandatory inline code comments (paste verbatim)
 
 Complete the configuration file:
-- For `appId`/`merchantNo`/payermax-public-key: `Obtain sandbox appId, merchantNo, and the PayerMax public key from the PayerMax Developer Center; see https://docs.payermax.com/en/doc-center/acquiring/integration-guide.md#_3-2-%E6%B3%A8%E5%86%8C%E6%88%90%E4%B8%BA%E5%BC%80%E5%8F%91%E8%80%85`
-- For `merchant-public-key`/`merchant-private-key`: generate your key pair, and upload your public key in the PayerMax Developer Center; see https://docs.payermax.com/en/doc-center/acquiring/integration-guide.md#_3-4-1-%E9%85%8D%E7%BD%AE%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E7%9A%84%E5%AF%86%E9%92%A5%E4%BF%A1%E6%81%AF`
+- For `appId`/`merchantNo`/payermax-public-key: `Obtain sandbox appId, merchantNo, and the PayerMax public key from the PayerMax Developer Center; see https://docs.payermax.com/en/202506-version/acquiring/integration-guide.md#_3-2-%E6%B3%A8%E5%86%8C%E6%88%90%E4%B8%BA%E5%BC%80%E5%8F%91%E8%80%85`
+- For `merchant-public-key`/`merchant-private-key`: generate your key pair, and upload your public key in the PayerMax Developer Center; see https://docs.payermax.com/en/202506-version/acquiring/integration-guide.md#_3-4-1-%E9%85%8D%E7%BD%AE%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E7%9A%84%E5%AF%86%E9%92%A5%E4%BF%A1%E6%81%AF`
 
 #### Pre-call request validation (mandatory)
 
@@ -722,8 +722,8 @@ All fetch URLs are self-contained in each variant file's "Fetch docs before writ
 
 | Topic | URL |
 | --- | --- |
-| Integration guide (envelope, signing, environment) | https://docs.payermax.com/en/doc-center/acquiring/integration-guide.md |
-| Key pair configuration | https://docs.payermax.com/en/doc-center/developer/config-settings.md |
+| Integration guide (envelope, signing, environment) | https://docs.payermax.com/en/202506-version/acquiring/integration-guide.md |
+| Key pair configuration | https://docs.payermax.com/en/202506-version/developer/config-settings.md |
 | Supported Countries, Currencies and Languages | https://docs-v2.payermax.com/en/doc-center/appendix/collection/supported-country-region-currency.md |
 | Test simulation rules | https://docs-v2.payermax.com/en/doc-center/receipt/test-cases.md |
 | Transaction Status & ErrorCode | https://docs-v2.payermax.com/en/doc-center/appendix/collection/transaction-status.md |

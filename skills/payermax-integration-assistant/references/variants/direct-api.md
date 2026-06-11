@@ -14,12 +14,12 @@ Use this variant when the merchant builds their own checkout page and calls Paye
 
 | Topic | URL to fetch |
 |---|---|
-| Direct API integration overview | `https://docs.payermax.com/en/doc-center/acquiring/start-integration/create-payment/direct-api.md` |
-| Card direct API | `https://docs.payermax.com/en/doc-center/acquiring/start-integration/integrate-by-payment-method/card/direct-api.md` |
-| GooglePay direct API | `https://docs.payermax.com/en/doc-center/acquiring/start-integration/integrate-by-payment-method/googlepay/direct-api.md` |
-| ApplePay direct API | `https://docs.payermax.com/en/doc-center/acquiring/start-integration/integrate-by-payment-method/applepay/direct-api.md` |
-| Payment result (callback + query) | `https://docs.payermax.com/en/doc-center/acquiring/start-integration/related-capabilities/payment-result.md` |
-| Refund | `https://docs.payermax.com/en/doc-center/acquiring/start-integration/related-capabilities/refund.md` |
+| Direct API integration overview | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/create-payment/direct-api.md` |
+| Card direct API | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/integrate-by-payment-method/card/direct-api.md` |
+| GooglePay direct API | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/integrate-by-payment-method/googlepay/direct-api.md` |
+| ApplePay direct API | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/integrate-by-payment-method/applepay/direct-api.md` |
+| Payment result (callback + query) | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/payment-result.md` |
+| Refund | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/refund.md` |
 
 **Conditional fetch based on payment method type:**
 - If Card selected → must fetch Card direct API doc

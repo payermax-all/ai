@@ -19,7 +19,7 @@ Specified via `componentList` in the `/applyDropinSession` request.
    <script src="https://cdn.payermax.com/dropin/js/pmdropin.min.js"></script>
    ```
    This is the **single official CDN URL** for both sandbox and production environments. Do not use `cdn-sandbox.payermax.com` or any other subdomain — the SDK detects the environment from the `sandbox` parameter passed to `PMdropin.create()`.
-   Source: https://docs.payermax.com/en/doc-center/acquiring/start-integration/create-payment/frontend-component.md
+   Source: https://docs.payermax.com/en/202506-version/acquiring/start-integration/create-payment/frontend-component.md
 2. Call `PMdropin.create(type, { clientKey, sessionKey, sandbox, ... })` — **save the returned instance**
 3. Call `instance.mount(selector)` to render into the merchant page
 4. Listen to `instance.on('form-check', callback)` for form validity
@@ -368,7 +368,7 @@ The corresponding JavaScript for `displayTestCard()`:
 ```javascript
 /**
  * TEST_CARDS data: populate this from the official test card list at
- * https://docs.payermax.com/en/doc-center/receipt/test-cases.md (section 2.2 Card)
+ * https://docs.payermax.com/en/202506-version/receipt/test-cases.md (section 2.2 Card)
  *
  * When generating this code, fetch the test-cases.md page and extract ALL card
  * entries from the "2.2 Card" section. Each table row becomes one entry below.
@@ -378,7 +378,7 @@ const TEST_CARDS = [
   // Example structure — replace with ALL entries from official doc section 2.2:
   // { label: 'Visa', number: '4444333322221111', name: 'James Smith', expiry: '03/30', cvv: '123' },
   // { label: 'Mastercard', number: '5555555555554444', name: 'Allen Black', expiry: '11/26', cvv: '357' },
-  // ... include ALL cards from https://docs.payermax.com/en/doc-center/receipt/test-cases.md section 2.2
+  // ... include ALL cards from https://docs.payermax.com/en/202506-version/receipt/test-cases.md section 2.2
 ];
 
 function initTestCardSelector() {
@@ -411,7 +411,7 @@ function displayTestCard() {
 document.addEventListener('DOMContentLoaded', initTestCardSelector);
 ```
 
-**Important:** When generating this code, the agent must populate `TEST_CARDS` with **all** card entries from the official test cases document at `https://docs.payermax.com/en/doc-center/receipt/test-cases.md` (section "2.2 Card"). Do not hardcode only a few cards — include every card brand and variant listed in that section.
+**Important:** When generating this code, the agent must populate `TEST_CARDS` with **all** card entries from the official test cases document at `https://docs.payermax.com/en/202506-version/receipt/test-cases.md` (section "2.2 Card"). Do not hardcode only a few cards — include every card brand and variant listed in that section.
 
 **Panel visibility rule:** only render the test panel when `sandbox: true` is configured. In production mode it must not appear.
 
