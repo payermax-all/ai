@@ -52,10 +52,10 @@ Based on the user's selected payment method type, fetch the corresponding integr
 
 | Payment Method | URL to fetch |
 |---|---|
-| CARD | `https://docs-v2.payermax.com/en/doc-center/receipt/subscription/auto-debit-integration.md` |
-| APM | `https://docs-v2.payermax.com/en/doc-center/receipt/subscription/apm/auto-debit-integration.md` |
-| APPLEPAY | `https://docs-v2.payermax.com/en/doc-center/receipt/subscription/applepay/auto-debit-integration.md` |
-| GOOGLEPAY | `https://docs-v2.payermax.com/en/doc-center/receipt/subscription/googlepay/auto-debit-integration.md` |
+| CARD | `https://docs.payermax.com/en/202506-version/receipt/subscription/auto-debit-integration.md` |
+| APM | `https://docs.payermax.com/en/202506-version/receipt/subscription/apm/auto-debit-integration.md` |
+| APPLEPAY | `https://docs.payermax.com/en/202506-version/receipt/subscription/applepay/auto-debit-integration.md` |
+| GOOGLEPAY | `https://docs.payermax.com/en/202506-version/receipt/subscription/googlepay/auto-debit-integration.md` |
 
 **Note:** When `integration_mode == drop_in` and GOOGLEPAY or APPLEPAY is selected, the frontend `canMakePayment` call requires `mitManagementUrl` parameter (unlike merchant-manage, `subscriptionPlan` is not required for non-periodic auto debit). The fetched integration doc (Step 1 URL above) contains the authoritative frontend example code — use it as-is for `canMakePayment` parameters. See `references/shared/drop-in-frontend.md` section "Subscription-specific: Google Pay canMakePayment parameters" for details.
 
@@ -75,7 +75,7 @@ This doc contains the **complete integration flow** with request/response exampl
 
 If the selected integration mode is `drop_in`, you MUST additionally:
 
-1. Fetch the Drop-In frontend integration doc: `https://docs-v2.payermax.com/en/doc-center/acquiring/start-integration/create-payment/frontend-component.md`
+1. Fetch the Drop-In frontend integration doc: `https://docs.payermax.com/en/202506-version/acquiring/start-integration/create-payment/frontend-component.md`
 2. Read the local shared reference file: `references/shared/drop-in-frontend.md` — contains the official CDN URL, SDK initialization pattern, API version requirements, payment result handling, and test panel template.
 
 **Hard rule:** Do NOT generate any Drop-In frontend code without completing Step 3. The frontend SDK has specific API surfaces (`PMdropin.create`, `mount`, `on`, `emit`) that cannot be guessed from general patterns.

@@ -35,12 +35,12 @@ Public Key:  ⚠️ TODO — generate via https://developer.payermax.com/devtool
 
 1. **Register account**: Visit [PayerMax Developer Center](https://developer.payermax.com)
 2. **Create application**: Obtain `app-id` and `merchant-no`
-3. **Uploadhttps://docs-v2.payermax.com/en/doc-center/receipt/test-cases.html public key**: Copy the merchant public key from your config to the Developer Center
+3. **Uploadhttps://docs.payermax.com/en/202506-version/receipt/test-cases.html public key**: Copy the merchant public key from your config to the Developer Center
 4. **Download PayerMax public key**: Fill into `payermax-public-key` in your config
 <!-- Include if product = Subscription -->
 5. **Enable subscription capability**: Contact PayerMax support to enable subscription for your merchant account
 
-Reference: https://docs-v2.payermax.com/en/doc-center/acquiring/integration-guide.html
+Reference: https://docs.payermax.com/en/202506-version/acquiring/integration-guide.html
 
 ### Step 2: Update configuration
 
@@ -77,7 +77,7 @@ Expected: each API endpoint returns a response (business-level errors are OK —
 - **Control payment result**: Use the `subject` field in the `/orderAndPay` request to simulate different outcomes (`SUCCESS` / `FAILED` / `PENDING` / `3DS`)
 - **Refund simulation**: Use local currency amount `10000` or `102` to trigger refund failure, `20000` or `202` to trigger refund pending; other amounts default to refund success
 - **Full test card numbers, APM simulation rules, Apple Pay / Google Pay sandbox setup** — see:
-  https://docs-v2.payermax.com/en/doc-center/receipt/test-cases.html
+  https://docs.payermax.com/en/202506-version/receipt/test-cases.html
 
 <!-- Include the section matching the integration mode / product -->
 
@@ -113,7 +113,7 @@ Expected: each API endpoint returns a response (business-level errors are OK —
 
 Full sandbox testing guide (test card numbers, APM simulation, Apple Pay / Google Pay sandbox setup, refund simulation rules):
 
-👉 https://docs-v2.payermax.com/en/doc-center/receipt/test-cases.html
+👉 https://docs.payermax.com/en/202506-version/receipt/test-cases.html
 
 Key points:
 - The `subject` field controls payment result simulation (applies to all payment methods)

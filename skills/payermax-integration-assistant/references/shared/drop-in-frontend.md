@@ -268,10 +268,10 @@ When generating Drop-In frontend code, you **must** use the official frontend AP
 
 | Payment method | Fetch this URL |
 | --- | --- |
-| CARD | `https://docs-v2.payermax.com/en/doc-center/receipt/front-end-component/configuration-card.md` |
-| GOOGLEPAY | `https://docs-v2.payermax.com/en/doc-center/receipt/front-end-component/configuration-googlepay.md` |
-| APPLEPAY | `https://docs-v2.payermax.com/en/doc-center/receipt/front-end-component/configuration-applepay.md` |
-| Customization (styling, locale) | `https://docs-v2.payermax.com/en/doc-center/receipt/front-end-component/customization.md` |
+| CARD | `https://docs.payermax.com/en/202506-version/receipt/front-end-component/configuration-card.md` |
+| GOOGLEPAY | `https://docs.payermax.com/en/202506-version/receipt/front-end-component/configuration-googlepay.md` |
+| APPLEPAY | `https://docs.payermax.com/en/202506-version/receipt/front-end-component/configuration-applepay.md` |
+| Customization (styling, locale) | `https://docs.payermax.com/en/202506-version/receipt/front-end-component/customization.md` |
 
 If a fetch fails, mark the frontend code section as `verify-against-frontend-docs` and do not invent parameter names.
 
@@ -442,7 +442,7 @@ The test subject value must flow through the entire chain:
 3. **Backend (create order handler)** → persist the subject value on the order record
 4. **Backend (submitPayment / orderAndPay call)** → use the persisted subject value as `data.subject` in the `/orderAndPay` request payload. Do NOT hardcode subject.
 
-Source: https://docs-v2.payermax.com/en/doc-center/receipt/test-cases.md (section 1.1)
+Source: https://docs.payermax.com/en/202506-version/receipt/test-cases.md (section 1.1)
 
 **Card auto-fill limitation:** The Drop-In card form runs inside a PayerMax-controlled iframe. Due to cross-origin security restrictions, the merchant page JavaScript **cannot** programmatically fill card fields. The SDK does NOT expose a `setCardInfo` or similar API. The test card selector must display card details for **manual copy** only.
 

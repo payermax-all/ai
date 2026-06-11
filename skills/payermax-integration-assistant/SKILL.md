@@ -92,8 +92,8 @@ Analyze the project for subscription signals (keywords: subscription, recurring,
 > | **Standard Acquiring（标准收单）** | One-time payment collection via checkout page or embedded components / 通过收银页面或嵌入式组件进行一次性收款 | E-commerce, digital goods, one-time purchases / 电商、数字商品、一次性购买 |
 > | **Subscription（商家代扣）** | Recurring billing with automatic or merchant-initiated deductions / 自动或商户发起的周期性扣款 | SaaS, streaming, memberships, usage-based billing / SaaS、流媒体、会员、按量计费 |
 >
-> Product overview: https://docs-v2.payermax.com/en/doc-center/acquiring/introduction/integration-mode.html
-> Subscription overview: https://docs-v2.payermax.com/en/doc-center/receipt/subscription/subscription-pmx-management.html
+> Product overview: https://docs.payermax.com/en/202506-version/acquiring/introduction/integration-mode.html
+> Subscription overview: https://docs.payermax.com/en/202506-version/receipt/subscription/subscription-pmx-management.html
 >
 > Please select one / 请选择一项: **Standard Acquiring（标准收单）** / **Subscription（商家代扣）**
 
@@ -119,7 +119,7 @@ Wait for user selection. Then:
 > | **merchant_manage_plan（商户管理订阅计划）** | Merchant controls billing timing; binds payment method first, then initiates each periodic debit via token / 商户控制扣款时机；先绑定支付方式，再通过 token 发起每次周期扣款 | Custom billing logic, variable amounts per period / 自定义计费逻辑，每期金额可变 |
 > | **non_periodic_auto_debit（非周期性自动扣款）** | Merchant initiates on-demand debits using stored token; no fixed schedule / 商户使用存储的 token 按需发起扣款；无固定周期 | Usage-based billing, top-ups, pay-as-you-go / 按量计费、充值、按需付费 |
 >
-> Scenarios comparison: https://docs-v2.payermax.com/en/doc-center/receipt/subscription/subscription-overview.html
+> Scenarios comparison: https://docs.payermax.com/en/202506-version/receipt/subscription/subscription-overview.html
 >
 > Please select one / 请选择一项: **pmx_manage_plan** / **merchant_manage_plan** / **non_periodic_auto_debit**
 
@@ -148,8 +148,8 @@ Analyze the project for frontend complexity signals (custom checkout page with c
 > | **paybylink（链接支付）** | Generate a payment link that users access via URL or QR code; PayerMax hosts the payment page / 生成支付链接，用户通过 URL 或二维码访问；PayerMax 托管支付页面 | Offline scenarios, social sharing, no redirect flow needed; supports all payment methods; Standard Acquiring only (not available for Subscription) / 线下场景、社交分享、无需重定向流程；支持所有支付方式；仅标准收单可用（订阅代扣不可用） |
 > | **direct_api（纯API）** | Merchant builds their own checkout page; full control over UX; requires handling redirects and 3DS/wallet authentication / 商户自建收银页面；完全控制 UX；需处理重定向和 3DS/钱包认证 | Maximum customization; higher development cost / 最大化定制；开发成本较高 |
 >
-> Checkout Page Construction Method comparison: https://docs-v2.payermax.com/en/doc-center/acquiring/introduction/integration-mode.html
-> Drop-In component guide: https://docs-v2.payermax.com/en/doc-center/acquiring/start-integration/create-payment/frontend-component.html
+> Checkout Page Construction Method comparison: https://docs.payermax.com/en/202506-version/acquiring/introduction/integration-mode.html
+> Drop-In component guide: https://docs.payermax.com/en/202506-version/acquiring/start-integration/create-payment/frontend-component.html
 > Live demo (try each checkout experience): https://docs.payermax.com/payDemo/index.html
 >
 > Please select one / 请选择一项: **cashier-full_payment_method（全量收银台）** / **cashier-specified_payment_method（指定支付方式）** / **drop_in（前置组件）** / **paybylink（链接支付）** / **direct_api（纯API）**
@@ -187,9 +187,9 @@ Available options depend on Step 3 selection:
 >
 > ⚠️ Note: APM is not available in drop_in mode. / 注意：APM 在前置组件模式下不可用。
 >
-> Payment method list: https://docs-v2.payermax.com/en/doc-center/acquiring/payment-methods.html
-> Subscription payment methods: https://docs-v2.payermax.com/en/doc-center/acquiring/subscription.html
-> Supported countries & currencies: https://docs-v2.payermax.com/en/doc-center/appendix/collection/supported-country-region-currency.html
+> Payment method list: https://docs.payermax.com/en/202506-version/acquiring/payment-methods.html
+> Subscription payment methods: https://docs.payermax.com/en/202506-version/acquiring/subscription.html
+> Supported countries & currencies: https://docs.payermax.com/en/202506-version/appendix/collection/supported-country-region-currency.html
 >
 > Please select one or more / 请选择一项或多项: **Card** / **ApplePay** / **GooglePay**
 
@@ -208,15 +208,15 @@ Available options depend on Step 3 selection:
 > | **GooglePay** | Google Pay (requires Android 8+ / Chrome 90+ for subscription) | Global / 全球 |
 > | **APM（本地支付方式）** | Local payment methods: e-wallets (DANA, KakaoPay, NaverPay, TNG, etc.), bank transfer, etc. / 本地支付方式：电子钱包（DANA、KakaoPay、NaverPay、TNG 等）、银行转账等 | Region-specific / 特定地区 |
 >
-> Payment method list: https://docs-v2.payermax.com/en/doc-center/acquiring/payment-methods.html
-> Subscription payment methods: https://docs-v2.payermax.com/en/doc-center/acquiring/subscription.html
-> Supported countries & currencies: https://docs-v2.payermax.com/en/doc-center/appendix/collection/supported-country-region-currency.html
+> Payment method list: https://docs.payermax.com/en/202506-version/acquiring/payment-methods.html
+> Subscription payment methods: https://docs.payermax.com/en/202506-version/acquiring/subscription.html
+> Supported countries & currencies: https://docs.payermax.com/en/202506-version/appendix/collection/supported-country-region-currency.html
 >
 > Please select one or more / 请选择一项或多项: **Card** / **ApplePay** / **GooglePay** / **APM**
 
 Agent internal reference (for fetching content, use `.md` URLs):
 - Payment method list: https://docs.payermax.com/en/202506-version/acquiring/payment-methods.md
-- Subscription payment methods: https://docs-v2.payermax.com/en/doc-center/acquiring/subscription.md
+- Subscription payment methods: https://docs.payermax.com/en/202506-version/acquiring/subscription.md
 
 Wait for user selection. Set `payment_method_type` accordingly.
 
@@ -251,8 +251,8 @@ Wait for user selection. Set `payment_method_type` accordingly.
 > | Brazil / 巴西 | MercadoPago, PIX |
 > | Other / 其他 | See full list in docs below |
 >
-> Full payment method list: https://docs-v2.payermax.com/en/doc-center/acquiring/payment-methods.html
-> Supported countries & currencies: https://docs-v2.payermax.com/en/doc-center/appendix/collection/supported-country-region-currency.html
+> Full payment method list: https://docs.payermax.com/en/202506-version/acquiring/payment-methods.html
+> Supported countries & currencies: https://docs.payermax.com/en/202506-version/appendix/collection/supported-country-region-currency.html
 >
 > Please specify payment method names or countries / 请输入支付方式名称或国家:
 
@@ -598,7 +598,7 @@ rm -f /tmp/pmx_sig_test.bin
   # TODO: Generate keypair using one of these methods:
   #   1. Online: https://developer.payermax.com/devtool/generate
   #   2. SDK: Java/PHP SDK createKeyPair method
-  #   3. OpenSSL: see https://docs-v2.payermax.com/en/doc-center/developer/config-settings.md
+  #   3. OpenSSL: see https://docs.payermax.com/en/202506-version/developer/config-settings.md
   ```
 
 **Hard rules:**
@@ -623,7 +623,7 @@ Valid key string characteristics:
 - Both must be decodable as valid DER-encoded keys
 - The keypair must be mathematically matched (sign with private → verify with public)
 
-Key format reference: https://docs-v2.payermax.com/en/doc-center/developer/config-settings.md
+Key format reference: https://docs.payermax.com/en/202506-version/developer/config-settings.md
 
 #### Mandatory inline code comments (paste verbatim)
 
@@ -724,7 +724,7 @@ All fetch URLs are self-contained in each variant file's "Fetch docs before writ
 | --- | --- |
 | Integration guide (envelope, signing, environment) | https://docs.payermax.com/en/202506-version/acquiring/integration-guide.md |
 | Key pair configuration | https://docs.payermax.com/en/202506-version/developer/config-settings.md |
-| Supported Countries, Currencies and Languages | https://docs-v2.payermax.com/en/doc-center/appendix/collection/supported-country-region-currency.md |
-| Test simulation rules | https://docs-v2.payermax.com/en/doc-center/receipt/test-cases.md |
-| Transaction Status & ErrorCode | https://docs-v2.payermax.com/en/doc-center/appendix/collection/transaction-status.md |
-| Issuer Response Code (CARD only) | https://docs-v2.payermax.com/en/doc-center/appendix/collection/issuer-response-code.md |
+| Supported Countries, Currencies and Languages | https://docs.payermax.com/en/202506-version/appendix/collection/supported-country-region-currency.md |
+| Test simulation rules | https://docs.payermax.com/en/202506-version/receipt/test-cases.md |
+| Transaction Status & ErrorCode | https://docs.payermax.com/en/202506-version/appendix/collection/transaction-status.md |
+| Issuer Response Code (CARD only) | https://docs.payermax.com/en/202506-version/appendix/collection/issuer-response-code.md |
