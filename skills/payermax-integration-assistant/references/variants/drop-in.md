@@ -14,23 +14,23 @@ Use this variant when the merchant wants to embed PayerMax's pre-built payment U
 
 | Topic | URL to fetch |
 |---|---|
-| Drop-In payment creation | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/create-payment/frontend-component.md` |
-| Payment result (callback + query) | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/related-capabilities/payment-result.md` |
-| Refund | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/related-capabilities/refund.md` |
+| Drop-In payment creation | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/create-payment/frontend-component.md` |
+| Payment result (callback + query) | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/payment-result.md` |
+| Refund | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/refund.md` |
 
 ### Step 2: Fetch API docs
 
-1. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderAndPay_for-drop-dont-copy-me_.md`
-2. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_applyDropinSession.md`
-3. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderConfirm.md`
-4. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderQuery.md`
-5. `https://docs.payermax.com/api/cn/collectResultNotifyUrl.md`
-6. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_confirmPayment.md`
-7. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refund.md`
-8. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refundQuery.md`
-9. `https://docs.payermax.com/api/cn/RefundResultNotifyUrl.md`
-10. `https://docs.payermax.com/api/cn/pageReturn.md`
-11. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_applyDDC.md`
+1. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderAndPay_for-drop-dont-copy-me_.md`
+2. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_applyDropinSession.md`
+3. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderConfirm.md`
+4. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderQuery.md`
+5. `https://docs.payermax.com/api/New%20Version/en/v1.0/collectResultNotifyUrl.md`
+6. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_confirmPayment.md`
+7. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refund.md`
+8. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refundQuery.md`
+9. `https://docs.payermax.com/api/New%20Version/en/v1.0/RefundResultNotifyUrl.md`
+10. `https://docs.payermax.com/api/New%20Version/en/v1.0/pageReturn.md`
+11. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_applyDDC.md`
 
 ## Product advantages
 

@@ -57,10 +57,10 @@ Based on the user's selected payment method type, fetch the corresponding integr
 
 | Payment Method | URL to fetch |
 |---|---|
-| CARD | `https://docs-v2.payermax.com/en/doc-center/receipt/subscription/subscription-integration.md` |
-| APM | `https://docs-v2.payermax.com/en/doc-center/receipt/subscription/apm/subscription-integration.md` |
-| APPLEPAY | `https://docs-v2.payermax.com/en/doc-center/receipt/subscription/applepay/subscription-pmx-management.md` |
-| GOOGLEPAY | `https://docs-v2.payermax.com/en/doc-center/receipt/subscription/googlepay/subscription-pmx-management.md` |
+| CARD | `https://docs.payermax.com/en/202506-version/receipt/subscription/subscription-integration.md` |
+| APM | `https://docs.payermax.com/en/202506-version/receipt/subscription/apm/subscription-integration.md` |
+| APPLEPAY | `https://docs.payermax.com/en/202506-version/receipt/subscription/applepay/subscription-pmx-management.md` |
+| GOOGLEPAY | `https://docs.payermax.com/en/202506-version/receipt/subscription/googlepay/subscription-pmx-management.md` |
 
 **Note:** When `integration_mode == drop_in` and GOOGLEPAY or APPLEPAY is selected, the frontend `canMakePayment` call requires additional `subscriptionPlan` and `mitManagementUrl` parameters. The fetched integration doc (Step 1 URL above) contains the authoritative frontend example code — use it as-is for `canMakePayment` parameters. See `references/shared/drop-in-frontend.md` section "Subscription-specific: Google Pay canMakePayment parameters" for details.
 
@@ -68,22 +68,22 @@ This doc contains the **complete integration flow** with request/response exampl
 
 ### Step 2: Fetch API docs
 
-1. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_subscriptionCreate.md`
-2. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderAndPay.md`
-3. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_subscriptionQuery.md`
-4. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_subscriptionCancel.md`
-5. `https://docs.payermax.com/api/cn/subscriptionPaymentResultNotifyUrl.md`
-6. `https://docs.payermax.com/api/cn/subscriptionResultNotifyUrl.md`
-7. `https://docs.payermax.com/api/cn/collectResultNotifyUrl.md`
-8. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refund.md`
-9. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refundQuery.md`
-10. (If drop-in mode) `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_applyDropinSession.md`
+1. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_subscriptionCreate.md`
+2. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderAndPay.md`
+3. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_subscriptionQuery.md`
+4. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_subscriptionCancel.md`
+5. `https://docs.payermax.com/api/New%20Version/en/v1.0/subscriptionPaymentResultNotifyUrl.md`
+6. `https://docs.payermax.com/api/New%20Version/en/v1.0/subscriptionResultNotifyUrl.md`
+7. `https://docs.payermax.com/api/New%20Version/en/v1.0/collectResultNotifyUrl.md`
+8. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refund.md`
+9. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refundQuery.md`
+10. (If drop-in mode) `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_applyDropinSession.md`
 
 ### Step 3 (conditional): If integration_mode == drop_in
 
 If the selected integration mode is `drop_in`, you MUST additionally:
 
-1. Fetch the Drop-In frontend integration doc: `https://docs-v2.payermax.com/en/doc-center/acquiring/start-integration/create-payment/frontend-component.md`
+1. Fetch the Drop-In frontend integration doc: `https://docs.payermax.com/en/202506-version/acquiring/start-integration/create-payment/frontend-component.md`
 2. Read the local shared reference file: `references/shared/drop-in-frontend.md` — contains the official CDN URL, SDK initialization pattern, API version requirements, payment result handling, and test panel template.
 
 **Hard rule:** Do NOT generate any Drop-In frontend code without completing Step 3. The frontend SDK has specific API surfaces (`PMdropin.create`, `mount`, `on`, `emit`) that cannot be guessed from general patterns.

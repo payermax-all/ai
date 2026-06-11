@@ -8,17 +8,17 @@ Optional capability for handling payment disputes and chargebacks.
 
 | Topic | URL to fetch |
 |---|---|
-| Dispute introduction | `https://docs.payermax.com/doc-center/receipt/chargeback/introduction.md` |
-| Backend notification | `https://docs.payermax.com/doc-center/receipt/chargeback/backend-notification.md` |
-| Inquiry handling | `https://docs.payermax.com/doc-center/receipt/chargeback/inquiry.md` |
-| Retrieval response | `https://docs.payermax.com/doc-center/receipt/chargeback/retrieval-response.md` |
-| Response codes | `https://docs.payermax.com/doc-center/receipt/chargeback/response-code.md` |
+| Dispute introduction | `https://docs.payermax.com/en/202506-version/receipt/chargeback/introduction.md` |
+| Backend notification | `https://docs.payermax.com/en/202506-version/receipt/chargeback/backend-notification.md` |
+| Inquiry handling | `https://docs.payermax.com/en/202506-version/receipt/chargeback/inquiry.md` |
+| Retrieval response | `https://docs.payermax.com/en/202506-version/receipt/chargeback/retrieval-response.md` |
+| Response codes | `https://docs.payermax.com/en/202506-version/receipt/chargeback/response-code.md` |
 
 ### Step 2: Fetch API docs
 
-1. `https://docs.payermax.com/api/cn/chargeBaclNotifyUrl.md`
-2. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_caseReplay.md`
-3. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_caseSearch.md`
+1. `https://docs.payermax.com/api/New%20Version/en/v1.0/chargeBaclNotifyUrl.md`
+2. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_caseReplay.md`
+3. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_caseSearch.md`
 
 ## Implementation focus
 

@@ -14,12 +14,12 @@ Use this variant when the merchant builds their own checkout page and calls Paye
 
 | Topic | URL to fetch |
 |---|---|
-| Direct API integration overview | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/create-payment/direct-api.md` |
-| Card direct API | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/integrate-by-payment-method/card/direct-api.md` |
-| GooglePay direct API | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/integrate-by-payment-method/googlepay/direct-api.md` |
-| ApplePay direct API | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/integrate-by-payment-method/applepay/direct-api.md` |
-| Payment result (callback + query) | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/related-capabilities/payment-result.md` |
-| Refund | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/related-capabilities/refund.md` |
+| Direct API integration overview | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/create-payment/direct-api.md` |
+| Card direct API | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/integrate-by-payment-method/card/direct-api.md` |
+| GooglePay direct API | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/integrate-by-payment-method/googlepay/direct-api.md` |
+| ApplePay direct API | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/integrate-by-payment-method/applepay/direct-api.md` |
+| Payment result (callback + query) | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/payment-result.md` |
+| Refund | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/refund.md` |
 
 **Conditional fetch based on payment method type:**
 - If Card selected → must fetch Card direct API doc
@@ -29,12 +29,12 @@ Use this variant when the merchant builds their own checkout page and calls Paye
 
 ### Step 2: Fetch API docs
 
-1. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderAndPay_delSuffixStart1.md`
-2. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderQuery.md`
-3. `https://docs.payermax.com/api/cn/collectResultNotifyUrl.md`
-4. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refund.md`
-5. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refundQuery.md`
-6. `https://docs.payermax.com/api/cn/RefundResultNotifyUrl.md`
+1. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderAndPay_delSuffixStart1.md`
+2. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderQuery.md`
+3. `https://docs.payermax.com/api/New%20Version/en/v1.0/collectResultNotifyUrl.md`
+4. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refund.md`
+5. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refundQuery.md`
+6. `https://docs.payermax.com/api/New%20Version/en/v1.0/RefundResultNotifyUrl.md`
 
 ## Merchant behavior
 

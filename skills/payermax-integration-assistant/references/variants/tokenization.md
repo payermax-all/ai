@@ -27,21 +27,21 @@ If the profile says `full_payment_method`, stop and rewrite to `specified_paymen
 | Tokenization - Cashier Payment Integration | `https://docs-v2.payermax.com/en/202506-version/receipt/tokenization/cashier.md` |
 | Tokenization - Direct API Payment Integration | `https://docs-v2.payermax.com/en/202506-version/receipt/tokenization/direct-api.md` |
 | Tokenization - Drop In Payment Integration | `https://docs-v2.payermax.com/en/202506-version/receipt/tokenization/frontend-component.md` |
-| Payment result (callback + query) | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/related-capabilities/payment-result.md` |
-| Refund | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/related-capabilities/refund.md` |
+| Payment result (callback + query) | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/payment-result.md` |
+| Refund | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/refund.md` |
 
 ### Step 2: Fetch API docs
 
-1. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderAndPay.md`
-2. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderConfirm.md`
-3. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_orderQuery.md`
-4. `https://docs.payermax.com/api/cn/collectResultNotifyUrl.md`
-5. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_confirmPayment.md`
-6. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refund.md`
-7. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_refundQuery.md`
-8. `https://docs.payermax.com/api/cn/RefundResultNotifyUrl.md`
-9. `https://docs.payermax.com/api/cn/pageReturn.md`
-10. `https://docs.payermax.com/api/cn/aggregate-pay_api_gateway_applyDDC.md`
+1. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderAndPay.md`
+2. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderConfirm.md`
+3. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_orderQuery.md`
+4. `https://docs.payermax.com/api/New%20Version/en/v1.0/collectResultNotifyUrl.md`
+5. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_confirmPayment.md`
+6. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refund.md`
+7. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_refundQuery.md`
+8. `https://docs.payermax.com/api/New%20Version/en/v1.0/RefundResultNotifyUrl.md`
+9. `https://docs.payermax.com/api/New%20Version/en/v1.0/pageReturn.md`
+10. `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_applyDDC.md`
 
 ## Required routing consequences
 
