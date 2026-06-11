@@ -20,9 +20,9 @@ Typical triggers:
 
 | Topic | URL to fetch |
 |---|---|
-| Cashier payment creation | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/create-payment/cashier-payment.md` |
-| Payment result (callback + query) | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/related-capabilities/payment-result.md` |
-| Refund | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/related-capabilities/refund.md` |
+| Cashier payment creation | `https://docs.payermax.com/en/doc-center/acquiring/start-integration/create-payment/cashier-payment.md` |
+| Payment result (callback + query) | `https://docs.payermax.com/en/doc-center/acquiring/start-integration/related-capabilities/payment-result.md` |
+| Refund | `https://docs.payermax.com/en/doc-center/acquiring/start-integration/related-capabilities/refund.md` |
 
 ### Step 2: Fetch API docs
 

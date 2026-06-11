@@ -27,8 +27,8 @@ If the profile says `full_payment_method`, stop and rewrite to `specified_paymen
 | Tokenization - Cashier Payment Integration | `https://docs-v2.payermax.com/en/202506-version/receipt/tokenization/cashier.md` |
 | Tokenization - Direct API Payment Integration | `https://docs-v2.payermax.com/en/202506-version/receipt/tokenization/direct-api.md` |
 | Tokenization - Drop In Payment Integration | `https://docs-v2.payermax.com/en/202506-version/receipt/tokenization/frontend-component.md` |
-| Payment result (callback + query) | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/related-capabilities/payment-result.md` |
-| Refund | `https://docs-v2.payermax.com/doc-center/acquiring/start-integration/related-capabilities/refund.md` |
+| Payment result (callback + query) | `https://docs.payermax.com/en/doc-center/acquiring/start-integration/related-capabilities/payment-result.md` |
+| Refund | `https://docs.payermax.com/en/doc-center/acquiring/start-integration/related-capabilities/refund.md` |
 
 ### Step 2: Fetch API docs
 
