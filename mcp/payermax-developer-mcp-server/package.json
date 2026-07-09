@@ -1,0 +1,33 @@
+{
+  "name": "payermax-developer-mcp-server",
+  "version": "1.0.0",
+  "description": "PayerMax Developer Center MCP Server - Automate sandbox integration setup",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "payermax-developer-mcp": "./bin/payermax-mcp.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "semver": "^7.6.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/semver": "^7.5.8",
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.4",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": ["dist", "bin"],
+  "keywords": ["mcp", "payermax", "payment", "developer", "sandbox"]
+}

@@ -5,6 +5,39 @@
 This project integrates PayerMax **{product}** using **{integration_mode}** mode with **{payment_methods}** payment method(s).
 Tech stack: **{tech_stack}**.
 
+## Prerequisites
+
+### Option A: Automatic Setup (Recommended)
+
+Install the PayerMax Developer MCP Server for zero-configuration sandbox setup:
+
+1. Add to your IDE's MCP configuration:
+   ```json
+   {
+     "mcpServers": {
+       "payermax-developer": {
+         "command": "npx",
+         "args": ["-y", "payermax-developer-mcp-server@latest"]
+       }
+     }
+   }
+   ```
+
+2. Ask your AI agent to authenticate:
+   > "Authenticate with PayerMax Developer Center"
+
+3. Open the verification URL in your browser and enter the code (one-time only).
+
+4. All sandbox credentials will be automatically configured.
+
+### Option B: Manual Setup
+
+If not using the MCP Server, obtain credentials from the [PayerMax Developer Center](https://developer.payermax.com):
+1. Sign in and navigate to the dashboard
+2. Copy merchantNo and appId
+3. View or download your sandbox keypair
+4. Download the PayerMax public key
+
 ## ✅ What has been generated
 
 ### Completed deliverables

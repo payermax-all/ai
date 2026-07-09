@@ -550,64 +550,58 @@ Each test file must include:
 
 ### Output shape
 
-#### Config file — Keypair generation
+#### Config file — Credentials and keys
 
-**Strategy: generate-and-verify, or leave empty.**
+**Strategy: MCP-first, fallback to manual.**
 
-Attempt to generate a keypair using the following approach. If any step fails or the output does not pass validation, leave both key fields empty with a TODO comment.
+**Step 1: Check if PayerMax MCP Server is available**
 
-**Step 1: Generate keypair and extract single-line Base64 strings**
+Check if the `payermax-developer` MCP server is connected and accessible. If available, use it to automatically obtain all credentials. If not available, fall back to manual configuration instructions.
 
-```bash
-# Generate PKCS#8 private key file
-openssl genrsa 2048 | openssl pkcs8 -topk8 -nocrypt -out merchant_private.pem
+**Step 2 (MCP available): Auto-configure via MCP Server**
 
-# Derive public key file
-openssl rsa -in merchant_private.pem -pubout -out merchant_public.pem
+1. Call `get_sandbox_config` tool to obtain complete sandbox integration configuration:
+   - merchantNo, appId
+   - merchantPublicKey, merchantPrivateKey (system-generated, no need for local generation)
+   - payermaxPublicKey
+   - notifyUrl, frameworkVersion
 
-# Extract single-line Base64 (no header/footer/newlines)
-PRIVATE_KEY=$(grep -v '^\-\-\-' merchant_private.pem | tr -d '\n')
-PUBLIC_KEY=$(grep -v '^\-\-\-' merchant_public.pem | tr -d '\n')
+2. Fill ALL configuration values from the MCP response directly into the config file. No placeholders, no TODOs for credentials.
 
-echo "PRIVATE_KEY=$PRIVATE_KEY"
-echo "PUBLIC_KEY=$PUBLIC_KEY"
-```
+3. If `notifyUrl` needs to be set/updated, call `sandbox_configure_notify_url` with the project callback endpoint URL.
 
-**Step 2: Validate the extracted strings (mandatory — do not skip)**
+4. If specific payment methods need to be enabled (based on the scenario profile), call `sandbox_update_payment_methods` to activate them.
 
-After extraction, run these validation checks:
+**Step 3 (MCP NOT available): Manual fallback**
 
-```bash
-# Validate private key: must be valid Base64, decode to DER, and openssl can parse it
-echo "$PRIVATE_KEY" | base64 -d | openssl pkey -inform DER -noout 2>/dev/null && echo "PRIVATE_KEY_VALID" || echo "PRIVATE_KEY_INVALID"
+If the `payermax-developer` MCP server is not connected:
 
-# Validate public key: must be valid Base64, decode to DER, and openssl can parse it
-echo "$PUBLIC_KEY" | base64 -d | openssl pkey -inform DER -pubin -noout 2>/dev/null && echo "PUBLIC_KEY_VALID" || echo "PUBLIC_KEY_INVALID"
+1. Leave `merchant-private-key`, `merchant-public-key`, `payermax-public-key`, `app-id`, `merchant-no` as empty strings with the comment:
+   ```
+   # TODO: Install the PayerMax MCP Server for automatic configuration:
+   #   npx -y payermax-developer-mcp-server@latest
+   #   Then ask your AI agent to run: get_sandbox_config
+   #
+   # Or manually obtain from PayerMax Developer Center:
+   #   https://developer.payermax.com
+   ```
 
-# Validate key pair match: sign with private, verify with public
-echo "test" | openssl dgst -sha256 -sign merchant_private.pem -out /tmp/pmx_sig_test.bin
-echo "test" | openssl dgst -sha256 -verify merchant_public.pem -signature /tmp/pmx_sig_test.bin && echo "KEYPAIR_MATCH" || echo "KEYPAIR_MISMATCH"
-rm -f /tmp/pmx_sig_test.bin
-```
+2. Do NOT attempt local keypair generation via openssl (deprecated — unreliable across environments).
 
-**Step 3: Decision**
+**Step 4 (MCP available): Post-acceptance diagnostics**
 
-- If ALL THREE checks pass (`PRIVATE_KEY_VALID`, `PUBLIC_KEY_VALID`, `KEYPAIR_MATCH`): fill the `$PRIVATE_KEY` and `$PUBLIC_KEY` values into the config file, then delete the `.pem` files.
-- If ANY check fails OR if `openssl` is not available: leave `merchant-private-key` and `merchant-public-key` as empty strings with the comment:
-  ```
-  # TODO: Generate keypair using one of these methods:
-  #   1. Online: https://developer.payermax.com/devtool/generate
-  #   2. SDK: Java/PHP SDK createKeyPair method
-  #   3. OpenSSL: see https://docs.payermax.com/en/202506-version/developer/config-settings.md
-  ```
+After triggering acceptance tests via `sandbox_trigger_acceptance`, if tests fail:
+
+1. Use `sandbox_query_orders` (type: "trade" or "pay") to check order status.
+2. Use `sandbox_resend_notification` if the webhook notification was not received.
+3. Use `sandbox_dispute_create` if acceptance requires dispute/chargeback testing.
+4. Use `sandbox_subscription_mock_period` if acceptance requires subscription billing cycle testing.
 
 **Hard rules:**
-- Do NOT manually concatenate Base64 lines by reading file content character by character — use `grep -v | tr -d '\n'`
-- Do NOT assume the key is valid without running the validation commands
-- Do NOT fill a key value that failed validation into the config
-- Always clean up `.pem` files after use (whether successful or not)
+- If MCP is available, ALWAYS use it — do not generate keys locally
+- If MCP is available, the config file must be fully filled (zero placeholders)
+- If MCP is NOT available, do NOT attempt openssl generation — point to MCP Server installation instead
 
-Set `payermax-public-key` to empty string — developer downloads it from the PayerMax Developer Center.
 
 #### Key format specification
 
@@ -628,8 +622,17 @@ Key format reference: https://docs.payermax.com/en/202506-version/developer/conf
 #### Mandatory inline code comments (paste verbatim)
 
 Complete the configuration file:
-- For `appId`/`merchantNo`/payermax-public-key: `Obtain sandbox appId, merchantNo, and the PayerMax public key from the PayerMax Developer Center; see https://docs.payermax.com/en/202506-version/acquiring/integration-guide.md#_3-2-%E6%B3%A8%E5%86%8C%E6%88%90%E4%B8%BA%E5%BC%80%E5%8F%91%E8%80%85`
-- For `merchant-public-key`/`merchant-private-key`: generate your key pair, and upload your public key in the PayerMax Developer Center; see https://docs.payermax.com/en/202506-version/acquiring/integration-guide.md#_3-4-1-%E9%85%8D%E7%BD%AE%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E7%9A%84%E5%AF%86%E9%92%A5%E4%BF%A1%E6%81%AF`
+- If MCP Server was used to fill values: add a single comment at the top of the PayerMax config block:
+  ```
+  # PayerMax sandbox credentials (auto-configured via MCP Server)
+  # To reconfigure: ask your AI agent to run get_sandbox_config
+  ```
+- If fallback (MCP not available): use the following comments for empty fields:
+  - For `appId`/`merchantNo`/`payermax-public-key`/`merchant-public-key`/`merchant-private-key`:
+    ```
+    # Install PayerMax MCP Server for automatic setup: npx -y payermax-developer-mcp-server@latest
+    # Or obtain manually from https://developer.payermax.com
+    ```
 
 #### Pre-call request validation (mandatory)
 
@@ -640,16 +643,28 @@ Every outbound PayerMax API call must have a validation layer:
 
 #### Pre-test configuration block
 
-> Before running connectivity tests, sign in to the PayerMax Developer Center (https://developer.payermax.com):
-> 1. Configure test merchant number and appId
-> 2. Upload merchant test public key
-> 3. Download PayerMax test public key
+> **If MCP Server was used (config is already filled):**
+> Configuration is complete. Run connectivity tests directly.
+>
+> **If manual fallback:**
+> Before running connectivity tests, set up your sandbox credentials using ONE of these methods:
+>
+> **Option A (Recommended): Use PayerMax MCP Server**
+> 1. Install: Add `payermax-developer-mcp-server` to your IDE's MCP configuration
+> 2. Ask your AI agent to run `get_sandbox_config` to auto-fill all credentials
+>
+> **Option B: Manual setup via Developer Center**
+> 1. Sign in to https://developer.payermax.com
+> 2. Copy merchantNo and appId from the dashboard
+> 3. Download PayerMax sandbox public key
+> 4. The sandbox keypair is auto-generated — view it in the dashboard
 
 #### Production go-live checklist
 
 1. Fill production credentials in the primary config file
 2. Ensure `notifyUrl` is reachable from overseas networks
 3. Enable payment methods in the PayerMax Developer Center
+4. (If using MCP) Payment methods enabled via `sandbox_update_payment_methods` in sandbox will need to be separately contracted in production
 
 #### Do not
 
