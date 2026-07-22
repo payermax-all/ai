@@ -568,17 +568,21 @@ Check if the `payermax-developer` MCP server is connected and accessible. If ava
 
 **Step 2 (MCP available): Auto-configure via MCP Server**
 
-1. Call `get_sandbox_config` tool to obtain complete sandbox integration configuration:
+1. Call `get_sandbox_config` tool to obtain sandbox integration configuration:
    - merchantNo, appId
-   - merchantPublicKey, merchantPrivateKey (system-generated, no need for local generation)
+   - merchantPublicKey (already uploaded to platform)
    - payermaxPublicKey
    - notifyUrl, frameworkVersion
 
-2. Fill ALL configuration values from the MCP response directly into the config file. No placeholders, no TODOs for credentials.
+2. Call `sandbox_generate_keypair` tool to generate a new RSA key pair:
+   - Returns merchantPublicKey + merchantPrivateKey (private key returned once only, not saved server-side)
+   - Public key is automatically uploaded to PayerMax platform
 
-3. If `notifyUrl` needs to be set/updated, call `sandbox_configure_notify_url` with the project callback endpoint URL.
+3. Fill ALL configuration values from the above responses directly into the config file. No placeholders, no TODOs for credentials.
 
-4. If specific payment methods need to be enabled (based on the scenario profile), call `sandbox_update_payment_methods` to activate them.
+4. If `notifyUrl` needs to be set/updated, call `sandbox_configure_notify_url` with the project callback endpoint URL.
+
+5. If specific payment methods need to be enabled (based on the scenario profile), call `sandbox_update_payment_methods` to activate them.
 
 **Step 3 (MCP NOT available): Manual fallback**
 
@@ -586,11 +590,17 @@ If the `payermax-developer` MCP server is not connected:
 
 1. Leave `merchant-private-key`, `merchant-public-key`, `payermax-public-key`, `app-id`, `merchant-no` as empty strings with the comment:
    ```
-   # TODO: Install the PayerMax MCP Server for automatic configuration:
-   #   npx -y payermax-developer-mcp-server@latest
-   #   Then ask your AI agent to run: get_sandbox_config
+   # TODO: Configure merchant credentials using ONE of these methods:
    #
-   # Or manually obtain from PayerMax Developer Center:
+   # Option A (Recommended): Install the PayerMax MCP Server:
+   #   npx -y payermax-developer-mcp-server@latest
+   #   Then ask your AI agent to run: sandbox_generate_keypair
+   #
+   # Option B: Generate keypair locally and upload public key:
+   #   Generate RSA 2048-bit keypair, fill private key below,
+   #   then upload public key via developer.payermax.com or sandbox_upload_merchant_public_key
+   #
+   # Option C: Manually obtain from PayerMax Developer Center:
    #   https://developer.payermax.com
    ```
 
@@ -633,12 +643,14 @@ Complete the configuration file:
 - If MCP Server was used to fill values: add a single comment at the top of the PayerMax config block:
   ```
   # PayerMax sandbox credentials (auto-configured via MCP Server)
+  # To regenerate keypair: ask your AI agent to run sandbox_generate_keypair
   # To reconfigure: ask your AI agent to run get_sandbox_config
   ```
 - If fallback (MCP not available): use the following comments for empty fields:
   - For `appId`/`merchantNo`/`payermax-public-key`/`merchant-public-key`/`merchant-private-key`:
     ```
     # Install PayerMax MCP Server for automatic setup: npx -y payermax-developer-mcp-server@latest
+    # Then run: sandbox_generate_keypair (generates keypair + uploads public key)
     # Or obtain manually from https://developer.payermax.com
     ```
 
