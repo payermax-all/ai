@@ -344,6 +344,14 @@ Use template: `references/output/payermax-integration-solution-template.md`
 
 **Hard gate:** after outputting the solution, **stop and ask for confirmation**. Do not generate code until the user explicitly confirms.
 
+**MCP early-auth (optional):** At this confirmation gate, if the `payermax-developer` MCP server is connected but not yet authenticated, include in your confirmation prompt:
+
+> 我检测到 PayerMax MCP Server 已连接。是否现在授权连接沙箱账号？授权后生成代码时将自动填入真实配置（merchantNo、密钥对等）。
+> - **授权** — 浏览器中输入验证码即可（约30秒）
+> - **跳过** — 生成代码时再处理
+
+If user chooses to authorize: call `authenticate`, present the URL + code, then call `check_auth_status` to confirm. If user skips or MCP is not connected: proceed normally — Phase 3 will handle via its existing MCP-first/fallback logic.
+
 ## Phase 3: Implementation (after confirmation only)
 
 After explicit user confirmation, read the selected variant file, then follow the rules and output contract below.

@@ -8,16 +8,14 @@ export function registerOrderTools(server: McpServer, apiClient: ApiClient) {
     'Query sandbox orders by type: trade, pay, disburse, paylink, subscription. Two modes: (1) exact query with outTradeNo or payRequestNos, (2) recent records — returns the latest 5 orders before the specified time (defaults to now).',
     {
       type: z.enum(['trade', 'pay', 'disburse', 'paylink', 'subscription']).describe('Order type'),
-      merchantNo: z.string().describe('Merchant number'),
       outTradeNo: z.string().optional().describe('External trade order number (exact query mode)'),
       payRequestNos: z.array(z.string()).optional().describe('Pay request numbers (exact query mode, for type=pay)'),
       subscriptionNo: z.string().optional().describe('Subscription number (for type=subscription)'),
       userId: z.string().optional().describe('User ID (for type=subscription)'),
       before: z.string().optional().describe('Query orders before this time (format: yyyy-MM-dd HH:mm:ss). Defaults to current time if omitted.'),
     },
-    async ({ type, merchantNo, outTradeNo, payRequestNos, subscriptionNo, userId, before }) => {
-      const body: Record<string, any> = { merchantNo };
-
+    async ({ type, outTradeNo, payRequestNos, subscriptionNo, userId, before }) => {
+      const body: Record<string, any> = {};
       if (outTradeNo) body.outTradeNo = outTradeNo;
       if (payRequestNos && payRequestNos.length > 0) body.payRequestNos = payRequestNos;
       if (subscriptionNo) body.subscriptionNo = subscriptionNo;
@@ -45,12 +43,11 @@ export function registerOrderTools(server: McpServer, apiClient: ApiClient) {
     'sandbox_resend_notification',
     'Resend webhook notification for a specific trade order.',
     {
-      merchantNo: z.string().describe('Merchant number'),
       tradeOrderNo: z.string().describe('Trade order number'),
       type: z.string().describe('Notification type'),
     },
-    async ({ merchantNo, tradeOrderNo, type }) => {
-      await apiClient.post('/order/resend', { merchantNo, tradeOrderNo, type });
+    async ({ tradeOrderNo, type }) => {
+      await apiClient.post('/order/resend', { tradeOrderNo, type });
       return { content: [{ type: 'text' as const, text: 'Notification resent successfully.' }] };
     }
   );

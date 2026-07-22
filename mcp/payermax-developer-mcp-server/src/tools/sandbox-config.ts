@@ -1,18 +1,18 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { ApiClient } from '../api/client.js';
-import { z } from 'zod';
 
 export function registerSandboxConfigTool(server: McpServer, apiClient: ApiClient) {
   server.tool(
     'get_sandbox_config',
     'Get complete sandbox integration configuration including merchantNo, appId, RSA keypair, PayerMax public key, notify URL, and framework version. Returns all values needed to fill the integration config file.',
-    {
-      merchantNo: z.string().optional().describe('Optional. Specify merchant number if user has multiple sandbox merchants.'),
-    },
-    async ({ merchantNo }) => {
-      const params = merchantNo ? `?merchantNo=${merchantNo}` : '';
-      const resp = await apiClient.get(`/developer/sandbox-config${params}`);
+    {},
+    async () => {
+      const resp = await apiClient.post('/developer/sandbox-config', {});
       const data = resp.data;
+
+      if (!data) {
+        return { content: [{ type: 'text' as const, text: 'No sandbox configuration found. Ensure your account has a sandbox merchant bound in Developer Center.' }] };
+      }
 
       return {
         content: [{

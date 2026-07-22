@@ -7,13 +7,12 @@ export function registerSubscriptionTools(server: McpServer, apiClient: ApiClien
     'sandbox_subscription_mock_period',
     'Mock a subscription deduction period result (success or failure).',
     {
-      merchantNo: z.string().describe('Merchant number'),
       subscriptionNo: z.string().describe('Subscription plan number'),
       orderNo: z.string().optional().describe('Deduction order number (optional)'),
       status: z.string().describe('Result: SUCCESS or FAILED'),
     },
-    async ({ merchantNo, subscriptionNo, orderNo, status }) => {
-      await apiClient.post('/subscription/mock/period', { merchantNo, subscriptionNo, orderNo, status });
+    async ({ subscriptionNo, orderNo, status }) => {
+      await apiClient.post('/subscription/mock/period', { subscriptionNo, orderNo, status });
       return { content: [{ type: 'text' as const, text: `Subscription ${subscriptionNo} period mocked as ${status}.` }] };
     }
   );
@@ -22,12 +21,11 @@ export function registerSubscriptionTools(server: McpServer, apiClient: ApiClien
     'sandbox_subscription_mock_resend',
     'Resend a subscription deduction notification for testing webhook handling.',
     {
-      merchantNo: z.string().describe('Merchant number'),
       subscriptionNo: z.string().describe('Subscription plan number'),
       orderNo: z.string().describe('Deduction order number'),
     },
-    async ({ merchantNo, subscriptionNo, orderNo }) => {
-      await apiClient.post('/subscription/mock/deduction/resend', { merchantNo, subscriptionNo, orderNo });
+    async ({ subscriptionNo, orderNo }) => {
+      await apiClient.post('/subscription/mock/deduction/resend', { subscriptionNo, orderNo });
       return { content: [{ type: 'text' as const, text: `Deduction resend triggered for subscription ${subscriptionNo}.` }] };
     }
   );

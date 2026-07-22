@@ -2,6 +2,16 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { DeviceFlow } from '../auth/device-flow.js';
 import { TokenStore } from '../auth/token-store.js';
 import { ApiClient } from '../api/client.js';
+import { exec } from 'node:child_process';
+import { platform } from 'node:os';
+
+function openBrowser(url: string): void {
+  const cmd = platform() === 'darwin' ? 'open' :
+              platform() === 'win32' ? 'start' : 'xdg-open';
+  exec(`${cmd} "${url}"`, (err) => {
+    if (err) process.stderr.write(`Failed to open browser: ${err.message}\n`);
+  });
+}
 
 export function registerAuthTools(server: McpServer, tokenStore: TokenStore, apiClient: ApiClient) {
   const deviceFlow = new DeviceFlow();
@@ -30,6 +40,9 @@ export function registerAuthTools(server: McpServer, tokenStore: TokenStore, api
       }).catch(err => {
         process.stderr.write(`Auth polling error: ${err.message}\n`);
       });
+
+      // Auto-open browser for user convenience
+      openBrowser(response.verificationUri);
 
       return {
         content: [{
@@ -70,7 +83,7 @@ export function registerAuthTools(server: McpServer, tokenStore: TokenStore, api
         return { content: [{ type: 'text', text: 'No active token to revoke.' }] };
       }
       try {
-        await apiClient.delete('/oauth2/token');
+        await apiClient.post('/oauth2/token/revoke');
       } catch {
         // Token might already be expired server-side
       }

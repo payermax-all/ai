@@ -8,10 +8,9 @@ export function registerDisputeTools(server: McpServer, apiClient: ApiClient) {
     'Query dispute case information for a specific payment order.',
     {
       payOrderNo: z.string().describe('Payment order number'),
-      merchantNo: z.string().describe('Merchant number'),
     },
-    async ({ payOrderNo, merchantNo }) => {
-      const resp = await apiClient.post('/dispute/case/query', { payOrderNo, merchantNo });
+    async ({ payOrderNo }) => {
+      const resp = await apiClient.post('/dispute/case/query', { payOrderNo });
       return { content: [{ type: 'text' as const, text: JSON.stringify(resp.data, null, 2) }] };
     }
   );
@@ -21,7 +20,6 @@ export function registerDisputeTools(server: McpServer, apiClient: ApiClient) {
     'Create a mock dispute/chargeback case. disputeType: DISPUTE, CHARGEBACK, FRAUD, CUSTOMER_COMPLAINT.',
     {
       payOrderNo: z.string().describe('Payment order number to dispute'),
-      merchantNo: z.string().describe('Merchant number'),
       disputeType: z.string().describe('Type: DISPUTE | CHARGEBACK | FRAUD | CUSTOMER_COMPLAINT'),
       reason: z.string().describe('Dispute reason'),
       frozenAmount: z.number().describe('Frozen amount'),
@@ -38,10 +36,9 @@ export function registerDisputeTools(server: McpServer, apiClient: ApiClient) {
     'Reply to (defend against) a dispute case.',
     {
       caseId: z.string().describe('Dispute case ID'),
-      merchantNo: z.string().describe('Merchant number'),
     },
-    async ({ caseId, merchantNo }) => {
-      await apiClient.post('/dispute/case/reply', { caseId, merchantNo });
+    async ({ caseId }) => {
+      await apiClient.post('/dispute/case/reply', { caseId });
       return { content: [{ type: 'text' as const, text: `Dispute case ${caseId} replied successfully.` }] };
     }
   );
@@ -51,11 +48,10 @@ export function registerDisputeTools(server: McpServer, apiClient: ApiClient) {
     'Close a dispute case with a judgement result.',
     {
       caseId: z.string().describe('Dispute case ID'),
-      sentenceResult: z.string().describe('Judgement: win or fail'),
-      merchantNo: z.string().describe('Merchant number'),
+      sentenceResult: z.string().describe('Judgement: win (merchant wins) or fail (merchant loses)'),
     },
-    async ({ caseId, sentenceResult, merchantNo }) => {
-      await apiClient.post('/dispute/case/close', { caseId, sentenceResult, merchantNo });
+    async ({ caseId, sentenceResult }) => {
+      await apiClient.post('/dispute/case/close', { caseId, sentenceResult });
       return { content: [{ type: 'text' as const, text: `Dispute case ${caseId} closed. Result: ${sentenceResult}` }] };
     }
   );

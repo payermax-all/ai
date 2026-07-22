@@ -1,5 +1,5 @@
 export const CONFIG = {
-  API_BASE_URL: 'https://mmc-gateway-uat.payermax.com/developer-mcp/stdio',
+  API_BASE_URL: 'https://mmc-gateway-dev-new.payermax.com/developer-mcp/stdio',
   CLIENT_ID: 'payermax-mcp-server',
   CREDENTIALS_DIR: '.payermax',
   CREDENTIALS_FILE: 'credentials.json',

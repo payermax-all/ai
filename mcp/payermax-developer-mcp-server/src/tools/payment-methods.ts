@@ -6,12 +6,9 @@ export function registerPaymentMethodsTools(server: McpServer, apiClient: ApiCli
   server.tool(
     'sandbox_query_payment_methods',
     'Query the list of contracted payment methods in the sandbox environment.',
-    {
-      merchantNo: z.string().optional().describe('Optional. Specify merchant number if user has multiple sandbox merchants.'),
-    },
-    async ({ merchantNo }) => {
-      const params = merchantNo ? `?merchantNo=${merchantNo}` : '';
-      const resp = await apiClient.get(`/developer/payment-methods${params}`);
+    {},
+    async () => {
+      const resp = await apiClient.post('/developer/payment-methods', {});
       return { content: [{ type: 'text' as const, text: JSON.stringify(resp.data, null, 2) }] };
     }
   );
@@ -21,11 +18,9 @@ export function registerPaymentMethodsTools(server: McpServer, apiClient: ApiCli
     'Enable or disable payment methods in the sandbox environment.',
     {
       changes: z.record(z.string(), z.any()).describe('Map of transCode to contract change details.'),
-      merchantNo: z.string().optional().describe('Optional. Specify merchant number.'),
     },
-    async ({ changes, merchantNo }) => {
-      const params = merchantNo ? `?merchantNo=${merchantNo}` : '';
-      await apiClient.post(`/developer/payment-methods${params}`, { changes });
+    async ({ changes }) => {
+      await apiClient.post('/developer/payment-methods/update', { changes });
       return { content: [{ type: 'text' as const, text: 'Sandbox payment methods updated successfully.' }] };
     }
   );
