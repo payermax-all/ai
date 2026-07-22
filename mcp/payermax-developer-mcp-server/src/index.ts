@@ -14,6 +14,7 @@ import { registerAcceptanceTools } from './tools/acceptance.js';
 import { registerOrderTools } from './tools/orders.js';
 import { registerDisputeTools } from './tools/dispute.js';
 import { registerSubscriptionTools } from './tools/subscription.js';
+import { registerKeypairTools } from './tools/keypair.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(
@@ -40,6 +41,7 @@ const server = new McpServer(
 // Register all tools
 registerAuthTools(server, tokenStore, apiClient);
 registerSandboxConfigTool(server, apiClient);
+registerKeypairTools(server, apiClient);
 registerNotifyUrlTool(server, apiClient);
 registerPaymentMethodsTools(server, apiClient);
 registerAcceptanceTools(server, apiClient);

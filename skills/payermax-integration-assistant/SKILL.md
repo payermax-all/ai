@@ -698,6 +698,29 @@ Every outbound PayerMax API call must have a validation layer:
 
 After all code is generated, produce a `SETUP_GUIDE.md` file based on `references/output/setup-guide-template.md`. Fill all `{placeholder}` sections with actual values from the implementation. Only include sections relevant to the selected product, integration mode, and payment methods. Remove HTML comments and conditional markers — output a clean, ready-to-use guide.
 
+### Post-code key configuration guidance
+
+After code generation is complete, if merchant private key is not yet configured (MCP was not used, or MCP is available but keypair was not yet generated), present the following guidance to the user:
+
+> ✅ Code generation complete! Next step: configure the merchant keypair. Please choose one option:
+>
+> **Option 1️⃣: Auto-generate keypair (Recommended)**
+> I'll call `sandbox_generate_keypair` to generate an RSA keypair for you. The public key is automatically uploaded to PayerMax, and the private key is written to your config file.
+>
+> **Option 2️⃣: Use an existing keypair**
+> If you already have an RSA 2048-bit keypair, paste the private key into the config file, then I'll call `sandbox_upload_merchant_public_key` to upload your public key.
+>
+> **Option 3️⃣: Manual setup via Developer Center**
+> Sign in to [developer.payermax.com](https://developer.payermax.com), go to Settings → Developer Info → Key Management, and upload your public key.
+>
+> Please choose: **1** / **2** / **3**
+
+**Rules:**
+- If MCP is available and `sandbox_generate_keypair` was already called during Step 2, skip this prompt (config is complete)
+- If user selects 1: call `sandbox_generate_keypair`, write private key to config file, confirm completion
+- If user selects 2: ask user to paste their public key, then call `sandbox_upload_merchant_public_key`
+- If user selects 3: skip — user will handle manually
+
 ### Self-check before presenting result
 
 Before presenting the implementation to the user, verify against the deliverables checklist:

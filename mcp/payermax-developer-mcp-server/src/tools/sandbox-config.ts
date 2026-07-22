@@ -4,7 +4,7 @@ import { ApiClient } from '../api/client.js';
 export function registerSandboxConfigTool(server: McpServer, apiClient: ApiClient) {
   server.tool(
     'get_sandbox_config',
-    'Get complete sandbox integration configuration including merchantNo, appId, RSA keypair, PayerMax public key, notify URL, and framework version. Returns all values needed to fill the integration config file.',
+    'Get sandbox integration configuration including merchantNo, appId, the currently uploaded merchant public key, PayerMax public key, notify URL, and framework version. Does NOT return merchantPrivateKey — use sandbox_generate_keypair to generate a new keypair.',
     {},
     async () => {
       const resp = await apiClient.post('/developer/sandbox-config', {});
@@ -23,12 +23,12 @@ export function registerSandboxConfigTool(server: McpServer, apiClient: ApiClien
             memberId: data.memberId,
             email: data.email,
             merchantPublicKey: data.keys?.merchantPublicKey,
-            merchantPrivateKey: data.keys?.merchantPrivateKey,
             payermaxPublicKey: data.keys?.payermaxPublicKey,
-            keyType: data.keys?.keyType,
-            keyVersion: data.keys?.keyVersion,
+            keyType: data.keys?.keyType ?? 'RSA',
+            keyVersion: data.keys?.keyVersion ?? '1',
             notifyUrl: data.notifyUrl,
             frameworkVersion: data.frameworkVersion,
+            _note: 'merchantPrivateKey is not returned here. Use sandbox_generate_keypair to generate a new keypair.',
           }, null, 2)
         }]
       };
