@@ -346,9 +346,9 @@ Use template: `references/output/payermax-integration-solution-template.md`
 
 **MCP early-auth (optional):** At this confirmation gate, if the `payermax-developer` MCP server is connected but not yet authenticated, include in your confirmation prompt:
 
-> 我检测到 PayerMax MCP Server 已连接。是否现在授权连接沙箱账号？授权后生成代码时将自动填入真实配置（merchantNo、密钥对等）。
-> - **授权** — 浏览器中输入验证码即可（约30秒）
-> - **跳过** — 生成代码时再处理
+> The PayerMax MCP Server has been detected as connected. May I proceed with authorizing the sandbox account? Upon authorization, the actual credentials (including merchantNo and key pairs) will be automatically populated during code generation.
+> - **Authorization** — Enter the verification code in your browser (approx. 10 seconds)
+> - **Skip** — Handle it later when generating code
 
 If user chooses to authorize: call `authenticate`, present the URL + code, then call `check_auth_status` to confirm. If user skips or MCP is not connected: proceed normally — Phase 3 will handle via its existing MCP-first/fallback logic.
 
