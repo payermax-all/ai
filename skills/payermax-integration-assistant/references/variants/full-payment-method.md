@@ -61,4 +61,4 @@ Do not add these in the request — if any appear, rewrite the branch to `specif
 
 - the merchant wants to show only a subset of payment methods → `specified_payment_method`
 - the merchant wants to pin target institutions or card schemes → `specified_payment_method`
-- tokenization is required → `tokenization.md` (which mandates `specified_payment_method`)
+- tokenization is required → full cashier does not support it. Route to `tokenization-cashier.md` (specified payment method), `tokenization-api.md`, or `tokenization-dropin.md` depending on the integration mode.

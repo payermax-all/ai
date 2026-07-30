@@ -17,8 +17,8 @@ Single entry skill for all PayerMax payment integration help.
 
 | Payment Product | Scenario | Payment Method Type | Integration Mode | Core API Name | Variant file |
 | --- | --- | --- | --- | --- | --- |
-| Standard Acquiring | default | Card/ApplePay/GooglePay | cashier-full_payment_method, cashier-specified_payment_method, drop_in, paybylink, direct_api | orderAndPay, createPaybylink | `references/variants/full-payment-method.md` / `specified-payment-method.md` / `drop-in.md` / `paybylink.md` / `direct-api.md` |
-| Standard Acquiring | default | APM | cashier-full_payment_method, cashier-specified_payment_method, paybylink, direct_api | orderAndPay, createPaybylink | `references/variants/full-payment-method.md` / `specified-payment-method.md` / `paybylink.md` / `direct-api.md` |
+| Standard Acquiring | default | Card/ApplePay/GooglePay | cashier-full_payment_method, cashier-specified_payment_method, drop_in, pay_by_link, direct_api | orderAndPay, createPaybylink | `references/variants/full-payment-method.md` / `specified-payment-method.md` / `drop-in.md` / `paybylink.md` / `direct-api.md` |
+| Standard Acquiring | default | APM | cashier-full_payment_method, cashier-specified_payment_method, pay_by_link, direct_api | orderAndPay, createPaybylink | `references/variants/full-payment-method.md` / `specified-payment-method.md` / `paybylink.md` / `direct-api.md` |
 | Subscription | pmx_manage_plan | Card/ApplePay/GooglePay | cashier-full_payment_method, cashier-specified_payment_method, drop_in | subscriptionCreate + orderAndPay | `references/variants/subscription/pmx-manage.md` |
 | Subscription | pmx_manage_plan | APM | cashier-full_payment_method, cashier-specified_payment_method | subscriptionCreate + orderAndPay | `references/variants/subscription/pmx-manage.md` |
 | Subscription | merchant_manage_plan | Card/ApplePay/GooglePay | cashier-full_payment_method, cashier-specified_payment_method, drop_in | orderAndPay (bind + debit) | `references/variants/subscription/merchant-manage.md` |
@@ -27,8 +27,10 @@ Single entry skill for all PayerMax payment integration help.
 | Subscription | non_periodic_auto_debit | APM | cashier-full_payment_method, cashier-specified_payment_method | orderAndPay (bind + debit) | `references/variants/subscription/auto-debit.md` |
 
 **Constraint:** When Payment Method Type = APM, Integration Mode `drop_in` is not available.
-**Constraint:** When Product = Subscription, Integration Mode `paybylink` is not available.
-**Note:** Integration Mode `paybylink` and `direct_api` support all payment method types without restriction.
+**Constraint:** When Product = Subscription, Integration Mode `pay_by_link` is not available.
+**Note:** Integration Mode `pay_by_link` and `direct_api` support all payment method types without restriction.
+**Constraint:** Tokenization is an orthogonal dimension, not a product. It combines with `cashier-specified_payment_method`, `direct_api`, and `drop_in` (no APM), never with `cashier-full_payment_method` or `pay_by_link`.
+**Routing:** When `tokenization_enabled: true`, pick the variant via `references/router.md`.
 
 ## Workflow overview
 
@@ -55,7 +57,8 @@ Then follow the **structured clarification flow** below. Before asking any quest
 3. **Integration Mode (Step 3)**: If the user does NOT clearly indicate a preference (cashier vs drop-in vs paybylink vs direct API) → must ask. This step is rarely skippable.
 4. **Payment Methods (Step 4)**: If the user explicitly names payment methods or APM brands (e.g., "TNG", "DANA", "card payment", "信用卡") → auto-select the corresponding types, skip Step 4.
 5. **APM specifics**: If the user already named specific APM methods (e.g., "TNG") or countries (e.g., "Malaysia", "马来西亚") → auto-select, skip the APM sub-step.
-6. **Payment Methods for Full Cashier/PayByLink**: If integration mode = `cashier-full_payment_method` or `paybylink` → auto-select "All available payment methods", skip Step 4 and APM sub-step.
+6. **Payment Methods for Full Cashier/PayByLink**: If integration mode = `cashier-full_payment_method` or `pay_by_link` → auto-select "All available payment methods", skip Step 4 and APM sub-step.
+7. **Tokenization**: token/保存卡/记住卡/免密/二次支付/快捷支付/saved card/one-click → `tokenization_enabled: true`, skip. 一次性/游客支付/guest → `false`, skip.
 
 **Inference examples:**
 
@@ -68,6 +71,7 @@ Then follow the **structured clarification flow** below. Before asking any quest
 | "接入PayerMax收银台" | Product=Standard Acquiring, Integration Mode=cashier | Payment Methods (full or specified?) |
 | "接入PayerMax收银台，全量支付方式" | Product=Standard Acquiring, Integration Mode=cashier-full, Payment Methods=All | (none) |
 | "集成PayerMax代扣，商户管理订阅计划，支付方式卡" | Product=Subscription, Scenario=merchant_manage_plan, Payment Method=Card | Integration Mode |
+| "用前置组件收卡，下次支付免输卡号" | Standard Acquiring, drop_in, tokenization_enabled=true | Payment Methods |
 
 **Flow rule:** Only stop and ask for steps where the answer cannot be confidently inferred from the full conversation history (all turns). If a step's answer was already stated or confirmed in any previous turn, skip it — do not re-ask. For inferred steps, state your inference clearly (e.g., "Based on your request, I've identified: Standard Acquiring, APM (TNG), Malaysia. Now I need to confirm one thing:") and proceed directly to the next unclear step.
 
@@ -105,8 +109,6 @@ Wait for user selection. Then:
 
 **Skip if:** Product = Standard Acquiring (always skip; scenario = `default`).
 
-**Skip this step if product = Standard Acquiring** (Scenario = `default`).
-
 **Stop and ask:**
 
 > Based on your project, I recommend: **[recommended scenario]** (reason: ...).
@@ -132,7 +134,9 @@ Wait for user selection. Then:
 
 **Skip if:** User explicitly states cashier, drop-in, paybylink, or direct API preference in their prompt (e.g., "收银台", "cashier", "前置组件", "drop-in", "embed component", "链接支付", "paybylink", "支付链接", "纯API", "direct API", "自建收银页"). Otherwise, must ask.
 
-Analyze the project for frontend complexity signals (custom checkout page with card form / 3DS handling → direct_api; custom checkout page with embedded components → drop_in; no frontend / simple redirect → cashier; offline/sharing scenarios → paybylink).
+**Tokenization-aware:** If `tokenization_enabled` was already inferred `true`, drop `cashier-full_payment_method` and `pay_by_link` from both the recommendation and the options, saying why: "全量收银台与链接支付不支持 Token，已排除 / excluded — they do not support tokenization."
+
+Analyze the project for frontend complexity signals (custom checkout page with card form / 3DS handling → direct_api; custom checkout page with embedded components → drop_in; no frontend / simple redirect → cashier; offline/sharing scenarios → pay_by_link).
 
 **Stop and ask:**
 
@@ -158,14 +162,42 @@ Wait for user selection. Then set `integration_mode` accordingly:
 - `cashier-full_payment_method` → `integration_mode: cashier`, `cashier_variant: full_payment_method`
 - `cashier-specified_payment_method` → `integration_mode: cashier`, `cashier_variant: specified_payment_method`
 - `drop_in` → `integration_mode: drop_in`
-- `paybylink` → `integration_mode: paybylink`
+- `paybylink` → `integration_mode: pay_by_link`
 - `direct_api` → `integration_mode: direct_api`
+
+**Tokenization conflict guard.** Run once `integration_mode` is set, from this step or from pre-inference. If `tokenization_enabled: true` and the mode is incompatible:
+
+- `cashier-full_payment_method` → **auto-rewrite** to `cashier-specified_payment_method` and tell the user: "全量收银台不支持 Token，已自动改为指定支付方式收银台 / switched to specified-payment-method cashier." Step 4 then becomes mandatory; `payment_method_type` can no longer default to "all".
+- `pay_by_link` → **stop and ask**, never auto-rewrite: tokens need a signed-in user, pay-by-link has no session, so there is no equivalent target.
+
+  > 链接支付不支持 Token（Token 需登录态用户与已保存卡片管理界面）。请选择 / Choose:
+  > - **保留链接支付，放弃 Token** / Keep pay-by-link, drop tokenization
+  > - **改用指定支付方式收银台以启用 Token** / Switch to specified-payment-method cashier
+
+Never silently set `tokenization_enabled: false` to resolve this conflict.
+
+### Save payment methods for future use? (single select)
+
+**Skip if:** pre-inference rule 7 already resolved it, OR Integration Mode = `cashier-full_payment_method` / `pay_by_link` **and** tokenization was NOT inferred → auto-select No. If it WAS inferred `true` under those two modes, apply the conflict guard above instead of dropping it.
+
+**Stop and ask:**
+
+> 是否需要保存用户的支付方式用于后续支付？ / Save the user's payment method for future payments?
+>
+> - **Yes — 启用 Token**: 首次支付保存支付方式，后续复用 `paymentTokenID`；必须同时实现已保存卡片管理界面（列表 + 解绑）/ later payments reuse `paymentTokenID`; a saved-card management UI (list + remove) is mandatory.
+> - **No — 仅一次性支付** / one-time only: every payment requires full input.
+>
+> https://docs.payermax.com/en/202506-version/receipt/tokenization/introduction.html
+>
+> Please select / 请选择: **Yes** / **No**
+
+Set `tokenization_enabled`. If `true`, default `token_type: payermax_token` unless the merchant runs its own vault.
 
 ### Add payment methods
 
 **Skip if:** 
 - User explicitly names payment methods or APM brands in the prompt (e.g., "TNG", "DANA", "card", "Apple Pay", "信用卡") → auto-select the corresponding payment method types and skip this step.
-- Integration Mode = `cashier-full_payment_method` or `paybylink` → auto-select "All available payment methods", skip this step and APM sub-step.
+- Integration Mode = `cashier-full_payment_method` or `pay_by_link` → auto-select "All available payment methods", skip this step and APM sub-step.
 
 Analyze the project for target market signals (Southeast Asia → Card + APM; Global/US/EU → Card; etc.).
 
@@ -224,7 +256,7 @@ Wait for user selection. Set `payment_method_type` accordingly.
 
 **Skip if:** 
 - User already named specific APM methods (e.g., "TNG", "DANA", "KakaoPay") or specific countries (e.g., "Malaysia", "Indonesia", "马来西亚") in the original prompt → use those directly, skip this step.
-- Integration Mode = `cashier-full_payment_method` or `paybylink` → skip (full cashier and paybylink show all payment methods automatically).
+- Integration Mode = `cashier-full_payment_method` or `pay_by_link` → skip (both show all payment methods automatically).
 
 **Only ask this if the user selected APM in the previous step AND did not already specify which APMs or countries.**
 
@@ -280,7 +312,7 @@ After completing the steps above, review the gathered information and present 2�
 | Subscription | Do you need trial periods or promotional pricing for new subscribers? / 是否需要为新订阅用户提供试用期或优惠价格？ |
 | Subscription (pmx_manage) | What should happen when a periodic deduction fails — terminate the plan or keep it active? / 周期扣款失败时应该怎么处理——终止计划还是保持活跃？ |
 | Subscription (merchant_manage / auto_debit) | What triggers a subsequent deduction in your business logic? (e.g., billing cycle, usage threshold, manual action) / 什么触发后续扣款？（如计费周期、用量阈值、手动操作） |
-| cashier-specified / drop_in | Do you need tokenization (save card for future payments)? / 是否需要 Token 化（保存卡信息用于后续支付）？ |
+| tokenization_enabled = true | Should users be able to save multiple cards, or replace the existing one each time? / 用户可以保存多张卡，还是每次覆盖已有的卡？ |
 | drop_in | Do you need to customize the payment component's appearance (colors, fonts, locale)? / 是否需要自定义支付组件的外观（颜色、字体、语言）？ |
 | Card selected | Do you need to restrict card brands (e.g., Visa/Mastercard only)? / 是否需要限制卡品牌（如仅 Visa/Mastercard）？ |
 | APM selected | Are there specific APM wallets/methods you want to prioritize or exclude? / 是否有特定的 APM 钱包/方式需要优先或排除？ |
@@ -308,26 +340,27 @@ Use these signals to generate default recommendations:
 | Target market is Southeast Asia (ID, MY, TH, PH, VN) | Payment Method = Card + APM |
 | Target market is Korea | Payment Method = Card + APM (KakaoPay/NaverPay) |
 | Target market is Global / US / EU | Payment Method = Card |
-| Project mentions offline/QR/sharing scenarios | Integration Mode = paybylink |
+| Project mentions offline/QR/sharing scenarios | Integration Mode = pay_by_link |
+| `tokenization_enabled: true` | Exclude `cashier-full_payment_method` and `pay_by_link`; prefer `drop_in` (no PCI, best UX) > `cashier-specified_payment_method` > `direct_api` |
 | Cannot determine from project context | Use most common: Standard Acquiring / cashier-full_payment_method / Card |
 
 ### Route to variant
 
-After all 4 steps are complete, use the router (`references/router.md`) to normalize the scenario profile. Then select the variant:
+After all 5 steps are complete, use the router (`references/router.md`) to normalize the scenario profile. Then select the variant:
 
 | Payment Product | Scenario | Integration Mode | Variant file |
 | --- | --- | --- | --- |
 | Standard Acquiring | default | cashier-full_payment_method | `references/variants/full-payment-method.md` |
 | Standard Acquiring | default | cashier-specified_payment_method | `references/variants/specified-payment-method.md` |
 | Standard Acquiring | default | drop_in | `references/variants/drop-in.md` |
-| Standard Acquiring | default | paybylink | `references/variants/paybylink.md` |
+| Standard Acquiring | default | pay_by_link | `references/variants/paybylink.md` |
 | Standard Acquiring | default | direct_api | `references/variants/direct-api.md` |
-| Standard Acquiring | default (tokenization) | cashier-specified_payment_method | `references/variants/tokenization.md` |
+| Standard Acquiring | tokenization | cashier-specified / direct_api / drop_in | See the tokenization table in `references/router.md` |
 | Subscription | pmx_manage_plan | cashier-full_payment_method, cashier-specified_payment_method, drop_in | `references/variants/subscription/pmx-manage.md` |
 | Subscription | merchant_manage_plan | cashier-full_payment_method, cashier-specified_payment_method, drop_in | `references/variants/subscription/merchant-manage.md` |
 | Subscription | non_periodic_auto_debit | cashier-full_payment_method, cashier-specified_payment_method, drop_in | `references/variants/subscription/auto-debit.md` |
 
-**Constraint:** When `payment_method_type = APM`, `drop_in` is not available — route to `cashier-full_payment_method`, `cashier-specified_payment_method`, `paybylink`, or `direct_api`.
+**Constraint:** When `payment_method_type = APM`, `drop_in` is not available — route to `cashier-full_payment_method`, `cashier-specified_payment_method`, `pay_by_link`, or `direct_api`.
 
 ## Phase 2: Generate solution document
 
@@ -419,9 +452,11 @@ When the scenario involves specific integration modes, you MUST read the corresp
 | Condition | Must read | Contains |
 | --- | --- | --- |
 | `integration_mode == drop_in` | `references/shared/drop-in-frontend.md` | CDN URL, SDK initialization pattern (`PMdropin.create`), payment flow, API version requirements, test panel template |
+| `tokenization_enabled == true` | `references/shared/tokenization.md` | Token 查询、二次支付、解绑、安全校验 |
+| `+ integration_mode == drop_in` | 再加 `references/shared/drop-in-frontend.md` | 组件生命周期、`agreementAccepted`、`create3DSPopup` |
 | User confirmed dispute/chargeback capability | `references/shared/dispute.md` | Chargeback notification, case query, case response |
 
-**Hard rule:** If `integration_mode == drop_in` and you did NOT read `references/shared/drop-in-frontend.md`, your frontend code is unreliable. Read it before generating ANY frontend or Drop-In related code.
+**Hard rule:** without `drop-in-frontend.md`, drop-in frontend code is unreliable; without `tokenization.md`, the token endpoints, second-payment request, and ownership checks are guesswork. Read the applicable file(s) first.
 
 #### Mandatory: fetch docs before writing code
 
@@ -442,11 +477,14 @@ This rule applies to ALL scenarios (standard acquiring AND subscription). The va
 4. **Callback ack format is exact** — Payment: `{"msg":"Success","code":"SUCCESS"}`. Refund: `{"code":"SUCCESS","msg":"Success"}`.
 5. **`merchantNo` is required in practice** — always send it.
 6. **`version`/`keyVersion` must come from fetched API doc** — read the `version` field description in each API doc's Request Body table (e.g., "当前值为：1.5" means use `"1.5"`). Do NOT hardcode from memory or assume any default value. Each API endpoint may have a different version requirement.
+   A single tokenization integration legitimately mixes versions across endpoints — always take the value from the doc you fetched for that specific endpoint.
 7. **`expireTime` ≥ 1800** — system enforces this minimum.
 8. **Always keep `/orderQuery` as fallback** — for delayed callbacks, signature doubt, reconciliation.
 9. **Refund state is separate** — model `REFUND_SUCCESS`/`REFUND_PENDING`/`REFUND_FAILED` independently. Idempotency anchor: `outRefundNo`.
 10. **Sign the exact request body bytes** — signature in `sign` header. Verify inbound callbacks before business logic.
 11. **Refund result also requires dual-channel** — callback (`refundResultNotifyUrl`) + query (`/refundQuery`) as fallback, same pattern as payment result.
+12. **Never trust a client-supplied `paymentTokenID` or `userId`** — derive `userId` from the server session, and verify token ownership before every token payment. Accepting either from the browser is an IDOR vulnerability that lets one user charge another user's card.
+13. **`frontCallbackUrl` must be domain-whitelisted** — the frontend commonly sends `window.location.href`. Validate against an allowlist server-side before forwarding.
 
 #### Per-endpoint persistence
 
@@ -486,6 +524,8 @@ This rule applies to ALL scenarios (standard acquiring AND subscription). The va
 
 ### Minimum story (backend)
 
+**Rule:** The frontend never calls PayerMax directly — every call goes through a merchant endpoint holding the signing key (contract: `references/shared/tokenization.md`).
+
 - `/orderAndPay` — create payment
 - Callback handler for `notifyUrl`
 - `/orderQuery` — fallback query
@@ -493,7 +533,11 @@ This rule applies to ALL scenarios (standard acquiring AND subscription). The va
 
 For drop-in, also include `/applyDropinSession` and frontend JS code.
 
-For paybylink, also include:
+For tokenization (any integration mode), also include:
+- `/inquirePaymentToken`, `/removePaymentToken`
+- `/orderAndPay` with `tokenForFutureUse: true` (first payment) / with `paymentTokenID` (second payment)
+
+For pay_by_link, also include:
 - `/createPaybylink` — create payment link
 - `/queryPaybylink` — query link status
 - `/expirePaybylink` — expire payment link
@@ -542,6 +586,8 @@ Required test paths (based on product):
 - Direct API: `/orderAndPay`, `/orderQuery`, `/refund`, `/refundQuery`
 - PayByLink: `/createPaybylink`, `/queryPaybylink`, `/expirePaybylink`, `/orderQuery`, `/refund`, `/refundQuery`
 - Drop-In: add `/applyDropinSession`
+- Tokenization (any mode): add `/inquirePaymentToken`, `/removePaymentToken`
+- Tokenization + Drop-In: add `/applyDropinSession`, `/inquirePaymentToken`, `/removePaymentToken`
 - Subscription (PMX manage): add `/subscriptionCreate`, `/subscriptionQuery`, `/subscriptionCancel`
 - Subscription (merchant/auto-debit): same as Standard Acquiring (`/orderAndPay`, `/orderQuery`)
 - Dispute (if requested): `/caseSearch`, `/caseReplay`
@@ -646,13 +692,7 @@ Complete the configuration file:
   # To regenerate keypair: ask your AI agent to run sandbox_generate_keypair
   # To reconfigure: ask your AI agent to run get_sandbox_config
   ```
-- If fallback (MCP not available): use the following comments for empty fields:
-  - For `appId`/`merchantNo`/`payermax-public-key`/`merchant-public-key`/`merchant-private-key`:
-    ```
-    # Install PayerMax MCP Server for automatic setup: npx -y payermax-developer-mcp-server@latest
-    # Then run: sandbox_generate_keypair (generates keypair + uploads public key)
-    # Or obtain manually from https://developer.payermax.com
-    ```
+- If fallback (MCP not available): attach the credential TODO comment block from "Step 3 (MCP NOT available)" above to the empty `appId` / `merchantNo` / `payermax-public-key` / `merchant-public-key` / `merchant-private-key` fields.
 
 #### Pre-call request validation (mandatory)
 
@@ -661,30 +701,9 @@ Every outbound PayerMax API call must have a validation layer:
 2. Type/constraint check (string length, numeric range, enum, date format)
 3. Fail fast — block the API call on validation failure
 
-#### Pre-test configuration block
+#### Pre-test configuration and go-live steps
 
-> **If MCP Server was used (config is already filled):**
-> Configuration is complete. Run connectivity tests directly.
->
-> **If manual fallback:**
-> Before running connectivity tests, set up your sandbox credentials using ONE of these methods:
->
-> **Option A (Recommended): Use PayerMax MCP Server**
-> 1. Install: Add `payermax-developer-mcp-server` to your IDE's MCP configuration
-> 2. Ask your AI agent to run `get_sandbox_config` to auto-fill all credentials
->
-> **Option B: Manual setup via Developer Center**
-> 1. Sign in to https://developer.payermax.com
-> 2. Copy merchantNo and appId from the dashboard
-> 3. Download PayerMax sandbox public key
-> 4. The sandbox keypair is auto-generated — view it in the dashboard
-
-#### Production go-live checklist
-
-1. Fill production credentials in the primary config file
-2. Ensure `notifyUrl` is reachable from overseas networks
-3. Enable payment methods in the PayerMax Developer Center
-4. (If using MCP) Payment methods enabled via `sandbox_update_payment_methods` in sandbox will need to be separately contracted in production
+Both belong to the generated Setup Guide (`references/output/setup-guide-template.md`). If MCP filled the config, say so and run the tests directly.
 
 #### Do not
 
@@ -734,6 +753,8 @@ Before presenting the implementation to the user, verify against the deliverable
 - [ ] Run instructions provided (how to configure, test, and start)?
 - [ ] Setup Guide generated (`SETUP_GUIDE.md` with configuration steps, test instructions, production checklist)?
 - [ ] If dispute capability requested: chargeback notification handler + `/caseSearch` + `/caseReplay` implemented?
+- [ ] If tokenization: `/inquirePaymentToken` + `/removePaymentToken`, saved-card list with remove + confirmation, empty-list fallback, ownership check?
+- [ ] If drop_in: 3DS via `create3DSPopup` (not `window.open`), `frontCallbackUrl` allowlisted?
 
 **If any item is unchecked, generate it now before responding to the user.**
 
@@ -753,7 +774,6 @@ Fetch official API Markdown only for lines explicitly flagged as `verify-in-open
 - Ask the fewest questions possible
 - Never skip the confirmation gate after generating the solution
 - Prefer official API-facing field names (`merchantNo`, `paymentDetail.paymentMethodType`)
-- Do not invent CDN URLs, SDK parameters, or field names from memory
 - If the profile is inconsistent with constraints, stop and explain
 
 ## References
@@ -764,6 +784,7 @@ Fetch official API Markdown only for lines explicitly flagged as `verify-in-open
 | `references/variants/*.md` | Branch-specific stance per integration mode (standard acquiring) |
 | `references/variants/subscription/*.md` | Branch-specific stance per subscription scenario |
 | `references/shared/drop-in-frontend.md` | Drop-In frontend SDK guide (shared across all scenarios) |
+| `references/shared/tokenization.md` | Token query, second payment, unbinding (shared across all integration modes) |
 | `references/shared/dispute.md` | Dispute/chargeback capability (optional, cross-scenario) |
 | `references/output/` | Solution and summary templates |
 | `shared-models/scenario-profile.yaml` | Canonical scenario profile schema |

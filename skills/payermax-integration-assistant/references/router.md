@@ -17,7 +17,11 @@ After Phase 1 completes, use the rules below to validate the combination and pro
 - `cashier + full_payment_method + sales + no tokenization`
 - `cashier + specified_payment_method + sales + no tokenization`
 - `cashier + specified_payment_method + tokenization`
+- `direct_api + sales`
+- `direct_api + tokenization`
 - `drop_in + sales`
+- `drop_in + tokenization`          # payment_method_type must not include APM
+- `pay_by_link + sales`             # tokenization not supported
 
 ### Valid combinations — Subscription
 
@@ -29,7 +33,7 @@ After Phase 1 completes, use the rules below to validate the combination and pro
 
 | # | Condition | Action |
 |---|---|---|
-| 1 | Tokenized + full cashier | Reject → rewrite to `specified_payment_method` |
+| 1 | Tokenized + full cashier | Rewrite to `specified_payment_method` **and inform the user**; `payment_method_type` then becomes mandatory (can no longer default to "all") |
 | 2 | Specified cashier without `payment_method_type` | Must ask for it |
 | 3 | `card_org` without CARD | Reject → `card_org` only when `payment_method_type` includes CARD |
 | 4 | `target_org` with only CARD | Reject → use `card_org` for card-scheme narrowing |
@@ -39,6 +43,19 @@ After Phase 1 completes, use the rules below to validate the combination and pro
 | 8 | Subscription without `subscription_scenario` | Must ask for it |
 | 9 | Subscription without payment method | Must ask for it |
 | 10 | APM + drop_in | Reject → route to cashier instead |
+| 11 | `tokenization` + `drop_in` + APM | Reject → APM has no drop-in component; use `tokenization-cashier` or `tokenization-api` |
+| 12 | `tokenization` + `pay_by_link` | **Ask, do not auto-rewrite** → no semantically equivalent target; the user chooses between dropping tokenization or switching to specified-payment-method cashier (see the conflict guard in `SKILL.md`) |
+| 13 | `tokenization_enabled: true` without `token_type` | Default to `payermax_token`; use `external_token` only when the merchant explicitly operates their own vault |
+
+### Tokenization variant selection
+
+| `integration_mode` | Variant file |
+| --- | --- |
+| `cashier` (must be `specified_payment_method`) | `references/variants/tokenization-cashier.md` |
+| `direct_api` | `references/variants/tokenization-api.md` |
+| `drop_in` | `references/variants/tokenization-dropin.md` |
+
+All three additionally require `references/shared/tokenization.md`.
 
 ## Output format
 
@@ -46,7 +63,7 @@ After Phase 1 completes, use the rules below to validate the combination and pro
 scenario_profile:
   domain: acquiring
   customer_product: acquiring_standard  # or receipt_subscription
-  integration_mode: cashier             # cashier / drop_in / direct_api
+  integration_mode: cashier             # cashier / drop_in / direct_api / pay_by_link
   cashier_variant: specified_payment_method  # full_payment_method / specified_payment_method (cashier only)
   transaction_mode: sales               # sales
   tokenization_enabled: false
@@ -108,6 +125,27 @@ scenario_profile:
     - GOOGLEPAY
 workflow_branch: drop-in
 variant_file: references/variants/drop-in.md
+```
+
+### Drop-in + tokenization (card, saved for reuse)
+
+> "自建收银台用组件收卡，用户下次支付免输卡号。"
+
+```yaml
+scenario_profile:
+  domain: acquiring
+  customer_product: acquiring_standard
+  integration_mode: drop_in
+  transaction_mode: sales
+  tokenization_enabled: true
+  token_type: payermax_token
+  payment_method_type:
+    - CARD
+workflow_branch: tokenization-dropin
+variant_file: references/variants/tokenization-dropin.md
+shared_files:
+  - references/shared/tokenization.md
+  - references/shared/drop-in-frontend.md
 ```
 
 ### Subscription — PayerMax manage (card)

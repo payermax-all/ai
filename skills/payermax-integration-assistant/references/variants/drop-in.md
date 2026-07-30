@@ -79,7 +79,7 @@ See `references/shared/drop-in-frontend.md` — "Fetch frontend API docs" sectio
 | `paymentDetail.paymentToken` | Not used | **Required** (from JS SDK) |
 | `paymentDetail.sessionKey` | Not used | **Required** (from `/applyDropinSession`) |
 | `paymentDetail.buyerInfo` | Not used | **Required** (`clientIp`, `userAgent`) |
-| `redirectUrl` in response | Present | Not present (payment inline) |
+| `redirectUrl` in response | Present (always) | Present **only when 3DS is required** — must be handled via `create3DSPopup` |
 
 ## Branch-specific fields on `/orderAndPay`
 
@@ -114,8 +114,12 @@ See `references/shared/drop-in-frontend.md` — "Frontend test helper panel" sec
 - `paymentToken` and `sessionKey` are mandatory in the `/orderAndPay` request; without them the payment will fail
 - `country` is required (unlike cashier)
 - `expireTime` must be ≥ 1800 and ≤ 86400; values outside this range are clamped by the system
-- 3DS authentication may be triggered for card payments; the component handles the redirect flow
+- 3DS authentication may be triggered for card payments. The SDK does **not** handle it automatically — when `/orderAndPay` returns `redirectUrl`, the merchant frontend MUST call `component.create3DSPopup({ url })`. Do not substitute `window.open` or a full-page redirect. See `references/shared/drop-in-frontend.md` — "3DS authentication".
 - Do not ignore `data.status` in the `/orderAndPay` synchronous response — for Drop-In card payments without 3DS, the final result (`SUCCESS`) may arrive synchronously without callback
+
+## Tokenization
+
+If `tokenization_enabled: true`, this variant does not apply — route to `references/variants/tokenization-dropin.md`, which covers `applyDropinSession` with `tokenForFutureUse`, the `agreementAccepted` consent rule, and token creation on first payment.
 
 ## Do not use this branch when
 
