@@ -9,6 +9,7 @@ export interface Credentials {
   accessToken: string;
   expiresAt: string;
   email?: string;
+  userId?: string;
 }
 
 export class TokenStore {
@@ -24,7 +25,7 @@ export class TokenStore {
 
   isValid(): boolean {
     const creds = this.load();
-    if (!creds) return false;
+    if (!creds?.accessToken) return false;
     return new Date(creds.expiresAt) > new Date();
   }
 

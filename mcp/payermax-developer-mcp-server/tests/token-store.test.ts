@@ -49,6 +49,15 @@ describe('TokenStore', () => {
     expect(store.isValid()).toBe(false);
   });
 
+  it('should not treat userId as an access token', () => {
+    store.save({
+      accessToken: '',
+      userId: 'display-only-user',
+      expiresAt: new Date(Date.now() + 86400000).toISOString(),
+    });
+    expect(store.isValid()).toBe(false);
+  });
+
   it('should clear credentials', () => {
     const creds: Credentials = {
       accessToken: 'test-token',

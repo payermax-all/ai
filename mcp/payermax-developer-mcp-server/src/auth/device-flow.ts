@@ -1,17 +1,20 @@
 import { CONFIG } from '../config.js';
 
-interface DeviceCodeResponse {
+export interface DeviceCodeResponse {
   deviceCode: string;
   userCode: string;
   verificationUri: string;
+  verificationUriComplete?: string;
   expiresIn: number;
   interval: number;
 }
 
-interface TokenResponse {
+export interface TokenResponse {
   accessToken: string;
   tokenType: string;
   expiresIn: number;
+  userId?: string;
+  email?: string;
 }
 
 function sleep(ms: number): Promise<void> {
@@ -34,9 +37,13 @@ export class DeviceFlow {
     return json.data;
   }
 
-  async startPolling(deviceCode: string): Promise<TokenResponse> {
+  async startPolling(deviceCode: string, intervalSeconds?: number): Promise<TokenResponse> {
     this.polling = true;
     const startTime = Date.now();
+    const pollIntervalMs = Math.max(
+      CONFIG.POLL_INTERVAL_MS,
+      (intervalSeconds ?? 0) * 1000,
+    );
 
     while (this.polling) {
       if (Date.now() - startTime > CONFIG.POLL_TIMEOUT_MS) {
@@ -44,7 +51,7 @@ export class DeviceFlow {
         throw new Error('Device code expired. Please try again.');
       }
 
-      await sleep(CONFIG.POLL_INTERVAL_MS);
+      await sleep(pollIntervalMs);
 
       const resp = await fetch(`${CONFIG.API_BASE_URL}/oauth2/device/token`, {
         method: 'POST',
@@ -66,7 +73,7 @@ export class DeviceFlow {
 
       // slow_down — extra wait
       if (json.code === 'slow_down') {
-        await sleep(CONFIG.POLL_INTERVAL_MS);
+        await sleep(pollIntervalMs);
         continue;
       }
 

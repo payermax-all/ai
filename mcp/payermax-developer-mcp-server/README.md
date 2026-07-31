@@ -57,7 +57,8 @@ Then configure your IDE to use the local build:
 
 1. Add the MCP configuration above to your IDE
 2. Ask your AI agent: **"Authenticate with PayerMax Developer Center"**
-3. Open the URL shown in the terminal and enter the verification code (one-time, ~30 seconds)
+3. The browser opens PayerMax Developer Center automatically. Sign in if required; sandbox authorization completes automatically after sign-in.
+   If the browser cannot be opened, copy the complete verification URL returned by the agent into your browser.
 4. Done — all tools are now available
 
 ## Works Best With PayerMax Integration Skill
@@ -113,6 +114,7 @@ This MCP Server is designed to work alongside the **PayerMax Integration Assista
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PAYERMAX_ENV` | `sandbox` | Environment (`sandbox` only for now) |
+| `PAYERMAX_ALLOW_HTTP_LOCALHOST` | `false` | Allow `http://localhost` verification URLs for explicit local testing only |
 
 ## Versioning
 

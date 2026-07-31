@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- `authenticate` now prefers the backend-provided complete verification URL and safely builds one from legacy `verificationUri` and `userCode` responses.
+- Browser launch uses parameterized child-process arguments instead of shell command construction.
+- Authorization completes automatically after sign-in; if browser launch fails, the tool returns a copyable complete URL without a separate verification code.
+- Valid access tokens are reused without starting a new Device Flow; optional `userId` remains display-only metadata.
+
+### Added
+- Verification URL validation and Device Flow/authentication unit tests.
+
 ## [1.0.0] - 2026-07-21
 
 ### Added

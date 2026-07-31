@@ -26,7 +26,10 @@ Install the PayerMax Developer MCP Server for zero-configuration sandbox setup:
 2. Ask your AI agent to authenticate:
    > "Authenticate with PayerMax Developer Center"
 
-3. Open the verification URL in your browser and enter the code (one-time only).
+3. The browser opens PayerMax Developer Center automatically. Sign in if required.
+   Sandbox authorization completes automatically after sign-in; no verification
+   code or additional confirmation is required. If the browser cannot be opened,
+   copy the complete verification URL returned by the agent into your browser.
 
 4. All sandbox credentials will be automatically configured.
 

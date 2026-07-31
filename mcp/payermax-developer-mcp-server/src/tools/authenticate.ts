@@ -1,16 +1,104 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { DeviceFlow } from '../auth/device-flow.js';
+import { DeviceFlow, type DeviceCodeResponse, type TokenResponse } from '../auth/device-flow.js';
 import { TokenStore } from '../auth/token-store.js';
 import { ApiClient } from '../api/client.js';
-import { exec } from 'node:child_process';
+import { resolveVerificationUrl } from '../auth/verification-url.js';
+import { spawn } from 'node:child_process';
 import { platform } from 'node:os';
 
-function openBrowser(url: string): void {
-  const cmd = platform() === 'darwin' ? 'open' :
-              platform() === 'win32' ? 'start' : 'xdg-open';
-  exec(`${cmd} "${url}"`, (err) => {
-    if (err) process.stderr.write(`Failed to open browser: ${err.message}\n`);
+type TextToolResult = {
+  content: Array<{ type: 'text'; text: string }>;
+};
+
+interface AuthDeviceFlow {
+  requestDeviceCode(): Promise<DeviceCodeResponse>;
+  startPolling(deviceCode: string, intervalSeconds?: number): Promise<TokenResponse>;
+  isPolling(): boolean;
+}
+
+type BrowserOpener = (url: string) => Promise<boolean>;
+
+export function openBrowser(url: string): Promise<boolean> {
+  const currentPlatform = platform();
+  const command = currentPlatform === 'darwin'
+    ? 'open'
+    : currentPlatform === 'win32'
+      ? 'rundll32.exe'
+      : 'xdg-open';
+  const args = currentPlatform === 'win32'
+    ? ['url.dll,FileProtocolHandler', url]
+    : [url];
+
+  return new Promise(resolve => {
+    const child = spawn(command, args, {
+      shell: false,
+      stdio: 'ignore',
+    });
+    let settled = false;
+    const finish = (opened: boolean) => {
+      if (settled) return;
+      settled = true;
+      resolve(opened);
+    };
+    child.once('error', error => {
+      process.stderr.write(`Failed to open browser: ${error.message}\n`);
+      finish(false);
+    });
+    child.once('close', code => {
+      if (code !== 0) {
+        process.stderr.write(`Failed to open browser (exit code ${code ?? 'unknown'}).\n`);
+      }
+      finish(code === 0);
+    });
   });
+}
+
+export function createAuthenticateHandler(
+  tokenStore: TokenStore,
+  deviceFlow: AuthDeviceFlow,
+  browserOpener: BrowserOpener = openBrowser,
+): () => Promise<TextToolResult> {
+  return async () => {
+    if (tokenStore.isValid()) {
+      const creds = tokenStore.load()!;
+      return {
+        content: [{
+          type: 'text',
+          text: `Already authenticated as ${creds.email || creds.userId || 'user'}. Token is valid until ${creds.expiresAt}.`,
+        }],
+      };
+    }
+
+    const response = await deviceFlow.requestDeviceCode();
+    const verificationUrl = resolveVerificationUrl(response);
+
+    deviceFlow.startPolling(response.deviceCode, response.interval).then(tokenResp => {
+      const expiresAt = new Date(Date.now() + tokenResp.expiresIn * 1000).toISOString();
+      tokenStore.save({
+        accessToken: tokenResp.accessToken,
+        expiresAt,
+        email: tokenResp.email,
+        userId: tokenResp.userId,
+      });
+    }).catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      process.stderr.write(`Auth polling error: ${message}\n`);
+    });
+
+    const opened = await browserOpener(verificationUrl);
+    const text = opened
+      ? `PayerMax authorization has started.\n\n` +
+        `The browser should open automatically. Sign in if required.\n` +
+        `Sandbox authorization completes automatically after sign-in.\n\n` +
+        `Verification URL: ${verificationUrl}\n\n` +
+        `After signing in, run check_auth_status.`
+      : `The browser could not be opened automatically. Open the complete verification link below and sign in. ` +
+        `Sandbox authorization completes automatically.\n\n` +
+        `Verification URL: ${verificationUrl}\n\n` +
+        `After signing in, run check_auth_status.`;
+
+    return { content: [{ type: 'text', text }] };
+  };
 }
 
 export function registerAuthTools(server: McpServer, tokenStore: TokenStore, apiClient: ApiClient) {
@@ -18,43 +106,9 @@ export function registerAuthTools(server: McpServer, tokenStore: TokenStore, api
 
   server.tool(
     'authenticate',
-    'Initiate OAuth2 Device Flow authentication with PayerMax Developer Center. Returns a verification URL and code for the user to open in their browser.',
+    'Initiate OAuth2 Device Flow authentication with PayerMax Developer Center. Opens the complete verification URL in the user browser.',
     {},
-    async () => {
-      // Check if already authenticated
-      if (tokenStore.isValid()) {
-        const creds = tokenStore.load()!;
-        return { content: [{ type: 'text', text: `Already authenticated as ${creds.email || 'user'}. Token is valid until ${creds.expiresAt}.` }] };
-      }
-
-      // Request device code
-      const response = await deviceFlow.requestDeviceCode();
-
-      // Start background polling
-      deviceFlow.startPolling(response.deviceCode).then(tokenResp => {
-        const expiresAt = new Date(Date.now() + tokenResp.expiresIn * 1000).toISOString();
-        tokenStore.save({
-          accessToken: tokenResp.accessToken,
-          expiresAt,
-        });
-      }).catch(err => {
-        process.stderr.write(`Auth polling error: ${err.message}\n`);
-      });
-
-      // Auto-open browser for user convenience
-      openBrowser(response.verificationUri);
-
-      return {
-        content: [{
-          type: 'text',
-          text: `Please open the following URL in your browser and enter the code to authorize:\n\n` +
-                `URL: ${response.verificationUri}\n` +
-                `Code: ${response.userCode}\n\n` +
-                `The code expires in ${response.expiresIn} seconds.\n` +
-                `After authorizing, run check_auth_status to confirm.`
-        }]
-      };
-    }
+    createAuthenticateHandler(tokenStore, deviceFlow),
   );
 
   server.tool(

@@ -380,10 +380,18 @@ Use template: `references/output/payermax-integration-solution-template.md`
 **MCP early-auth (optional):** At this confirmation gate, if the `payermax-developer` MCP server is connected but not yet authenticated, include in your confirmation prompt:
 
 > The PayerMax MCP Server has been detected as connected. May I proceed with authorizing the sandbox account? Upon authorization, the actual credentials (including merchantNo and key pairs) will be automatically populated during code generation.
-> - **Authorization** — Enter the verification code in your browser (approx. 10 seconds)
+> - **Authorization** — Sign in if required. Sandbox authorization completes automatically; no code entry or confirmation click is required.
 > - **Skip** — Handle it later when generating code
 
-If user chooses to authorize: call `authenticate`, present the URL + code, then call `check_auth_status` to confirm. If user skips or MCP is not connected: proceed normally — Phase 3 will handle via its existing MCP-first/fallback logic.
+If the user chooses to authorize:
+1. If valid credentials already exist, continue directly to the MCP-first configuration workflow without starting another login.
+2. Otherwise, call `authenticate` and explain that the browser should open automatically.
+3. Ask the user only to sign in if required; sandbox authorization completes automatically after sign-in.
+4. Do not display, request, or compare a verification code or device code.
+5. Present the complete verification URL returned by MCP only when automatic browser opening fails.
+6. Call `check_auth_status` until authentication succeeds or the authorization link expires, then continue the MCP-first configuration workflow.
+
+If the user skips or MCP is not connected, proceed normally — Phase 3 will handle via its existing MCP-first/fallback logic.
 
 ## Phase 3: Implementation (after confirmation only)
 
