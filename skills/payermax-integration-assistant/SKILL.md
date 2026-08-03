@@ -171,8 +171,8 @@ Wait for user selection. Then set `integration_mode` accordingly:
 - `pay_by_link` → **stop and ask**, never auto-rewrite: tokens need a signed-in user, pay-by-link has no session, so there is no equivalent target.
 
   > 链接支付不支持 Token（Token 需登录态用户与已保存卡片管理界面）。请选择 / Choose:
-  > - **保留链接支付，放弃 Token** / Keep pay-by-link, drop tokenization
-  > - **改用指定支付方式收银台以启用 Token** / Switch to specified-payment-method cashier
+  > - Keep pay-by-link, drop tokenization
+  > - Switch to specified-payment-method cashier
 
 Never silently set `tokenization_enabled: false` to resolve this conflict.
 
@@ -182,14 +182,14 @@ Never silently set `tokenization_enabled: false` to resolve this conflict.
 
 **Stop and ask:**
 
-> 是否需要保存用户的支付方式用于后续支付？ / Save the user's payment method for future payments?
+> Save the user's payment method for future payments?
 >
-> - **Yes — 启用 Token**: 首次支付保存支付方式，后续复用 `paymentTokenID`；必须同时实现已保存卡片管理界面（列表 + 解绑）/ later payments reuse `paymentTokenID`; a saved-card management UI (list + remove) is mandatory.
+> - **Yes — 启用 Token**: later payments reuse `paymentTokenID`; a saved-card management UI (list + remove) is mandatory.
 > - **No — 仅一次性支付** / one-time only: every payment requires full input.
 >
 > https://docs.payermax.com/en/202506-version/receipt/tokenization/introduction.html
 >
-> Please select / 请选择: **Yes** / **No**
+> Please select: **Yes** / **No**
 
 Set `tokenization_enabled`. If `true`, default `token_type: payermax_token` unless the merchant runs its own vault.
 
@@ -268,10 +268,6 @@ Wait for user selection. Set `payment_method_type` accordingly.
 > - **Payment method names** (e.g., DANA, KakaoPay, GCash) — will integrate those specific methods
 > - **Country/region names** (e.g., Indonesia, Korea) — will integrate ALL available APM methods for that country
 >
-> 您可以输入：
-> - **支付方式名称**（如 DANA、KakaoPay、GCash）— 将集成指定的支付方式
-> - **国家/地区名称**（如印尼、韩国）— 将集成该国家下所有可用的 APM 支付方式
->
 > | Country / 国家 | Available APMs / 可用 APM |
 > | --- | --- |
 > | Indonesia / 印尼 | DANA, OVO, GoPay, ShopeePay |
@@ -286,7 +282,7 @@ Wait for user selection. Set `payment_method_type` accordingly.
 > Full payment method list: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/payment-method-list/standard-acquiring-products.html
 > Supported countries & currencies: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/supported-countries-currencies-and-languages.html
 >
-> Please specify payment method names or countries / 请输入支付方式名称或国家:
+> Please specify payment method names or countries:
 
 Wait for user response. If the user provides country names, expand to all APM methods available for those countries. Record in the scenario profile as `country` and `target_org` fields accordingly.
 
@@ -297,7 +293,6 @@ After completing the steps above, review the gathered information and present 2�
 **Stop and ask:**
 
 > Before I proceed to generate the integration solution, here are a few questions that would help me tailor the implementation to your needs (all optional — feel free to skip any):
-> 在我生成集成方案之前，以下几个问题可以帮助我更好地定制实现（均为可选——可跳过任何问题）：
 >
 > [Generate 2–4 questions based on the actual scenario from the question bank below.]
 
@@ -305,19 +300,17 @@ After completing the steps above, review the gathered information and present 2�
 
 | Condition | Possible question |
 | --- | --- |
-| Any product | Do you need refund support? If yes, should it support partial refunds? / 是否需要退款功能？如需要，是否支持部分退款？ |
-| Any product | What is your expected transaction volume (daily/monthly)? This affects architecture recommendations. / 预期交易量是多少（日/月）？这会影响架构建议。 |
-| Any product | Do you have an existing order/payment system that this integration needs to connect to? / 是否有现有的订单/支付系统需要对接？ |
-| Any product | Which programming language and framework is your backend built with? / 后端使用什么编程语言和框架？ |
-| Subscription | Do you need trial periods or promotional pricing for new subscribers? / 是否需要为新订阅用户提供试用期或优惠价格？ |
-| Subscription (pmx_manage) | What should happen when a periodic deduction fails — terminate the plan or keep it active? / 周期扣款失败时应该怎么处理——终止计划还是保持活跃？ |
-| Subscription (merchant_manage / auto_debit) | What triggers a subsequent deduction in your business logic? (e.g., billing cycle, usage threshold, manual action) / 什么触发后续扣款？（如计费周期、用量阈值、手动操作） |
-| tokenization_enabled = true | Should users be able to save multiple cards, or replace the existing one each time? / 用户可以保存多张卡，还是每次覆盖已有的卡？ |
-| drop_in | Do you need to customize the payment component's appearance (colors, fonts, locale)? / 是否需要自定义支付组件的外观（颜色、字体、语言）？ |
-| Card selected | Do you need to restrict card brands (e.g., Visa/Mastercard only)? / 是否需要限制卡品牌（如仅 Visa/Mastercard）？ |
-| APM selected | Are there specific APM wallets/methods you want to prioritize or exclude? / 是否有特定的 APM 钱包/方式需要优先或排除？ |
-| Multi-terminal | Which terminals do you need to support: web, H5 (mobile browser), native app, or all? / 需要支持哪些终端：Web、H5（移动浏览器）、原生 App，还是全部？ |
-| Any product | Do you need to handle payment disputes/chargebacks (receive notifications, query cases, submit evidence)? / 是否需要处理支付争议/拒付（接收通知、查询案件、提交证据）？ |
+| Any product | Do you need refund support? If yes, should it support partial refunds?  |
+| Any product | Do you have an existing order/payment system that this integration needs to connect to?  |
+| Subscription | Do you need trial periods or promotional pricing for new subscribers?  |
+| Subscription (pmx_manage) | What should happen when a periodic deduction fails — terminate the plan or keep it active?  |
+| Subscription (merchant_manage / auto_debit) | What triggers a subsequent deduction in your business logic? (e.g., billing cycle, usage threshold, manual action)  |
+| tokenization_enabled = true | Should users be able to save multiple cards, or replace the existing one each time?  |
+| drop_in | Do you need to customize the payment component's appearance (colors, fonts, locale)?  |
+| Card selected | Do you need to restrict card brands (e.g., Visa/Mastercard only)?  |
+| APM selected | Are there specific APM wallets/methods you want to prioritize or exclude?  |
+| Multi-terminal | Which terminals do you need to support: web, H5 (mobile browser), native app, or all?  |
+| Any product | Do you need to handle payment disputes/chargebacks (receive notifications, query cases, submit evidence)?  |
 
 **Rules:**
 - Select 2–4 questions maximum — do not overwhelm the user
