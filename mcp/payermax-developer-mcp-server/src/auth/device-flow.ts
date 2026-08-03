@@ -3,8 +3,7 @@ import { CONFIG } from '../config.js';
 export interface DeviceCodeResponse {
   deviceCode: string;
   userCode: string;
-  verificationUri: string;
-  verificationUriComplete?: string;
+  verificationUriComplete: string;
   expiresIn: number;
   interval: number;
 }

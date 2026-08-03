@@ -2,8 +2,12 @@ import { CONFIG } from '../config.js';
 import type { DeviceCodeResponse } from './device-flow.js';
 
 function isTrustedHostname(hostname: string): boolean {
-  return hostname === 'developer.payermax.com' ||
-    hostname.endsWith('.developer.payermax.com');
+  return CONFIG.VERIFICATION_URL_ALLOWED_HOSTNAMES.some(allowedHostname => {
+    if (allowedHostname.startsWith('*.')) {
+      return hostname.endsWith(`.${allowedHostname.slice(2)}`);
+    }
+    return hostname === allowedHostname || hostname.endsWith(`.${allowedHostname}`);
+  });
 }
 
 export function validateVerificationUrl(value: string): string {
@@ -31,20 +35,9 @@ export function validateVerificationUrl(value: string): string {
 
 export function resolveVerificationUrl(response: DeviceCodeResponse): string {
   const complete = response.verificationUriComplete?.trim();
-  if (complete) {
-    try {
-      return validateVerificationUrl(complete);
-    } catch {
-      // Support a partially rolled-out backend by rebuilding from the legacy fields.
-    }
+  if (!complete) {
+    throw new Error('The server did not return a complete verification URL.');
   }
 
-  let url: URL;
-  try {
-    url = new URL(response.verificationUri);
-  } catch {
-    throw new Error('The verification URL returned by the server is invalid.');
-  }
-  url.searchParams.set('user_code', response.userCode);
-  return validateVerificationUrl(url.toString());
+  return validateVerificationUrl(complete);
 }

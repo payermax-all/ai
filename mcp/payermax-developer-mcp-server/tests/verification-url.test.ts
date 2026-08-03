@@ -2,13 +2,14 @@ import {
   resolveVerificationUrl,
   validateVerificationUrl,
 } from '../src/auth/verification-url';
+import { CONFIG } from '../src/config';
 import type { DeviceCodeResponse } from '../src/auth/device-flow';
 
 function response(overrides: Partial<DeviceCodeResponse> = {}): DeviceCodeResponse {
   return {
     deviceCode: 'device-code',
     userCode: 'ABCD-12 34',
-    verificationUri: 'https://developer.payermax.com/oauth2/device',
+    verificationUriComplete: 'https://developer.payermax.com/oauth2/device?user_code=SERVER-CODE',
     expiresIn: 300,
     interval: 5,
     ...overrides,
@@ -16,33 +17,57 @@ function response(overrides: Partial<DeviceCodeResponse> = {}): DeviceCodeRespon
 }
 
 describe('verification URL resolution', () => {
-  it('prefers the complete URL returned by the backend', () => {
+  const defaultAllowedHostnames = CONFIG.VERIFICATION_URL_ALLOWED_HOSTNAMES;
+
+  afterEach(() => {
+    CONFIG.VERIFICATION_URL_ALLOWED_HOSTNAMES = defaultAllowedHostnames;
+  });
+
+  it('uses the complete URL returned by the backend', () => {
     const complete = 'https://developer.payermax.com/oauth2/device?user_code=SERVER-CODE';
     expect(resolveVerificationUrl(response({
       verificationUriComplete: complete,
     }))).toBe(complete);
   });
 
-  it('builds a complete URL for legacy backend responses', () => {
-    const resolved = new URL(resolveVerificationUrl(response()));
-    expect(resolved.searchParams.get('user_code')).toBe('ABCD-12 34');
+  it('uses the configured hostname allowlist, including subdomains', () => {
+    CONFIG.VERIFICATION_URL_ALLOWED_HOSTNAMES = ['verification.example.test'];
+
+    expect(validateVerificationUrl(
+      'https://uat.verification.example.test/oauth2/device?user_code=SERVER-CODE',
+    )).toBe('https://uat.verification.example.test/oauth2/device?user_code=SERVER-CODE');
+    expect(() => validateVerificationUrl(
+      'https://developer.payermax.com/oauth2/device?user_code=SERVER-CODE',
+    )).toThrow('not trusted');
   });
 
-  it('preserves existing query parameters while replacing user_code', () => {
-    const resolved = new URL(resolveVerificationUrl(response({
-      verificationUri: 'https://developer.payermax.com/oauth2/device?source=mcp&user_code=old',
-    })));
-    expect(resolved.searchParams.get('source')).toBe('mcp');
-    expect(resolved.searchParams.get('user_code')).toBe('ABCD-12 34');
-    expect(resolved.search).toContain('user_code=ABCD-12+34');
+  it('uses wildcard hostname entries for subdomains only', () => {
+    CONFIG.VERIFICATION_URL_ALLOWED_HOSTNAMES = ['*.payermax.com'];
+
+    expect(validateVerificationUrl(
+      'https://sandbox.payermax.com/oauth2/device?user_code=SERVER-CODE',
+    )).toBe('https://sandbox.payermax.com/oauth2/device?user_code=SERVER-CODE');
+    expect(() => validateVerificationUrl(
+      'https://payermax.com/oauth2/device?user_code=SERVER-CODE',
+    )).toThrow('not trusted');
   });
 
-  it('falls back to legacy fields when the complete URL is untrusted', () => {
-    const resolved = resolveVerificationUrl(response({
+  it('rejects insecure localhost by default', () => {
+    expect(() => validateVerificationUrl(
+      'http://localhost:3000/oauth2/device?user_code=SERVER-CODE',
+    )).toThrow('not trusted');
+  });
+
+  it('rejects a missing complete URL', () => {
+    expect(() => resolveVerificationUrl(response({
+      verificationUriComplete: ' ',
+    }))).toThrow('complete verification URL');
+  });
+
+  it('rejects an untrusted complete URL', () => {
+    expect(() => resolveVerificationUrl(response({
       verificationUriComplete: 'https://attacker.example/oauth2/device?user_code=stolen',
-    }));
-    expect(resolved).toContain('developer.payermax.com');
-    expect(new URL(resolved).searchParams.get('user_code')).toBe('ABCD-12 34');
+    }))).toThrow('not trusted');
   });
 
   it.each([

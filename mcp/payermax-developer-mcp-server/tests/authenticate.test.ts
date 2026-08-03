@@ -6,7 +6,6 @@ import type { DeviceCodeResponse, TokenResponse } from '../src/auth/device-flow'
 const deviceResponse: DeviceCodeResponse = {
   deviceCode: 'private-device-code',
   userCode: 'ABCD-1234',
-  verificationUri: 'https://developer.payermax.com/oauth2/device',
   verificationUriComplete: 'https://developer.payermax.com/oauth2/device?user_code=ABCD-1234',
   expiresIn: 300,
   interval: 7,
