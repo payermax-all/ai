@@ -78,26 +78,26 @@ This MCP Server is designed to work alongside the **PayerMax Integration Assista
 
 | Tool | Description |
 |------|-------------|
-| `authenticate` | Initiate OAuth2 Device Flow authentication |
-| `check_auth_status` | Check if authentication is complete |
-| `revoke_token` | Revoke current access token |
-| `get_sandbox_config` | Get sandbox config (merchantNo, appId, keys, notifyUrl) |
-| `sandbox_generate_keypair` | Generate RSA keypair (public key auto-uploaded, private key returned once) |
-| `sandbox_upload_merchant_public_key` | Upload an existing public key to PayerMax |
+| `authenticate` | Initiate OAuth2 Device Flow authentication with PayerMax Developer Center |
+| `check_auth_status` | Check if the OAuth2 Device Flow authentication has been completed |
+| `revoke_token` | Revoke current access token and clear local credentials |
+| `get_sandbox_config` | Get sandbox config (merchantNo, appId, merchant public key, PayerMax public key, notifyUrl). Does NOT return private key |
+| `sandbox_generate_keypair` | Generate RSA keypair — public key auto-uploaded, private key returned once only |
+| `sandbox_upload_merchant_public_key` | Upload an existing merchant public key to PayerMax |
 | `sandbox_configure_notify_url` | Set sandbox callback notification URL |
 | `sandbox_query_payment_methods` | Query contracted payment methods |
 | `sandbox_update_payment_methods` | Enable/disable payment methods |
-| `sandbox_trigger_acceptance` | Trigger acceptance testing |
-| `sandbox_get_acceptance_status` | Query acceptance test results |
-| `sandbox_query_orders` | Query orders (trade, pay, disburse, paylink, subscription) |
-| `sandbox_query_subscription_detail` | Query subscription deduction records |
-| `sandbox_resend_notification` | Resend webhook notification |
-| `sandbox_dispute_query` | Query dispute case info |
-| `sandbox_dispute_create` | Create mock dispute/chargeback case |
-| `sandbox_dispute_reply` | Reply to a dispute case |
-| `sandbox_dispute_close` | Close a dispute case |
-| `sandbox_subscription_mock_period` | Mock subscription billing period |
-| `sandbox_subscription_mock_resend` | Resend subscription deduction notification |
+| `sandbox_trigger_acceptance` | Trigger sandbox acceptance testing |
+| `sandbox_get_acceptance_status` | Query acceptance test status and results |
+| `sandbox_query_orders` | Query orders by type (trade, pay, disburse, paylink, subscription) — exact or recent mode |
+| `sandbox_query_subscription_detail` | Query deduction records for a subscription plan |
+| `sandbox_resend_notification` | Resend webhook notification for a trade order |
+| `sandbox_dispute_query` | Query dispute case info for a payment order |
+| `sandbox_dispute_create` | Create mock dispute/chargeback case (DISPUTE, CHARGEBACK, FRAUD, CUSTOMER_COMPLAINT) |
+| `sandbox_dispute_reply` | Reply to (defend against) a dispute case |
+| `sandbox_dispute_close` | Close a dispute case with a judgement result |
+| `sandbox_subscription_mock_period` | Mock a subscription deduction period result (success/failure) |
+| `sandbox_subscription_mock_resend` | Resend a subscription deduction notification |
 
 ## Key Management
 
@@ -108,13 +108,6 @@ This MCP Server is designed to work alongside the **PayerMax Integration Assista
 - **Manual** — Upload your public key via [developer.payermax.com](https://developer.payermax.com) (Settings → Developer Info → Key Management).
 
 > ⚠️ Each call to `sandbox_generate_keypair` or `sandbox_upload_merchant_public_key` overwrites the previously uploaded public key. Old keypairs become invalid.
-
-## Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PAYERMAX_ENV` | `sandbox` | Environment (`sandbox` only for now) |
-| `PAYERMAX_ALLOW_HTTP_LOCALHOST` | `false` | Allow `http://localhost` verification URLs for explicit local testing only |
 
 ## Versioning
 
