@@ -55,11 +55,10 @@ Then configure your IDE to use the local build:
 
 ## Getting Started
 
-1. Add the MCP configuration above to your IDE
-2. Ask your AI agent: **"Authenticate with PayerMax Developer Center"**
-3. The browser opens PayerMax Developer Center automatically. Sign in if required; sandbox authorization completes automatically after sign-in.
-   If the browser cannot be opened, copy the complete verification URL returned by the agent into your browser.
-4. Done — all tools are now available
+1. Add the MCP configuration above to your IDE.
+2. Ask your AI agent: **"Authenticate with PayerMax Developer Center."**
+3. Complete the authorization flow shown by PayerMax Developer Center. The agent normally opens the browser; if it cannot, copy the complete verification URL returned by the agent into your browser.
+4. Done — all tools are now available.
 
 ## Works Best With PayerMax Integration Skill
 
@@ -89,7 +88,7 @@ This MCP Server is designed to work alongside the **PayerMax Integration Assista
 | `sandbox_update_payment_methods` | Enable/disable payment methods |
 | `sandbox_trigger_acceptance` | Trigger sandbox acceptance testing |
 | `sandbox_get_acceptance_status` | Query acceptance test status and results |
-| `sandbox_query_orders` | Query orders by type (trade, pay, disburse, paylink, subscription) — exact or recent mode |
+| `sandbox_query_orders` | Query orders by type (trade, pay, disburse, paylink, subscription) — exact lookup or the latest 15 records |
 | `sandbox_query_subscription_detail` | Query deduction records for a subscription plan |
 | `sandbox_resend_notification` | Resend webhook notification for a trade order |
 | `sandbox_dispute_query` | Query dispute case info for a payment order |
@@ -99,15 +98,95 @@ This MCP Server is designed to work alongside the **PayerMax Integration Assista
 | `sandbox_subscription_mock_period` | Mock a subscription deduction period result (success/failure) |
 | `sandbox_subscription_mock_resend` | Resend a subscription deduction notification |
 
+## What Can I Ask My Agent?
+
+Use natural-language requests. The agent selects the appropriate MCP tool and asks for any required identifier or configuration value.
+
+### Authentication
+
+```text
+Authenticate with PayerMax Developer Center.
+
+Check whether my PayerMax Developer Center session is authenticated.
+
+Revoke my PayerMax Developer Center access token on this machine.
+```
+
+### Sandbox configuration and key management
+
+```text
+Show my sandbox merchant configuration.
+
+Generate a new sandbox RSA keypair, upload its public key to PayerMax, and save the private key in my project configuration.
+
+I already have an RSA keypair. Upload this merchant public key to PayerMax: <BASE64_PUBLIC_KEY>.
+
+Set my sandbox notification URL to https://example.com/api/payermax/notify.
+```
+
+### Payment methods and acceptance
+
+```text
+Show the payment methods enabled for my sandbox merchant.
+
+Enable the payment methods needed for card payments and TNG in my sandbox.
+
+Run sandbox acceptance testing and show the result.
+
+Show the current sandbox acceptance status.
+```
+
+### Orders and notifications
+
+```text
+Show the latest 15 sandbox trade orders.
+
+Find the trade order whose merchant order number is TEST-e1e92e62-c4a.
+
+Find the payment records for these payment request numbers: PAY_REQUEST_001, PAY_REQUEST_002.
+
+Show deduction records for subscription SUB_001.
+
+Resend the payment-success notification for trade order T202608030001.
+```
+
+Recent order queries return the latest **15** records ordered by creation time descending. Provide an order identifier when you need an exact lookup.
+
+### Disputes and subscription simulations
+
+```text
+Find the dispute case for payment request PAY_REQUEST_001.
+
+Create a mock DISPUTE case for payment request PAY_REQUEST_001.
+
+Reply to dispute case CASE_001 with this defense and evidence summary: <SUMMARY>.
+
+Close dispute case CASE_001 with the appropriate judgement result.
+
+Simulate a successful deduction result for the next period of subscription SUB_001.
+
+Resend the notification for subscription deduction order DEDUCT_001.
+```
+
+## Tool Safety
+
+| Category | Tools | Guidance |
+|----------|-------|----------|
+| Read-only | Authentication status, sandbox configuration, payment-method query, acceptance status, order query, subscription-detail query, and dispute query | Safe for inspection; no sandbox state is changed. |
+| Configuration changes | Keypair generation/upload, notification URL update, and payment-method updates | Confirm the intended merchant and configuration before proceeding. |
+| Stateful sandbox actions | Token revocation, acceptance trigger, notification resend, dispute create/reply/close, and subscription mock/resend | Changes sandbox state or sends an event. Confirm the target identifier and intended result. |
+
 ## Key Management
 
-`get_sandbox_config` does **not** return the merchant private key. To configure keypairs:
+`get_sandbox_config` does **not** return the merchant private key. Configure a keypair in one of these ways:
 
-- **Auto-generate** — Ask your agent to call `sandbox_generate_keypair`. Generates a new RSA 2048-bit keypair, uploads the public key to PayerMax, and returns the private key once (not stored server-side).
-- **Use existing keypair** — Place your private key in your project config, then ask your agent to call `sandbox_upload_merchant_public_key` with your public key.
-- **Manual** — Upload your public key via [developer.payermax.com](https://developer.payermax.com) (Settings → Developer Info → Key Management).
+- **Auto-generate** — Ask your agent to call `sandbox_generate_keypair`. It generates an RSA 2048-bit keypair, uploads the public key to PayerMax, and returns the private key once. The private key is not stored server-side.
+- **Use an existing keypair** — Put the matching private key in your project configuration, then ask your agent to call `sandbox_upload_merchant_public_key` with the public key.
+- **Manual** — Upload the public key in [developer.payermax.com](https://developer.payermax.com) under Settings → Developer Info → Key Management.
 
-> ⚠️ Each call to `sandbox_generate_keypair` or `sandbox_upload_merchant_public_key` overwrites the previously uploaded public key. Old keypairs become invalid.
+> ⚠️ `sandbox_generate_keypair` and `sandbox_upload_merchant_public_key` overwrite the public key currently registered with PayerMax. The previous keypair becomes invalid. Ensure your project uses the private key matching the newly registered public key.
+>
+> ⚠️ A generated private key is returned **once only**. Save it securely immediately; it cannot be retrieved from PayerMax or this MCP server later.
 
 ## Versioning
 
