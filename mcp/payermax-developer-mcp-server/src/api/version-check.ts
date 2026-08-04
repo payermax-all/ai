@@ -13,7 +13,7 @@ export function checkVersionHeaders(headers: Headers): void {
     throw new McpUpdateRequiredError(
       `Your MCP Server (v${currentVersion}) is outdated. ` +
       `Minimum required: v${minVersion}. ` +
-      `Please restart your IDE or run: npx payermax-developer-mcp-server@latest`
+      `Run npx payermax-developer-mcp-server@latest to install the latest version, then restart your IDE.`
     );
   }
 }
