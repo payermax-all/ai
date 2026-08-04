@@ -89,9 +89,9 @@ Analyze the project for subscription signals (keywords: subscription, recurring,
 
 > Based on your project, I recommend: **[recommended product]** (reason: ...).
 >
-> Which payment product would you like to integrate? / 您希望集成哪个支付产品？
+> Which payment product would you like to integrate? 
 >
-> | Product / 产品 | Description / 说明 | Best for / 适用场景 |
+> | Product | Description | Best for Use Cases |
 > | --- | --- | --- |
 > | **Standard Acquiring（标准收单）** | One-time payment collection via checkout page or embedded components / 通过收银页面或嵌入式组件进行一次性收款 | E-commerce, digital goods, one-time purchases / 电商、数字商品、一次性购买 |
 > | **Subscription（商家代扣）** | Recurring billing with automatic or merchant-initiated deductions / 自动或商户发起的周期性扣款 | SaaS, streaming, memberships, usage-based billing / SaaS、流媒体、会员、按量计费 |
@@ -113,9 +113,9 @@ Wait for user selection. Then:
 
 > Based on your project, I recommend: **[recommended scenario]** (reason: ...).
 >
-> Which subscription scenario fits your business? / 哪种代扣场景适合您的业务？
+> Which subscription scenario fits your business? 
 >
-> | Scenario / 场景 | Description / 说明 | Best for / 适用场景 |
+> | Scenario | Description | Best for Use Cases |
 > | --- | --- | --- |
 > | **pmx_manage_plan（PayerMax管理订阅计划）** | PayerMax manages the full plan lifecycle: creation, activation, periodic auto-deduction, retry, notification / PayerMax 管理完整计划生命周期：创建、激活、周期自动扣款、重试、通知 | Standard SaaS/streaming with fixed billing cycles / 标准 SaaS/流媒体，固定计费周期 |
 > | **merchant_manage_plan（商户管理订阅计划）** | Merchant controls billing timing; binds payment method first, then initiates each periodic debit via token / 商户控制扣款时机；先绑定支付方式，再通过 token 发起每次周期扣款 | Custom billing logic, variable amounts per period / 自定义计费逻辑，每期金额可变 |
@@ -123,7 +123,7 @@ Wait for user selection. Then:
 >
 > Scenarios comparison: https://docs.payermax.com/en/202606-version/acquiring/start-integration/subscription-and-auto-debit/subscription-overview.html
 >
-> Please select one / 请选择一项: **pmx_manage_plan** / **merchant_manage_plan** / **non_periodic_auto_debit**
+> Please select one: **pmx_manage_plan** / **merchant_manage_plan** / **non_periodic_auto_debit**
 
 Wait for user selection. Then:
 - `subscription_scenario: pmx_manage_plan`
@@ -142,9 +142,9 @@ Analyze the project for frontend complexity signals (custom checkout page with c
 
 > Based on your project, I recommend: **[recommended mode]** (reason: ...).
 >
-> Which Checkout Page Construction Method would you like to use? / 您希望使用哪种收银页构建方式？
+> Which Checkout Page Construction Method would you like to use?
 >
-> | Checkout Page Construction Method / 收银页构建方式 | Description / 说明 | Best for / 适用场景 |
+> | Checkout Page Construction Method | Description | Best for Use Cases |
 > | --- | --- | --- |
 > | **cashier-full_payment_method（全量收银台）** | PayerMax hosts the full payment page, displays all available payment methods / PayerMax 托管完整支付页面，展示所有可用支付方式 | Fastest integration; no frontend work; maximum payment method coverage / 最快集成；无需前端开发；支付方式覆盖最全 |
 > | **cashier-specified_payment_method（指定支付方式）** | PayerMax hosts the payment page, but only shows payment methods you specify / PayerMax 托管支付页面，但仅展示您指定的支付方式 | When you want to control which methods are shown / 需要控制展示哪些支付方式时 |
@@ -156,7 +156,7 @@ Analyze the project for frontend complexity signals (custom checkout page with c
 > Drop-In component guide: https://docs.payermax.com/en/202606-version/acquiring/start-integration/payment-acceptance/drop-in/card.html
 > Live demo (try each checkout experience): https://docs.payermax.com/payDemo/index.html
 >
-> Please select one / 请选择一项: **cashier-full_payment_method（全量收银台）** / **cashier-specified_payment_method（指定支付方式）** / **drop_in（前置组件）** / **paybylink（链接支付）** / **direct_api（纯API）**
+> Please select one: **cashier-full_payment_method（全量收银台）** / **cashier-specified_payment_method（指定支付方式）** / **drop_in（前置组件）** / **paybylink（链接支付）** / **direct_api（纯API）**
 
 Wait for user selection. Then set `integration_mode` accordingly:
 - `cashier-full_payment_method` → `integration_mode: cashier`, `cashier_variant: full_payment_method`
@@ -167,10 +167,10 @@ Wait for user selection. Then set `integration_mode` accordingly:
 
 **Tokenization conflict guard.** Run once `integration_mode` is set, from this step or from pre-inference. If `tokenization_enabled: true` and the mode is incompatible:
 
-- `cashier-full_payment_method` → **auto-rewrite** to `cashier-specified_payment_method` and tell the user: "全量收银台不支持 Token，已自动改为指定支付方式收银台 / switched to specified-payment-method cashier." Step 4 then becomes mandatory; `payment_method_type` can no longer default to "all".
+- `cashier-full_payment_method` → **auto-rewrite** to `cashier-specified_payment_method` and tell the user: "Tokenized payment is not supported in the full checkout. It has been automatically changed to the specified payment method checkout." Step 4 then becomes mandatory; `payment_method_type` can no longer default to "all".
 - `pay_by_link` → **stop and ask**, never auto-rewrite: tokens need a signed-in user, pay-by-link has no session, so there is no equivalent target.
 
-  > 链接支付不支持 Token（Token 需登录态用户与已保存卡片管理界面）。请选择 / Choose:
+  > Tokenized payment is not supported in Link payment scenarios, as it requires a logged-in user and an interface for managing saved cards. Choose:
   > - Keep pay-by-link, drop tokenization
   > - Switch to specified-payment-method cashier
 
@@ -184,8 +184,8 @@ Never silently set `tokenization_enabled: false` to resolve this conflict.
 
 > Save the user's payment method for future payments?
 >
-> - **Yes — 启用 Token**: later payments reuse `paymentTokenID`; a saved-card management UI (list + remove) is mandatory.
-> - **No — 仅一次性支付** / one-time only: every payment requires full input.
+> - **Yes — enable tokenized payment**: later payments reuse `paymentTokenID`; a saved-card management UI (list + remove) is mandatory.
+> - **No — one-time only**: every payment requires full input.
 >
 > https://docs.payermax.com/en/202506-version/receipt/tokenization/introduction.html
 >
@@ -209,21 +209,21 @@ Available options depend on Step 3 selection:
 
 > Based on your project's target market, I recommend: **[recommended methods]** (reason: ...).
 >
-> Which payment methods would you like to support? (select one or more) / 您希望支持哪些支付方式？（可多选）
+> Which payment methods would you like to support? (select one or more) 
 >
-> | Payment Method / 支付方式 | Description / 说明 | Supported Regions / 支持地区 |
+> | Payment Method | Description | Supported Regions  |
 > | --- | --- | --- |
-> | **Card（银行卡）** | Visa, Mastercard, JCB, Discover, Diners Club | Global / 全球 |
-> | **ApplePay** | Apple Pay (requires macOS 13+ / iOS 16+ for subscription) | Global / 全球 |
-> | **GooglePay** | Google Pay (requires Android 8+ / Chrome 90+ for subscription) | Global / 全球 |
+> | **Card（银行卡）** | Visa, Mastercard, JCB, Discover, Diners Club | Global  |
+> | **ApplePay** | Apple Pay (requires macOS 13+ / iOS 16+ for subscription) | Global  |
+> | **GooglePay** | Google Pay (requires Android 8+ / Chrome 90+ for subscription) | Global  |
 >
-> ⚠️ Note: APM is not available in drop_in mode. / 注意：APM 在前置组件模式下不可用。
+> ⚠️ Note: APM is not available in drop_in mode. 
 >
 > Payment method list: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/payment-method-list/standard-acquiring-products.html
 > Subscription payment methods: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/payment-method-list/subscription-and-auto-debit.html
 > Supported countries & currencies: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/supported-countries-currencies-and-languages.html
 >
-> Please select one or more / 请选择一项或多项: **Card** / **ApplePay** / **GooglePay**
+> Please select one or more: **Card** / **ApplePay** / **GooglePay**
 
 **If Integration Mode = `cashier-*`:**
 
@@ -231,20 +231,20 @@ Available options depend on Step 3 selection:
 
 > Based on your project's target market, I recommend: **[recommended methods]** (reason: ...).
 >
-> Which payment methods would you like to support? (select one or more) / 您希望支持哪些支付方式？（可多选）
+> Which payment methods would you like to support? (select one or more) 
 >
-> | Payment Method / 支付方式 | Description / 说明 | Supported Regions / 支持地区 |
+> | Payment Method | Description | Supported Regions  |
 > | --- | --- | --- |
-> | **Card（银行卡）** | Visa, Mastercard, JCB, Discover, Diners Club | Global / 全球 |
-> | **ApplePay** | Apple Pay (requires macOS 13+ / iOS 16+ for subscription) | Global / 全球 |
-> | **GooglePay** | Google Pay (requires Android 8+ / Chrome 90+ for subscription) | Global / 全球 |
-> | **APM（本地支付方式）** | Local payment methods: e-wallets (DANA, KakaoPay, NaverPay, TNG, etc.), bank transfer, etc. / 本地支付方式：电子钱包（DANA、KakaoPay、NaverPay、TNG 等）、银行转账等 | Region-specific / 特定地区 |
+> | **Card（银行卡）** | Visa, Mastercard, JCB, Discover, Diners Club | Global |
+> | **ApplePay** | Apple Pay (requires macOS 13+ / iOS 16+ for subscription) | Global |
+> | **GooglePay** | Google Pay (requires Android 8+ / Chrome 90+ for subscription) | Global |
+> | **APM（本地支付方式）** | Local payment methods: e-wallets (DANA, KakaoPay, NaverPay, TNG, etc.), bank transfer, etc. | Region-specific |
 >
 > Payment method list: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/payment-method-list/standard-acquiring-products.html
 > Subscription payment methods: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/payment-method-list/subscription-and-auto-debit.html
 > Supported countries & currencies: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/supported-countries-currencies-and-languages.html
 >
-> Please select one or more / 请选择一项或多项: **Card** / **ApplePay** / **GooglePay** / **APM**
+> Please select one or more: **Card** / **ApplePay** / **GooglePay** / **APM**
 
 Agent internal reference (for fetching content, use `.md` URLs):
 - Payment method list: https://docs.payermax.com/en/202506-version/acquiring/payment-methods.md
@@ -262,22 +262,22 @@ Wait for user selection. Set `payment_method_type` accordingly.
 
 **Stop and ask:**
 
-> Which APM payment methods would you like to integrate? / 您希望集成哪些 APM 支付方式？
+> Which APM payment methods would you like to integrate?
 >
 > You can specify either:
 > - **Payment method names** (e.g., DANA, KakaoPay, GCash) — will integrate those specific methods
 > - **Country/region names** (e.g., Indonesia, Korea) — will integrate ALL available APM methods for that country
 >
-> | Country / 国家 | Available APMs / 可用 APM |
+> | Country | Available APMs |
 > | --- | --- |
-> | Indonesia / 印尼 | DANA, OVO, GoPay, ShopeePay |
-> | Malaysia / 马来西亚 | TNG (Touch 'n Go), Boost, GrabPay |
-> | Thailand / 泰国 | TrueMoney, PromptPay |
-> | Philippines / 菲律宾 | GCash, Maya |
-> | Vietnam / 越南 | MoMo, ZaloPay, VNPay |
-> | Korea / 韩国 | KakaoPay, NaverPay, Toss |
-> | Brazil / 巴西 | MercadoPago, PIX |
-> | Other / 其他 | See full list in docs below |
+> | Indonesia | DANA, OVO, GoPay, ShopeePay |
+> | Malaysia | TNG (Touch 'n Go), Boost, GrabPay |
+> | Thailand | TrueMoney, PromptPay |
+> | Philippines | GCash, Maya |
+> | Vietnam | MoMo, ZaloPay, VNPay |
+> | Korea | KakaoPay, NaverPay, Toss |
+> | Brazil | MercadoPago, PIX |
+> | Other | See full list in docs below |
 >
 > Full payment method list: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/payment-method-list/standard-acquiring-products.html
 > Supported countries & currencies: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/supported-countries-currencies-and-languages.html
@@ -453,8 +453,8 @@ When the scenario involves specific integration modes, you MUST read the corresp
 | Condition | Must read | Contains |
 | --- | --- | --- |
 | `integration_mode == drop_in` | `references/shared/drop-in-frontend.md` | CDN URL, SDK initialization pattern (`PMdropin.create`), payment flow, API version requirements, test panel template |
-| `tokenization_enabled == true` | `references/shared/tokenization.md` | Token 查询、二次支付、解绑、安全校验 |
-| `+ integration_mode == drop_in` | 再加 `references/shared/drop-in-frontend.md` | 组件生命周期、`agreementAccepted`、`create3DSPopup` |
+| `tokenization_enabled == true` | `references/shared/tokenization.md` | Token Inquiry、Payment Using PaymentTokenID、Unbinding PaymentTokenID |
+| `+ integration_mode == drop_in` | Also add `references/shared/drop-in-frontend.md` | Component Lifecycle、`agreementAccepted`、`create3DSPopup` |
 | User confirmed dispute/chargeback capability | `references/shared/dispute.md` | Chargeback notification, case query, case response |
 
 **Hard rule:** without `drop-in-frontend.md`, drop-in frontend code is unreliable; without `tokenization.md`, the token endpoints, second-payment request, and ownership checks are guesswork. Read the applicable file(s) first.
