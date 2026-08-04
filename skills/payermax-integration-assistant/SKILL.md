@@ -99,7 +99,7 @@ Analyze the project for subscription signals (keywords: subscription, recurring,
 > Product overview: https://docs.payermax.com/en/202606-version/acquiring/introduction.html#_2-step-2-choose-integration-solution
 > Subscription overview: https://docs.payermax.com/en/202606-version/acquiring/start-integration/subscription-and-auto-debit/subscription-overview.html
 >
-> Please select one / 请选择一项: **Standard Acquiring（标准收单）** / **Subscription（商家代扣）**
+> Please select one: **Standard Acquiring（标准收单）** / **Subscription（商家代扣）**
 
 Wait for user selection. Then:
 - Standard Acquiring → set `customer_product: acquiring_standard`, skip Step 2, proceed to Step 3
