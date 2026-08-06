@@ -19,7 +19,7 @@ export function registerSubscriptionTools(server: McpServer, apiClient: ApiClien
 
   server.tool(
     'sandbox_subscription_mock_resend',
-    'Resend a subscription deduction notification for testing webhook handling.',
+    'Resend a subscription deduction notification for testing webhook handling. Use sandbox_query_subscription_detail first to get the orderNo for a specific deduction period.',
     {
       subscriptionNo: z.string().describe('Subscription plan number'),
       orderNo: z.string().describe('Deduction order number'),
