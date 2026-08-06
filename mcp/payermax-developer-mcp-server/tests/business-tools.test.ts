@@ -139,7 +139,7 @@ describe('Developer Center backed MCP tools', () => {
   it('sandbox_update_payment_methods', async () => {
     // 1. 准备数据
     const harness = createToolHarness();
-    const input = { changes: { TNG: { enabled: true }, CARD: { enabled: false } } };
+    const input = { changes: { '1001': { delSignIds: ['M1002023662716'], addSignIds: ['M100999894660'] } } };
     registerPaymentMethodsTools(harness.server, harness.apiClient);
     // 2. mock Developer Center API
     harness.post.mockResolvedValue({ code: 'APPLY_SUCCESS' });
