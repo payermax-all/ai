@@ -65,7 +65,7 @@ describe('Developer Center backed MCP tools', () => {
   it('sandbox_generate_keypair', async () => {
     // 1. 准备数据
     const harness = createToolHarness();
-    const input = { merchantNo: 'M001' };
+    const input = {};
     const apiData = { merchantPublicKey: 'public', merchantPrivateKey: 'private', keyType: 'RSA', keyVersion: '2' };
     registerKeypairTools(harness.server, harness.apiClient);
     // 2. mock Developer Center API
@@ -73,36 +73,53 @@ describe('Developer Center backed MCP tools', () => {
     // 3. 调用 MCP tool 接口
     const result = await harness.getTool('sandbox_generate_keypair').handler(input);
     // 4. 校验 tool 返回及远端调用
-    expect(harness.post).toHaveBeenCalledWith('/developer/keypair/generate', input);
+    expect(harness.post).toHaveBeenCalledWith('/developer/keypair/generate', {});
     expect(JSON.parse(result.content[0].text)).toEqual(expect.objectContaining(apiData));
   });
 
   it('sandbox_upload_merchant_public_key', async () => {
     // 1. 准备数据
     const harness = createToolHarness();
-    const input = { merchantNo: 'M001', merchantPublicKey: 'base64-public-key' };
+    const input = { merchantPublicKey: 'base64-public-key' };
     registerKeypairTools(harness.server, harness.apiClient);
     // 2. mock Developer Center API
     harness.post.mockResolvedValue({ code: 'APPLY_SUCCESS' });
     // 3. 调用 MCP tool 接口
     const result = await harness.getTool('sandbox_upload_merchant_public_key').handler(input);
     // 4. 校验 tool 返回及远端调用
-    expect(harness.post).toHaveBeenCalledWith('/developer/keypair/upload', input);
+    expect(harness.post).toHaveBeenCalledWith('/developer/keypair/upload', { merchantPublicKey: 'base64-public-key' });
     expect(result.content[0].text).toContain('uploaded successfully');
   });
 
   it('sandbox_configure_notify_url', async () => {
     // 1. 准备数据
     const harness = createToolHarness();
-    const input = { notifyUrl: 'https://merchant.example/notify' };
+    const input = {
+      notifyUrls: [
+        { notifyType: 'PAYMENT', notifyUrl: 'https://merchant.example/notify/payment' },
+        { notifyType: 'REFUND', notifyUrl: 'https://merchant.example/notify/refund' },
+      ],
+    };
     registerNotifyUrlTool(harness.server, harness.apiClient);
     // 2. mock Developer Center API
-    harness.post.mockResolvedValue({ code: 'APPLY_SUCCESS' });
+    harness.post.mockResolvedValue({
+      code: 'APPLY_SUCCESS',
+      data: {
+        status: 'SUCCESS',
+        succeeded: [
+          { notifyType: 'PAYMENT', interfaceId: '4482', notifyUrl: 'https://merchant.example/notify/payment' },
+          { notifyType: 'REFUND', interfaceId: '4483', notifyUrl: 'https://merchant.example/notify/refund' },
+        ],
+        failed: [],
+      },
+    });
     // 3. 调用 MCP tool 接口
     const result = await harness.getTool('sandbox_configure_notify_url').handler(input);
     // 4. 校验 tool 返回及远端调用
     expect(harness.post).toHaveBeenCalledWith('/developer/notify-url/update', input);
-    expect(result.content[0].text).toBe(`Sandbox notify URL configured successfully: ${input.notifyUrl}`);
+    expect(result.content[0].text).toContain('PAYMENT');
+    expect(result.content[0].text).toContain('REFUND');
+    expect(result.content[0].text).toContain('configured successfully');
   });
 
   it('sandbox_query_payment_methods', async () => {

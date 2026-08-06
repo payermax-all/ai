@@ -6,13 +6,9 @@ export function registerKeypairTools(server: McpServer, apiClient: ApiClient) {
   server.tool(
     'sandbox_generate_keypair',
     'Generate a new RSA keypair for the sandbox merchant. The public key is automatically uploaded to PayerMax platform. The private key is returned ONCE ONLY and is NOT saved on the server. ⚠️ Calling this will invalidate any previously uploaded public key.',
-    {
-      merchantNo: z.string().optional().describe('Merchant number (optional, defaults to token-bound merchant)'),
-    },
-    async ({ merchantNo }) => {
-      const resp = await apiClient.post('/developer/keypair/generate', {
-        merchantNo: merchantNo || undefined,
-      });
+    {},
+    async () => {
+      const resp = await apiClient.post('/developer/keypair/generate', {});
       const data = resp.data;
 
       if (!data) {
@@ -39,11 +35,9 @@ export function registerKeypairTools(server: McpServer, apiClient: ApiClient) {
     'Upload an existing merchant public key to PayerMax platform. Use this when you already have an RSA keypair and only need to register the public key with PayerMax for signature verification. ⚠️ This will overwrite the previously uploaded public key.',
     {
       merchantPublicKey: z.string().describe('Merchant RSA public key in Base64 single-line format (no PEM headers, no line breaks)'),
-      merchantNo: z.string().optional().describe('Merchant number (optional, defaults to token-bound merchant)'),
     },
-    async ({ merchantPublicKey, merchantNo }) => {
+    async ({ merchantPublicKey }) => {
       await apiClient.post('/developer/keypair/upload', {
-        merchantNo: merchantNo || undefined,
         merchantPublicKey,
       });
 
