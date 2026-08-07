@@ -73,7 +73,7 @@ This MCP Server is designed to work alongside the **PayerMax Integration Assista
 
 → [Install the Integration Skill](https://github.com/payermax-all/ai/tree/main/skills/payermax-integration-assistant)
 
-## Available Tools (20)
+## Available Tools (19)
 
 | Tool | Description |
 |------|-------------|
@@ -83,11 +83,10 @@ This MCP Server is designed to work alongside the **PayerMax Integration Assista
 | `get_sandbox_config` | Get sandbox config (merchantNo, appId, merchant public key, PayerMax public key, notifyUrl). Does NOT return private key |
 | `sandbox_generate_keypair` | Generate RSA keypair — public key auto-uploaded, private key returned once only |
 | `sandbox_upload_merchant_public_key` | Upload an existing merchant public key to PayerMax |
-| `sandbox_configure_notify_url` | Set sandbox callback notification URL |
+| `sandbox_configure_notify_url` | Set sandbox callback notification URLs by type |
 | `sandbox_query_payment_methods` | Query contracted payment methods |
 | `sandbox_update_payment_methods` | Enable/disable payment methods |
-| `sandbox_trigger_acceptance` | Trigger sandbox acceptance testing |
-| `sandbox_get_acceptance_status` | Query acceptance test status and results |
+| `sandbox_get_acceptance_status` | Query and refresh acceptance test status — automatically checks for newly passed cases |
 | `sandbox_query_orders` | Query orders by type (trade, pay, disburse, paylink, subscription) — exact lookup or the latest 15 records |
 | `sandbox_query_subscription_detail` | Query deduction records for a subscription plan |
 | `sandbox_resend_notification` | Resend webhook notification for a trade order |
@@ -174,7 +173,7 @@ Resend the notification for subscription deduction order DEDUCT_001.
 |----------|-------|----------|
 | Read-only | Authentication status, sandbox configuration, payment-method query, acceptance status, order query, subscription-detail query, and dispute query | Safe for inspection; no sandbox state is changed. |
 | Configuration changes | Keypair generation/upload, notification URL update, and payment-method updates | Confirm the intended merchant and configuration before proceeding. |
-| Stateful sandbox actions | Token revocation, acceptance trigger, notification resend, dispute create/reply/close, and subscription mock/resend | Changes sandbox state or sends an event. Confirm the target identifier and intended result. |
+| Stateful sandbox actions | Token revocation, notification resend, dispute create/reply/close, and subscription mock/resend | Changes sandbox state or sends an event. Confirm the target identifier and intended result. |
 
 ## Key Management
 
