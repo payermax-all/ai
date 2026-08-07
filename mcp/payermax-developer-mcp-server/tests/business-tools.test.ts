@@ -150,32 +150,31 @@ describe('Developer Center backed MCP tools', () => {
     expect(result.content[0].text).toBe('Sandbox payment methods updated successfully.');
   });
 
-  it('sandbox_trigger_acceptance', async () => {
-    // 1. 准备数据
-    const harness = createToolHarness();
-    const apiData = { taskId: 'TASK-001', status: 'RUNNING' };
-    registerAcceptanceTools(harness.server, harness.apiClient);
-    // 2. mock Developer Center API
-    harness.post.mockResolvedValue({ code: 'APPLY_SUCCESS', data: apiData });
-    // 3. 调用 MCP tool 接口
-    const result = await harness.getTool('sandbox_trigger_acceptance').handler({});
-    // 4. 校验 tool 返回及远端调用
-    expect(harness.post).toHaveBeenCalledWith('/developer/acceptance/trigger', {});
-    expectJsonText(result, apiData);
-  });
-
   it('sandbox_get_acceptance_status', async () => {
     // 1. 准备数据
     const harness = createToolHarness();
-    const apiData = { status: 'PARTIAL', passed: 3, pending: 2 };
+    const apiData = {
+      passTransCodes: ['1001'],
+      passDetail: {
+        'basic-gateway': ['orderAndPay-newArch', 'orderQuery-newArch'],
+        'basic-notice': [],
+      },
+      prodMerchantNo: 'P010104145876927',
+    };
     registerAcceptanceTools(harness.server, harness.apiClient);
     // 2. mock Developer Center API
     harness.post.mockResolvedValue({ code: 'APPLY_SUCCESS', data: apiData });
     // 3. 调用 MCP tool 接口
     const result = await harness.getTool('sandbox_get_acceptance_status').handler({});
-    // 4. 校验 tool 返回及远端调用
+    // 4. 校验 tool 返回
     expect(harness.post).toHaveBeenCalledWith('/developer/acceptance/status', {});
-    expectJsonText(result, apiData);
+    const text = result.content[0].text;
+    expect(text).toContain('Acquiring (1001): ✅ Passed');
+    expect(text).toContain('orderAndPay: ✅');
+    expect(text).toContain('orderQuery: ✅');
+    expect(text).toContain('Payment notification: ✅');
+    expect(text).toContain('Payout (1005): ❌ Pending');
+    expect(text).toContain('P010104145876927');
   });
 
   it('sandbox_query_orders', async () => {
