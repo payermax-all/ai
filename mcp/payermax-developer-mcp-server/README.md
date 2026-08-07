@@ -87,8 +87,8 @@ This MCP Server is designed to work alongside the **PayerMax Integration Assista
 | `sandbox_query_payment_methods` | Query contracted payment methods |
 | `sandbox_update_payment_methods` | Enable/disable payment methods |
 | `sandbox_get_acceptance_status` | Query and refresh acceptance test status — automatically checks for newly passed cases |
-| `sandbox_query_orders` | Query orders by type (trade, pay, disburse, paylink, subscription) — exact lookup or the latest 15 records |
-| `sandbox_query_subscription_detail` | Query deduction records for a subscription plan |
+| `sandbox_query_orders` | Query orders by type (trade, pay, disburse, paylink, subscription) — exact lookup or the latest 15 records. Note: `type=subscription` returns subscription **plans**, not deduction orders |
+| `sandbox_query_subscription_detail` | Query all deduction orders (per-period transaction records) under a subscription plan |
 | `sandbox_resend_notification` | Resend webhook notification for a trade order |
 | `sandbox_dispute_query` | Query dispute case info for a payment order |
 | `sandbox_dispute_create` | Create mock dispute/chargeback case (DISPUTE, CHARGEBACK, FRAUD, CUSTOMER_COMPLAINT) |
@@ -144,7 +144,9 @@ Find the trade order whose merchant order number is TEST-e1e92e62-c4a.
 
 Find the payment records for these payment request numbers: PAY_REQUEST_001, PAY_REQUEST_002.
 
-Show deduction records for subscription SUB_001.
+Show my recent subscription plans.
+
+Show all deduction orders for subscription plan SUB_001.
 
 Resend the payment-success notification for trade order T202608030001.
 ```
