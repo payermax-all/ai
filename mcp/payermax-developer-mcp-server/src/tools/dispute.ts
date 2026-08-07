@@ -2,14 +2,33 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { ApiClient } from '../api/client.js';
 import { z } from 'zod';
 
+/**
+ * Resolve a payOrderNo from a merchant outTradeNo by querying /order/trade.
+ */
+async function resolvePayOrderNo(apiClient: ApiClient, outTradeNo: string): Promise<string> {
+  const resp = await apiClient.post('/order/trade', { outTradeNo });
+  const orders = resp.data as any[];
+  if (!orders || orders.length === 0) {
+    throw new Error(`No trade order found for outTradeNo: ${outTradeNo}`);
+  }
+  const payRequestNo = Array.isArray(orders[0]?.txnSptPayRequestNos)
+    ? orders[0].txnSptPayRequestNos[0]
+    : null;
+  if (!payRequestNo) {
+    throw new Error(`Trade order found but has no payment request number. outTradeNo: ${outTradeNo}`);
+  }
+  return payRequestNo;
+}
+
 export function registerDisputeTools(server: McpServer, apiClient: ApiClient) {
   server.tool(
     'sandbox_dispute_query',
-    'Query dispute case information for a specific payment order.',
+    'Query dispute case information for a payment order identified by the merchant order number (outTradeNo).',
     {
-      payOrderNo: z.string().describe('Payment order number'),
+      outTradeNo: z.string().describe('Merchant order number (the order number you passed to PayerMax when creating the payment).'),
     },
-    async ({ payOrderNo }) => {
+    async ({ outTradeNo }) => {
+      const payOrderNo = await resolvePayOrderNo(apiClient, outTradeNo);
       const resp = await apiClient.post('/dispute/case/query', { payOrderNo });
       return { content: [{ type: 'text' as const, text: JSON.stringify(resp.data, null, 2) }] };
     }
@@ -17,16 +36,23 @@ export function registerDisputeTools(server: McpServer, apiClient: ApiClient) {
 
   server.tool(
     'sandbox_dispute_create',
-    'Create a mock dispute/chargeback case. disputeType: DISPUTE, CHARGEBACK, FRAUD, CUSTOMER_COMPLAINT.',
+    'Create a mock dispute/chargeback case for a payment order identified by the merchant order number (outTradeNo).',
     {
-      payOrderNo: z.string().describe('Payment order number to dispute'),
+      outTradeNo: z.string().describe('Merchant order number (the order number you passed to PayerMax when creating the payment).'),
       disputeType: z.string().describe('Type: DISPUTE | CHARGEBACK | FRAUD | CUSTOMER_COMPLAINT'),
       reason: z.string().describe('Dispute reason'),
       frozenAmount: z.number().describe('Frozen amount'),
       frozenCurrency: z.string().describe('Currency code (e.g. USD)'),
     },
     async (params) => {
-      const resp = await apiClient.post('/dispute/case/create', params);
+      const payOrderNo = await resolvePayOrderNo(apiClient, params.outTradeNo);
+      const resp = await apiClient.post('/dispute/case/create', {
+        payOrderNo,
+        disputeType: params.disputeType,
+        reason: params.reason,
+        frozenAmount: params.frozenAmount,
+        frozenCurrency: params.frozenCurrency,
+      });
       return { content: [{ type: 'text' as const, text: `Dispute case created. Case ID: ${resp.data}` }] };
     }
   );

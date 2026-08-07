@@ -223,35 +223,45 @@ describe('Developer Center backed MCP tools', () => {
     expect(result.content[0].text).toBe('Notification resent successfully.');
   });
 
-  it('sandbox_dispute_query', async () => {
-    // 1. 准备数据
+  it('sandbox_dispute_query with outTradeNo', async () => {
     const harness = createToolHarness();
-    const input = { payOrderNo: 'PAY-001' };
-    const apiData = { caseId: 'CASE-001', status: 'OPEN' };
     registerDisputeTools(harness.server, harness.apiClient);
-    // 2. mock Developer Center API
-    harness.post.mockResolvedValue({ code: 'APPLY_SUCCESS', data: apiData });
-    // 3. 调用 MCP tool 接口
-    const result = await harness.getTool('sandbox_dispute_query').handler(input);
-    // 4. 校验 tool 返回及远端调用
-    expect(harness.post).toHaveBeenCalledWith('/dispute/case/query', input);
-    expectJsonText(result, apiData);
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: [{ txnSptPayRequestNos: ['PAY-RESOLVED-001'], txnOrdOutTradeNo: 'MERCHANT-ORDER-001' }],
+    });
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: { caseId: 'CASE-001', status: 'OPEN' },
+    });
+
+    const result = await harness.getTool('sandbox_dispute_query').handler({ outTradeNo: 'MERCHANT-ORDER-001' });
+
+    expect(harness.post).toHaveBeenCalledWith('/order/trade', { outTradeNo: 'MERCHANT-ORDER-001' });
+    expect(harness.post).toHaveBeenCalledWith('/dispute/case/query', { payOrderNo: 'PAY-RESOLVED-001' });
+    expectJsonText(result, { caseId: 'CASE-001', status: 'OPEN' });
   });
 
-  it('sandbox_dispute_create', async () => {
-    // 1. 准备数据
+  it('sandbox_dispute_create with outTradeNo', async () => {
     const harness = createToolHarness();
+    registerDisputeTools(harness.server, harness.apiClient);
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: [{ txnSptPayRequestNos: ['PAY-001'] }],
+    });
+    harness.post.mockResolvedValueOnce({ code: 'APPLY_SUCCESS', data: 'CASE-001' });
+
     const input = {
-      payOrderNo: 'PAY-001', disputeType: 'DISPUTE', reason: 'Product not received',
+      outTradeNo: 'MY-ORDER-001', disputeType: 'DISPUTE', reason: 'Product not received',
       frozenAmount: 12.5, frozenCurrency: 'USD',
     };
-    registerDisputeTools(harness.server, harness.apiClient);
-    // 2. mock Developer Center API
-    harness.post.mockResolvedValue({ code: 'APPLY_SUCCESS', data: 'CASE-001' });
-    // 3. 调用 MCP tool 接口
     const result = await harness.getTool('sandbox_dispute_create').handler(input);
-    // 4. 校验 tool 返回及远端调用
-    expect(harness.post).toHaveBeenCalledWith('/dispute/case/create', input);
+
+    expect(harness.post).toHaveBeenCalledWith('/order/trade', { outTradeNo: 'MY-ORDER-001' });
+    expect(harness.post).toHaveBeenCalledWith('/dispute/case/create', {
+      payOrderNo: 'PAY-001', disputeType: 'DISPUTE', reason: 'Product not received',
+      frozenAmount: 12.5, frozenCurrency: 'USD',
+    });
     expect(result.content[0].text).toBe('Dispute case created. Case ID: CASE-001');
   });
 
