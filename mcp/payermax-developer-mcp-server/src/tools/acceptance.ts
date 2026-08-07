@@ -8,6 +8,7 @@ export function registerAcceptanceTools(server: McpServer, apiClient: ApiClient)
     {},
     async () => {
       const resp = await apiClient.post('/developer/acceptance/status', {});
+      console.error('[DEBUG acceptance] raw response:', JSON.stringify(resp));
       const data = resp.data || {};
 
       const passTransCodes: string[] = data.passTransCodes || [];
