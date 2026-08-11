@@ -90,6 +90,8 @@ If the selected integration mode is `drop_in`, you MUST additionally:
 
 **If integration_mode = drop_in:** Additionally read `references/shared/drop-in-frontend.md` for frontend SDK integration details (CDN loading, component lifecycle, test panel, payment result handling). This shared file contains only frontend-specific content with no standard-acquiring backend fields that could conflict with subscription parameters.
 
+**If integration_mode = cashier (full payment method):** Include `mitManagementUrl` in the `/orderAndPay` request body. Without this field, GooglePay and ApplePay options will NOT appear on the checkout page even if they are contracted. `mitManagementUrl` should be a valid HTTPS URL pointing to the merchant's subscription management page.
+
 ## Branch-specific fields
 
 ### Initial payment (bind)

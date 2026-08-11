@@ -17,8 +17,8 @@ Single entry skill for all PayerMax payment integration help.
 
 | Payment Product | Scenario | Payment Method Type | Integration Mode | Core API Name | Variant file |
 | --- | --- | --- | --- | --- | --- |
-| Standard Acquiring | default | Card/ApplePay/GooglePay | cashier-full_payment_method, cashier-specified_payment_method, drop_in, paybylink, direct_api | orderAndPay, createPaybylink | `references/variants/full-payment-method.md` / `specified-payment-method.md` / `drop-in.md` / `paybylink.md` / `direct-api.md` |
-| Standard Acquiring | default | APM | cashier-full_payment_method, cashier-specified_payment_method, paybylink, direct_api | orderAndPay, createPaybylink | `references/variants/full-payment-method.md` / `specified-payment-method.md` / `paybylink.md` / `direct-api.md` |
+| Standard Acquiring | default | Card/ApplePay/GooglePay | cashier-full_payment_method, cashier-specified_payment_method, drop_in, pay_by_link, direct_api | orderAndPay, createPaybylink | `references/variants/full-payment-method.md` / `specified-payment-method.md` / `drop-in.md` / `paybylink.md` / `direct-api.md` |
+| Standard Acquiring | default | APM | cashier-full_payment_method, cashier-specified_payment_method, pay_by_link, direct_api | orderAndPay, createPaybylink | `references/variants/full-payment-method.md` / `specified-payment-method.md` / `paybylink.md` / `direct-api.md` |
 | Subscription | pmx_manage_plan | Card/ApplePay/GooglePay | cashier-full_payment_method, cashier-specified_payment_method, drop_in | subscriptionCreate + orderAndPay | `references/variants/subscription/pmx-manage.md` |
 | Subscription | pmx_manage_plan | APM | cashier-full_payment_method, cashier-specified_payment_method | subscriptionCreate + orderAndPay | `references/variants/subscription/pmx-manage.md` |
 | Subscription | merchant_manage_plan | Card/ApplePay/GooglePay | cashier-full_payment_method, cashier-specified_payment_method, drop_in | orderAndPay (bind + debit) | `references/variants/subscription/merchant-manage.md` |
@@ -27,8 +27,10 @@ Single entry skill for all PayerMax payment integration help.
 | Subscription | non_periodic_auto_debit | APM | cashier-full_payment_method, cashier-specified_payment_method | orderAndPay (bind + debit) | `references/variants/subscription/auto-debit.md` |
 
 **Constraint:** When Payment Method Type = APM, Integration Mode `drop_in` is not available.
-**Constraint:** When Product = Subscription, Integration Mode `paybylink` is not available.
-**Note:** Integration Mode `paybylink` and `direct_api` support all payment method types without restriction.
+**Constraint:** When Product = Subscription, Integration Mode `pay_by_link` is not available.
+**Note:** Integration Mode `pay_by_link` and `direct_api` support all payment method types without restriction.
+**Constraint:** Tokenization is an orthogonal dimension, not a product. It combines with `cashier-specified_payment_method`, `direct_api`, and `drop_in` (no APM), never with `cashier-full_payment_method` or `pay_by_link`.
+**Routing:** When `tokenization_enabled: true`, pick the variant via `references/router.md`.
 
 ## Workflow overview
 
@@ -55,7 +57,8 @@ Then follow the **structured clarification flow** below. Before asking any quest
 3. **Integration Mode (Step 3)**: If the user does NOT clearly indicate a preference (cashier vs drop-in vs paybylink vs direct API) → must ask. This step is rarely skippable.
 4. **Payment Methods (Step 4)**: If the user explicitly names payment methods or APM brands (e.g., "TNG", "DANA", "card payment", "信用卡") → auto-select the corresponding types, skip Step 4.
 5. **APM specifics**: If the user already named specific APM methods (e.g., "TNG") or countries (e.g., "Malaysia", "马来西亚") → auto-select, skip the APM sub-step.
-6. **Payment Methods for Full Cashier/PayByLink**: If integration mode = `cashier-full_payment_method` or `paybylink` → auto-select "All available payment methods", skip Step 4 and APM sub-step.
+6. **Payment Methods for Full Cashier/PayByLink**: If integration mode = `cashier-full_payment_method` or `pay_by_link` → auto-select "All available payment methods", skip Step 4 and APM sub-step.
+7. **Tokenization**: token/保存卡/记住卡/免密/二次支付/快捷支付/saved card/one-click → `tokenization_enabled: true`, skip. 一次性/游客支付/guest → `false`, skip.
 
 **Inference examples:**
 
@@ -68,6 +71,7 @@ Then follow the **structured clarification flow** below. Before asking any quest
 | "接入PayerMax收银台" | Product=Standard Acquiring, Integration Mode=cashier | Payment Methods (full or specified?) |
 | "接入PayerMax收银台，全量支付方式" | Product=Standard Acquiring, Integration Mode=cashier-full, Payment Methods=All | (none) |
 | "集成PayerMax代扣，商户管理订阅计划，支付方式卡" | Product=Subscription, Scenario=merchant_manage_plan, Payment Method=Card | Integration Mode |
+| "用前置组件收卡，下次支付免输卡号" | Standard Acquiring, drop_in, tokenization_enabled=true | Payment Methods |
 
 **Flow rule:** Only stop and ask for steps where the answer cannot be confidently inferred from the full conversation history (all turns). If a step's answer was already stated or confirmed in any previous turn, skip it — do not re-ask. For inferred steps, state your inference clearly (e.g., "Based on your request, I've identified: Standard Acquiring, APM (TNG), Malaysia. Now I need to confirm one thing:") and proceed directly to the next unclear step.
 
@@ -85,17 +89,17 @@ Analyze the project for subscription signals (keywords: subscription, recurring,
 
 > Based on your project, I recommend: **[recommended product]** (reason: ...).
 >
-> Which payment product would you like to integrate? / 您希望集成哪个支付产品？
+> Which payment product would you like to integrate? 
 >
-> | Product / 产品 | Description / 说明 | Best for / 适用场景 |
+> | Product | Description | Best for Use Cases |
 > | --- | --- | --- |
 > | **Standard Acquiring（标准收单）** | One-time payment collection via checkout page or embedded components / 通过收银页面或嵌入式组件进行一次性收款 | E-commerce, digital goods, one-time purchases / 电商、数字商品、一次性购买 |
 > | **Subscription（商家代扣）** | Recurring billing with automatic or merchant-initiated deductions / 自动或商户发起的周期性扣款 | SaaS, streaming, memberships, usage-based billing / SaaS、流媒体、会员、按量计费 |
 >
-> Product overview: https://docs.payermax.com/en/202506-version/acquiring/introduction/integration-mode.html
-> Subscription overview: https://docs.payermax.com/en/202506-version/receipt/subscription/subscription-pmx-management.html
+> Product overview: https://docs.payermax.com/en/202606-version/acquiring/introduction.html#_2-step-2-choose-integration-solution
+> Subscription overview: https://docs.payermax.com/en/202606-version/acquiring/start-integration/subscription-and-auto-debit/subscription-overview.html
 >
-> Please select one / 请选择一项: **Standard Acquiring（标准收单）** / **Subscription（商家代扣）**
+> Please select one: **Standard Acquiring（标准收单）** / **Subscription（商家代扣）**
 
 Wait for user selection. Then:
 - Standard Acquiring → set `customer_product: acquiring_standard`, skip Step 2, proceed to Step 3
@@ -105,23 +109,21 @@ Wait for user selection. Then:
 
 **Skip if:** Product = Standard Acquiring (always skip; scenario = `default`).
 
-**Skip this step if product = Standard Acquiring** (Scenario = `default`).
-
 **Stop and ask:**
 
 > Based on your project, I recommend: **[recommended scenario]** (reason: ...).
 >
-> Which subscription scenario fits your business? / 哪种代扣场景适合您的业务？
+> Which subscription scenario fits your business? 
 >
-> | Scenario / 场景 | Description / 说明 | Best for / 适用场景 |
+> | Scenario | Description | Best for Use Cases |
 > | --- | --- | --- |
 > | **pmx_manage_plan（PayerMax管理订阅计划）** | PayerMax manages the full plan lifecycle: creation, activation, periodic auto-deduction, retry, notification / PayerMax 管理完整计划生命周期：创建、激活、周期自动扣款、重试、通知 | Standard SaaS/streaming with fixed billing cycles / 标准 SaaS/流媒体，固定计费周期 |
 > | **merchant_manage_plan（商户管理订阅计划）** | Merchant controls billing timing; binds payment method first, then initiates each periodic debit via token / 商户控制扣款时机；先绑定支付方式，再通过 token 发起每次周期扣款 | Custom billing logic, variable amounts per period / 自定义计费逻辑，每期金额可变 |
 > | **non_periodic_auto_debit（非周期性自动扣款）** | Merchant initiates on-demand debits using stored token; no fixed schedule / 商户使用存储的 token 按需发起扣款；无固定周期 | Usage-based billing, top-ups, pay-as-you-go / 按量计费、充值、按需付费 |
 >
-> Scenarios comparison: https://docs.payermax.com/en/202506-version/receipt/subscription/subscription-overview.html
+> Scenarios comparison: https://docs.payermax.com/en/202606-version/acquiring/start-integration/subscription-and-auto-debit/subscription-overview.html
 >
-> Please select one / 请选择一项: **pmx_manage_plan** / **merchant_manage_plan** / **non_periodic_auto_debit**
+> Please select one: **pmx_manage_plan** / **merchant_manage_plan** / **non_periodic_auto_debit**
 
 Wait for user selection. Then:
 - `subscription_scenario: pmx_manage_plan`
@@ -132,15 +134,17 @@ Wait for user selection. Then:
 
 **Skip if:** User explicitly states cashier, drop-in, paybylink, or direct API preference in their prompt (e.g., "收银台", "cashier", "前置组件", "drop-in", "embed component", "链接支付", "paybylink", "支付链接", "纯API", "direct API", "自建收银页"). Otherwise, must ask.
 
-Analyze the project for frontend complexity signals (custom checkout page with card form / 3DS handling → direct_api; custom checkout page with embedded components → drop_in; no frontend / simple redirect → cashier; offline/sharing scenarios → paybylink).
+**Tokenization-aware:** If `tokenization_enabled` was already inferred `true`, drop `cashier-full_payment_method` and `pay_by_link` from both the recommendation and the options, saying why: "全量收银台与链接支付不支持 Token，已排除 / excluded — they do not support tokenization."
+
+Analyze the project for frontend complexity signals (custom checkout page with card form / 3DS handling → direct_api; custom checkout page with embedded components → drop_in; no frontend / simple redirect → cashier; offline/sharing scenarios → pay_by_link).
 
 **Stop and ask:**
 
 > Based on your project, I recommend: **[recommended mode]** (reason: ...).
 >
-> Which Checkout Page Construction Method would you like to use? / 您希望使用哪种收银页构建方式？
+> Which Checkout Page Construction Method would you like to use?
 >
-> | Checkout Page Construction Method / 收银页构建方式 | Description / 说明 | Best for / 适用场景 |
+> | Checkout Page Construction Method | Description | Best for Use Cases |
 > | --- | --- | --- |
 > | **cashier-full_payment_method（全量收银台）** | PayerMax hosts the full payment page, displays all available payment methods / PayerMax 托管完整支付页面，展示所有可用支付方式 | Fastest integration; no frontend work; maximum payment method coverage / 最快集成；无需前端开发；支付方式覆盖最全 |
 > | **cashier-specified_payment_method（指定支付方式）** | PayerMax hosts the payment page, but only shows payment methods you specify / PayerMax 托管支付页面，但仅展示您指定的支付方式 | When you want to control which methods are shown / 需要控制展示哪些支付方式时 |
@@ -148,24 +152,52 @@ Analyze the project for frontend complexity signals (custom checkout page with c
 > | **paybylink（链接支付）** | Generate a payment link that users access via URL or QR code; PayerMax hosts the payment page / 生成支付链接，用户通过 URL 或二维码访问；PayerMax 托管支付页面 | Offline scenarios, social sharing, no redirect flow needed; supports all payment methods; Standard Acquiring only (not available for Subscription) / 线下场景、社交分享、无需重定向流程；支持所有支付方式；仅标准收单可用（订阅代扣不可用） |
 > | **direct_api（纯API）** | Merchant builds their own checkout page; full control over UX; requires handling redirects and 3DS/wallet authentication / 商户自建收银页面；完全控制 UX；需处理重定向和 3DS/钱包认证 | Maximum customization; higher development cost / 最大化定制；开发成本较高 |
 >
-> Checkout Page Construction Method comparison: https://docs.payermax.com/en/202506-version/acquiring/introduction/integration-mode.html
-> Drop-In component guide: https://docs.payermax.com/en/202506-version/acquiring/start-integration/create-payment/frontend-component.html
+> Checkout Page Construction Method comparison: https://docs.payermax.com/en/202606-version/acquiring/introduction.html#_2-step-2-choose-integration-solution
+> Drop-In component guide: https://docs.payermax.com/en/202606-version/acquiring/start-integration/payment-acceptance/drop-in/card.html
 > Live demo (try each checkout experience): https://docs.payermax.com/payDemo/index.html
 >
-> Please select one / 请选择一项: **cashier-full_payment_method（全量收银台）** / **cashier-specified_payment_method（指定支付方式）** / **drop_in（前置组件）** / **paybylink（链接支付）** / **direct_api（纯API）**
+> Please select one: **cashier-full_payment_method（全量收银台）** / **cashier-specified_payment_method（指定支付方式）** / **drop_in（前置组件）** / **paybylink（链接支付）** / **direct_api（纯API）**
 
 Wait for user selection. Then set `integration_mode` accordingly:
 - `cashier-full_payment_method` → `integration_mode: cashier`, `cashier_variant: full_payment_method`
 - `cashier-specified_payment_method` → `integration_mode: cashier`, `cashier_variant: specified_payment_method`
 - `drop_in` → `integration_mode: drop_in`
-- `paybylink` → `integration_mode: paybylink`
+- `paybylink` → `integration_mode: pay_by_link`
 - `direct_api` → `integration_mode: direct_api`
+
+**Tokenization conflict guard.** Run once `integration_mode` is set, from this step or from pre-inference. If `tokenization_enabled: true` and the mode is incompatible:
+
+- `cashier-full_payment_method` → **auto-rewrite** to `cashier-specified_payment_method` and tell the user: "Tokenized payment is not supported in the full checkout. It has been automatically changed to the specified payment method checkout." Step 4 then becomes mandatory; `payment_method_type` can no longer default to "all".
+- `pay_by_link` → **stop and ask**, never auto-rewrite: tokens need a signed-in user, pay-by-link has no session, so there is no equivalent target.
+
+  > Tokenized payment is not supported in Link payment scenarios, as it requires a logged-in user and an interface for managing saved cards. Choose:
+  > - Keep pay-by-link, drop tokenization
+  > - Switch to specified-payment-method cashier
+
+Never silently set `tokenization_enabled: false` to resolve this conflict.
+
+### Save payment methods for future use? (single select)
+
+**Skip if:** pre-inference rule 7 already resolved it, OR Integration Mode = `cashier-full_payment_method` / `pay_by_link` **and** tokenization was NOT inferred → auto-select No. If it WAS inferred `true` under those two modes, apply the conflict guard above instead of dropping it.
+
+**Stop and ask:**
+
+> Save the user's payment method for future payments?
+>
+> - **Yes — enable tokenized payment**: later payments reuse `paymentTokenID`; a saved-card management UI (list + remove) is mandatory.
+> - **No — one-time only**: every payment requires full input.
+>
+> https://docs.payermax.com/en/202506-version/receipt/tokenization/introduction.html
+>
+> Please select: **Yes** / **No**
+
+Set `tokenization_enabled`. If `true`, default `token_type: payermax_token` unless the merchant runs its own vault.
 
 ### Add payment methods
 
 **Skip if:** 
 - User explicitly names payment methods or APM brands in the prompt (e.g., "TNG", "DANA", "card", "Apple Pay", "信用卡") → auto-select the corresponding payment method types and skip this step.
-- Integration Mode = `cashier-full_payment_method` or `paybylink` → auto-select "All available payment methods", skip this step and APM sub-step.
+- Integration Mode = `cashier-full_payment_method` or `pay_by_link` → auto-select "All available payment methods", skip this step and APM sub-step.
 
 Analyze the project for target market signals (Southeast Asia → Card + APM; Global/US/EU → Card; etc.).
 
@@ -177,21 +209,21 @@ Available options depend on Step 3 selection:
 
 > Based on your project's target market, I recommend: **[recommended methods]** (reason: ...).
 >
-> Which payment methods would you like to support? (select one or more) / 您希望支持哪些支付方式？（可多选）
+> Which payment methods would you like to support? (select one or more) 
 >
-> | Payment Method / 支付方式 | Description / 说明 | Supported Regions / 支持地区 |
+> | Payment Method | Description | Supported Regions  |
 > | --- | --- | --- |
-> | **Card（银行卡）** | Visa, Mastercard, JCB, Discover, Diners Club | Global / 全球 |
-> | **ApplePay** | Apple Pay (requires macOS 13+ / iOS 16+ for subscription) | Global / 全球 |
-> | **GooglePay** | Google Pay (requires Android 8+ / Chrome 90+ for subscription) | Global / 全球 |
+> | **Card（银行卡）** | Visa, Mastercard, JCB, Discover, Diners Club | Global  |
+> | **ApplePay** | Apple Pay (requires macOS 13+ / iOS 16+ for subscription) | Global  |
+> | **GooglePay** | Google Pay (requires Android 8+ / Chrome 90+ for subscription) | Global  |
 >
-> ⚠️ Note: APM is not available in drop_in mode. / 注意：APM 在前置组件模式下不可用。
+> ⚠️ Note: APM is not available in drop_in mode. 
 >
-> Payment method list: https://docs.payermax.com/en/202506-version/acquiring/payment-methods.html
-> Subscription payment methods: https://docs.payermax.com/en/202506-version/acquiring/subscription.html
-> Supported countries & currencies: https://docs.payermax.com/en/202506-version/appendix/collection/supported-country-region-currency.html
+> Payment method list: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/payment-method-list/standard-acquiring-products.html
+> Subscription payment methods: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/payment-method-list/subscription-and-auto-debit.html
+> Supported countries & currencies: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/supported-countries-currencies-and-languages.html
 >
-> Please select one or more / 请选择一项或多项: **Card** / **ApplePay** / **GooglePay**
+> Please select one or more: **Card** / **ApplePay** / **GooglePay**
 
 **If Integration Mode = `cashier-*`:**
 
@@ -199,20 +231,20 @@ Available options depend on Step 3 selection:
 
 > Based on your project's target market, I recommend: **[recommended methods]** (reason: ...).
 >
-> Which payment methods would you like to support? (select one or more) / 您希望支持哪些支付方式？（可多选）
+> Which payment methods would you like to support? (select one or more) 
 >
-> | Payment Method / 支付方式 | Description / 说明 | Supported Regions / 支持地区 |
+> | Payment Method | Description | Supported Regions  |
 > | --- | --- | --- |
-> | **Card（银行卡）** | Visa, Mastercard, JCB, Discover, Diners Club | Global / 全球 |
-> | **ApplePay** | Apple Pay (requires macOS 13+ / iOS 16+ for subscription) | Global / 全球 |
-> | **GooglePay** | Google Pay (requires Android 8+ / Chrome 90+ for subscription) | Global / 全球 |
-> | **APM（本地支付方式）** | Local payment methods: e-wallets (DANA, KakaoPay, NaverPay, TNG, etc.), bank transfer, etc. / 本地支付方式：电子钱包（DANA、KakaoPay、NaverPay、TNG 等）、银行转账等 | Region-specific / 特定地区 |
+> | **Card（银行卡）** | Visa, Mastercard, JCB, Discover, Diners Club | Global |
+> | **ApplePay** | Apple Pay (requires macOS 13+ / iOS 16+ for subscription) | Global |
+> | **GooglePay** | Google Pay (requires Android 8+ / Chrome 90+ for subscription) | Global |
+> | **APM（本地支付方式）** | Local payment methods: e-wallets (DANA, KakaoPay, NaverPay, TNG, etc.), bank transfer, etc. | Region-specific |
 >
-> Payment method list: https://docs.payermax.com/en/202506-version/acquiring/payment-methods.html
-> Subscription payment methods: https://docs.payermax.com/en/202506-version/acquiring/subscription.html
-> Supported countries & currencies: https://docs.payermax.com/en/202506-version/appendix/collection/supported-country-region-currency.html
+> Payment method list: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/payment-method-list/standard-acquiring-products.html
+> Subscription payment methods: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/payment-method-list/subscription-and-auto-debit.html
+> Supported countries & currencies: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/supported-countries-currencies-and-languages.html
 >
-> Please select one or more / 请选择一项或多项: **Card** / **ApplePay** / **GooglePay** / **APM**
+> Please select one or more: **Card** / **ApplePay** / **GooglePay** / **APM**
 
 Agent internal reference (for fetching content, use `.md` URLs):
 - Payment method list: https://docs.payermax.com/en/202506-version/acquiring/payment-methods.md
@@ -224,37 +256,33 @@ Wait for user selection. Set `payment_method_type` accordingly.
 
 **Skip if:** 
 - User already named specific APM methods (e.g., "TNG", "DANA", "KakaoPay") or specific countries (e.g., "Malaysia", "Indonesia", "马来西亚") in the original prompt → use those directly, skip this step.
-- Integration Mode = `cashier-full_payment_method` or `paybylink` → skip (full cashier and paybylink show all payment methods automatically).
+- Integration Mode = `cashier-full_payment_method` or `pay_by_link` → skip (both show all payment methods automatically).
 
 **Only ask this if the user selected APM in the previous step AND did not already specify which APMs or countries.**
 
 **Stop and ask:**
 
-> Which APM payment methods would you like to integrate? / 您希望集成哪些 APM 支付方式？
+> Which APM payment methods would you like to integrate?
 >
 > You can specify either:
 > - **Payment method names** (e.g., DANA, KakaoPay, GCash) — will integrate those specific methods
 > - **Country/region names** (e.g., Indonesia, Korea) — will integrate ALL available APM methods for that country
 >
-> 您可以输入：
-> - **支付方式名称**（如 DANA、KakaoPay、GCash）— 将集成指定的支付方式
-> - **国家/地区名称**（如印尼、韩国）— 将集成该国家下所有可用的 APM 支付方式
->
-> | Country / 国家 | Available APMs / 可用 APM |
+> | Country | Available APMs |
 > | --- | --- |
-> | Indonesia / 印尼 | DANA, OVO, GoPay, ShopeePay |
-> | Malaysia / 马来西亚 | TNG (Touch 'n Go), Boost, GrabPay |
-> | Thailand / 泰国 | TrueMoney, PromptPay |
-> | Philippines / 菲律宾 | GCash, Maya |
-> | Vietnam / 越南 | MoMo, ZaloPay, VNPay |
-> | Korea / 韩国 | KakaoPay, NaverPay, Toss |
-> | Brazil / 巴西 | MercadoPago, PIX |
-> | Other / 其他 | See full list in docs below |
+> | Indonesia | DANA, OVO, GoPay, ShopeePay |
+> | Malaysia | TNG (Touch 'n Go), Boost, GrabPay |
+> | Thailand | TrueMoney, PromptPay |
+> | Philippines | GCash, Maya |
+> | Vietnam | MoMo, ZaloPay, VNPay |
+> | Korea | KakaoPay, NaverPay, Toss |
+> | Brazil | MercadoPago, PIX |
+> | Other | See full list in docs below |
 >
-> Full payment method list: https://docs.payermax.com/en/202506-version/acquiring/payment-methods.html
-> Supported countries & currencies: https://docs.payermax.com/en/202506-version/appendix/collection/supported-country-region-currency.html
+> Full payment method list: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/payment-method-list/standard-acquiring-products.html
+> Supported countries & currencies: https://docs.payermax.com/en/202606-version/acquiring/payment-method-capabilities/supported-countries-currencies-and-languages.html
 >
-> Please specify payment method names or countries / 请输入支付方式名称或国家:
+> Please specify payment method names or countries:
 
 Wait for user response. If the user provides country names, expand to all APM methods available for those countries. Record in the scenario profile as `country` and `target_org` fields accordingly.
 
@@ -265,7 +293,6 @@ After completing the steps above, review the gathered information and present 2�
 **Stop and ask:**
 
 > Before I proceed to generate the integration solution, here are a few questions that would help me tailor the implementation to your needs (all optional — feel free to skip any):
-> 在我生成集成方案之前，以下几个问题可以帮助我更好地定制实现（均为可选——可跳过任何问题）：
 >
 > [Generate 2–4 questions based on the actual scenario from the question bank below.]
 
@@ -273,19 +300,17 @@ After completing the steps above, review the gathered information and present 2�
 
 | Condition | Possible question |
 | --- | --- |
-| Any product | Do you need refund support? If yes, should it support partial refunds? / 是否需要退款功能？如需要，是否支持部分退款？ |
-| Any product | What is your expected transaction volume (daily/monthly)? This affects architecture recommendations. / 预期交易量是多少（日/月）？这会影响架构建议。 |
-| Any product | Do you have an existing order/payment system that this integration needs to connect to? / 是否有现有的订单/支付系统需要对接？ |
-| Any product | Which programming language and framework is your backend built with? / 后端使用什么编程语言和框架？ |
-| Subscription | Do you need trial periods or promotional pricing for new subscribers? / 是否需要为新订阅用户提供试用期或优惠价格？ |
-| Subscription (pmx_manage) | What should happen when a periodic deduction fails — terminate the plan or keep it active? / 周期扣款失败时应该怎么处理——终止计划还是保持活跃？ |
-| Subscription (merchant_manage / auto_debit) | What triggers a subsequent deduction in your business logic? (e.g., billing cycle, usage threshold, manual action) / 什么触发后续扣款？（如计费周期、用量阈值、手动操作） |
-| cashier-specified / drop_in | Do you need tokenization (save card for future payments)? / 是否需要 Token 化（保存卡信息用于后续支付）？ |
-| drop_in | Do you need to customize the payment component's appearance (colors, fonts, locale)? / 是否需要自定义支付组件的外观（颜色、字体、语言）？ |
-| Card selected | Do you need to restrict card brands (e.g., Visa/Mastercard only)? / 是否需要限制卡品牌（如仅 Visa/Mastercard）？ |
-| APM selected | Are there specific APM wallets/methods you want to prioritize or exclude? / 是否有特定的 APM 钱包/方式需要优先或排除？ |
-| Multi-terminal | Which terminals do you need to support: web, H5 (mobile browser), native app, or all? / 需要支持哪些终端：Web、H5（移动浏览器）、原生 App，还是全部？ |
-| Any product | Do you need to handle payment disputes/chargebacks (receive notifications, query cases, submit evidence)? / 是否需要处理支付争议/拒付（接收通知、查询案件、提交证据）？ |
+| Any product | Do you need refund support? If yes, should it support partial refunds?  |
+| Any product | Do you have an existing order/payment system that this integration needs to connect to?  |
+| Subscription | Do you need trial periods or promotional pricing for new subscribers?  |
+| Subscription (pmx_manage) | What should happen when a periodic deduction fails — terminate the plan or keep it active?  |
+| Subscription (merchant_manage / auto_debit) | What triggers a subsequent deduction in your business logic? (e.g., billing cycle, usage threshold, manual action)  |
+| tokenization_enabled = true | Should users be able to save multiple cards, or replace the existing one each time?  |
+| drop_in | Do you need to customize the payment component's appearance (colors, fonts, locale)?  |
+| Card selected | Do you need to restrict card brands (e.g., Visa/Mastercard only)?  |
+| APM selected | Are there specific APM wallets/methods you want to prioritize or exclude?  |
+| Multi-terminal | Which terminals do you need to support: web, H5 (mobile browser), native app, or all?  |
+| Any product | Do you need to handle payment disputes/chargebacks (receive notifications, query cases, submit evidence)?  |
 
 **Rules:**
 - Select 2–4 questions maximum — do not overwhelm the user
@@ -308,26 +333,27 @@ Use these signals to generate default recommendations:
 | Target market is Southeast Asia (ID, MY, TH, PH, VN) | Payment Method = Card + APM |
 | Target market is Korea | Payment Method = Card + APM (KakaoPay/NaverPay) |
 | Target market is Global / US / EU | Payment Method = Card |
-| Project mentions offline/QR/sharing scenarios | Integration Mode = paybylink |
+| Project mentions offline/QR/sharing scenarios | Integration Mode = pay_by_link |
+| `tokenization_enabled: true` | Exclude `cashier-full_payment_method` and `pay_by_link`; prefer `drop_in` (no PCI, best UX) > `cashier-specified_payment_method` > `direct_api` |
 | Cannot determine from project context | Use most common: Standard Acquiring / cashier-full_payment_method / Card |
 
 ### Route to variant
 
-After all 4 steps are complete, use the router (`references/router.md`) to normalize the scenario profile. Then select the variant:
+After all 5 steps are complete, use the router (`references/router.md`) to normalize the scenario profile. Then select the variant:
 
 | Payment Product | Scenario | Integration Mode | Variant file |
 | --- | --- | --- | --- |
 | Standard Acquiring | default | cashier-full_payment_method | `references/variants/full-payment-method.md` |
 | Standard Acquiring | default | cashier-specified_payment_method | `references/variants/specified-payment-method.md` |
 | Standard Acquiring | default | drop_in | `references/variants/drop-in.md` |
-| Standard Acquiring | default | paybylink | `references/variants/paybylink.md` |
+| Standard Acquiring | default | pay_by_link | `references/variants/paybylink.md` |
 | Standard Acquiring | default | direct_api | `references/variants/direct-api.md` |
-| Standard Acquiring | default (tokenization) | cashier-specified_payment_method | `references/variants/tokenization.md` |
+| Standard Acquiring | tokenization | cashier-specified / direct_api / drop_in | See the tokenization table in `references/router.md` |
 | Subscription | pmx_manage_plan | cashier-full_payment_method, cashier-specified_payment_method, drop_in | `references/variants/subscription/pmx-manage.md` |
 | Subscription | merchant_manage_plan | cashier-full_payment_method, cashier-specified_payment_method, drop_in | `references/variants/subscription/merchant-manage.md` |
 | Subscription | non_periodic_auto_debit | cashier-full_payment_method, cashier-specified_payment_method, drop_in | `references/variants/subscription/auto-debit.md` |
 
-**Constraint:** When `payment_method_type = APM`, `drop_in` is not available — route to `cashier-full_payment_method`, `cashier-specified_payment_method`, `paybylink`, or `direct_api`.
+**Constraint:** When `payment_method_type = APM`, `drop_in` is not available — route to `cashier-full_payment_method`, `cashier-specified_payment_method`, `pay_by_link`, or `direct_api`.
 
 ## Phase 2: Generate solution document
 
@@ -343,6 +369,22 @@ Produce `payermax_integration_solution.md` containing:
 Use template: `references/output/payermax-integration-solution-template.md`
 
 **Hard gate:** after outputting the solution, **stop and ask for confirmation**. Do not generate code until the user explicitly confirms.
+
+**MCP early-auth (optional):** At this confirmation gate, if the `payermax-developer` MCP server is connected but not yet authenticated, include in your confirmation prompt:
+
+> The PayerMax MCP Server has been detected as connected. May I proceed with authorizing the sandbox account? Upon authorization, the actual credentials (including merchantNo and key pairs) will be automatically populated during code generation.
+> - **Authorization** — Sign in if required. Sandbox authorization completes automatically; no code entry or confirmation click is required.
+> - **Skip** — Handle it later when generating code
+
+If the user chooses to authorize:
+1. If valid credentials already exist, continue directly to the MCP-first configuration workflow without starting another login.
+2. Otherwise, call `authenticate` and explain that the browser should open automatically.
+3. Ask the user only to sign in if required; sandbox authorization completes automatically after sign-in.
+4. Do not display, request, or compare a verification code or device code.
+5. Present the complete verification URL returned by MCP only when automatic browser opening fails.
+6. Call `check_auth_status` until authentication succeeds or the authorization link expires, then continue the MCP-first configuration workflow.
+
+If the user skips or MCP is not connected, proceed normally — Phase 3 will handle via its existing MCP-first/fallback logic.
 
 ## Phase 3: Implementation (after confirmation only)
 
@@ -411,9 +453,11 @@ When the scenario involves specific integration modes, you MUST read the corresp
 | Condition | Must read | Contains |
 | --- | --- | --- |
 | `integration_mode == drop_in` | `references/shared/drop-in-frontend.md` | CDN URL, SDK initialization pattern (`PMdropin.create`), payment flow, API version requirements, test panel template |
+| `tokenization_enabled == true` | `references/shared/tokenization.md` | Token Inquiry、Payment Using PaymentTokenID、Unbinding PaymentTokenID |
+| `+ integration_mode == drop_in` | Also add `references/shared/drop-in-frontend.md` | Component Lifecycle、`agreementAccepted`、`create3DSPopup` |
 | User confirmed dispute/chargeback capability | `references/shared/dispute.md` | Chargeback notification, case query, case response |
 
-**Hard rule:** If `integration_mode == drop_in` and you did NOT read `references/shared/drop-in-frontend.md`, your frontend code is unreliable. Read it before generating ANY frontend or Drop-In related code.
+**Hard rule:** without `drop-in-frontend.md`, drop-in frontend code is unreliable; without `tokenization.md`, the token endpoints, second-payment request, and ownership checks are guesswork. Read the applicable file(s) first.
 
 #### Mandatory: fetch docs before writing code
 
@@ -434,11 +478,14 @@ This rule applies to ALL scenarios (standard acquiring AND subscription). The va
 4. **Callback ack format is exact** — Payment: `{"msg":"Success","code":"SUCCESS"}`. Refund: `{"code":"SUCCESS","msg":"Success"}`.
 5. **`merchantNo` is required in practice** — always send it.
 6. **`version`/`keyVersion` must come from fetched API doc** — read the `version` field description in each API doc's Request Body table (e.g., "当前值为：1.5" means use `"1.5"`). Do NOT hardcode from memory or assume any default value. Each API endpoint may have a different version requirement.
+   A single tokenization integration legitimately mixes versions across endpoints — always take the value from the doc you fetched for that specific endpoint.
 7. **`expireTime` ≥ 1800** — system enforces this minimum.
 8. **Always keep `/orderQuery` as fallback** — for delayed callbacks, signature doubt, reconciliation.
 9. **Refund state is separate** — model `REFUND_SUCCESS`/`REFUND_PENDING`/`REFUND_FAILED` independently. Idempotency anchor: `outRefundNo`.
 10. **Sign the exact request body bytes** — signature in `sign` header. Verify inbound callbacks before business logic.
 11. **Refund result also requires dual-channel** — callback (`refundResultNotifyUrl`) + query (`/refundQuery`) as fallback, same pattern as payment result.
+12. **Never trust a client-supplied `paymentTokenID` or `userId`** — derive `userId` from the server session, and verify token ownership before every token payment. Accepting either from the browser is an IDOR vulnerability that lets one user charge another user's card.
+13. **`frontCallbackUrl` must be domain-whitelisted** — the frontend commonly sends `window.location.href`. Validate against an allowlist server-side before forwarding.
 
 #### Per-endpoint persistence
 
@@ -478,6 +525,8 @@ This rule applies to ALL scenarios (standard acquiring AND subscription). The va
 
 ### Minimum story (backend)
 
+**Rule:** The frontend never calls PayerMax directly — every call goes through a merchant endpoint holding the signing key (contract: `references/shared/tokenization.md`).
+
 - `/orderAndPay` — create payment
 - Callback handler for `notifyUrl`
 - `/orderQuery` — fallback query
@@ -485,7 +534,11 @@ This rule applies to ALL scenarios (standard acquiring AND subscription). The va
 
 For drop-in, also include `/applyDropinSession` and frontend JS code.
 
-For paybylink, also include:
+For tokenization (any integration mode), also include:
+- `/inquirePaymentToken`, `/removePaymentToken`
+- `/orderAndPay` with `tokenForFutureUse: true` (first payment) / with `paymentTokenID` (second payment)
+
+For pay_by_link, also include:
 - `/createPaybylink` — create payment link
 - `/queryPaybylink` — query link status
 - `/expirePaybylink` — expire payment link
@@ -534,6 +587,8 @@ Required test paths (based on product):
 - Direct API: `/orderAndPay`, `/orderQuery`, `/refund`, `/refundQuery`
 - PayByLink: `/createPaybylink`, `/queryPaybylink`, `/expirePaybylink`, `/orderQuery`, `/refund`, `/refundQuery`
 - Drop-In: add `/applyDropinSession`
+- Tokenization (any mode): add `/inquirePaymentToken`, `/removePaymentToken`
+- Tokenization + Drop-In: add `/applyDropinSession`, `/inquirePaymentToken`, `/removePaymentToken`
 - Subscription (PMX manage): add `/subscriptionCreate`, `/subscriptionQuery`, `/subscriptionCancel`
 - Subscription (merchant/auto-debit): same as Standard Acquiring (`/orderAndPay`, `/orderQuery`)
 - Dispute (if requested): `/caseSearch`, `/caseReplay`
@@ -550,64 +605,73 @@ Each test file must include:
 
 ### Output shape
 
-#### Config file — Keypair generation
+#### Config file — Credentials and keys
 
-**Strategy: generate-and-verify, or leave empty.**
+**Strategy: MCP-first, fallback to manual.**
 
-Attempt to generate a keypair using the following approach. If any step fails or the output does not pass validation, leave both key fields empty with a TODO comment.
+**Step 1: Check if PayerMax MCP Server is available**
 
-**Step 1: Generate keypair and extract single-line Base64 strings**
+Check if the `payermax-developer` MCP server is connected and accessible. If available, use it to automatically obtain all credentials. If not available, fall back to manual configuration instructions.
 
-```bash
-# Generate PKCS#8 private key file
-openssl genrsa 2048 | openssl pkcs8 -topk8 -nocrypt -out merchant_private.pem
+**Step 2 (MCP available): Auto-configure via MCP Server**
 
-# Derive public key file
-openssl rsa -in merchant_private.pem -pubout -out merchant_public.pem
+1. Call `get_sandbox_config` tool to obtain sandbox integration configuration:
+   - merchantNo, appId
+   - merchantPublicKey (already uploaded to platform)
+   - payermaxPublicKey
+   - notifyUrl, frameworkVersion
 
-# Extract single-line Base64 (no header/footer/newlines)
-PRIVATE_KEY=$(grep -v '^\-\-\-' merchant_private.pem | tr -d '\n')
-PUBLIC_KEY=$(grep -v '^\-\-\-' merchant_public.pem | tr -d '\n')
+2. **Keypair handling (conditional — do NOT overwrite existing keys):**
+   - Search the project for existing config files (e.g. `application.yml`, `application.properties`, `.env`, `config.ts/js`) that contain a non-empty `merchant-private-key` or `MERCHANT_PRIVATE_KEY` value (not a placeholder, not a TODO comment, not an empty string).
+   - **If a valid private key already exists:** Do NOT call `sandbox_generate_keypair`. Reuse the existing private key and public key values from the config file. Log to the user: "Existing merchant keypair found — reusing without regeneration."
+   - **If no valid private key exists (empty, placeholder, or not found):** Call `sandbox_generate_keypair` tool to generate a new RSA key pair:
+     - Returns merchantPublicKey + merchantPrivateKey (private key returned once only, not saved server-side)
+     - Public key is automatically uploaded to PayerMax platform
+   
+   ⚠️ NEVER overwrite an existing valid merchant private key unless the user explicitly requests regeneration (e.g. "regenerate my keypair", "create a new keypair", "generate new keys").
 
-echo "PRIVATE_KEY=$PRIVATE_KEY"
-echo "PUBLIC_KEY=$PUBLIC_KEY"
-```
+3. Fill ALL configuration values from the above responses directly into the config file. No placeholders, no TODOs for credentials.
 
-**Step 2: Validate the extracted strings (mandatory — do not skip)**
+4. If `notifyUrl` needs to be set/updated, call `sandbox_configure_notify_url` with the project callback endpoint URL.
 
-After extraction, run these validation checks:
+5. If specific payment methods need to be enabled (based on the scenario profile), call `sandbox_update_payment_methods` to activate them.
 
-```bash
-# Validate private key: must be valid Base64, decode to DER, and openssl can parse it
-echo "$PRIVATE_KEY" | base64 -d | openssl pkey -inform DER -noout 2>/dev/null && echo "PRIVATE_KEY_VALID" || echo "PRIVATE_KEY_INVALID"
+**Step 3 (MCP NOT available): Manual fallback**
 
-# Validate public key: must be valid Base64, decode to DER, and openssl can parse it
-echo "$PUBLIC_KEY" | base64 -d | openssl pkey -inform DER -pubin -noout 2>/dev/null && echo "PUBLIC_KEY_VALID" || echo "PUBLIC_KEY_INVALID"
+If the `payermax-developer` MCP server is not connected:
 
-# Validate key pair match: sign with private, verify with public
-echo "test" | openssl dgst -sha256 -sign merchant_private.pem -out /tmp/pmx_sig_test.bin
-echo "test" | openssl dgst -sha256 -verify merchant_public.pem -signature /tmp/pmx_sig_test.bin && echo "KEYPAIR_MATCH" || echo "KEYPAIR_MISMATCH"
-rm -f /tmp/pmx_sig_test.bin
-```
+1. Leave `merchant-private-key`, `merchant-public-key`, `payermax-public-key`, `app-id`, `merchant-no` as empty strings with the comment:
+   ```
+   # TODO: Configure merchant credentials using ONE of these methods:
+   #
+   # Option A (Recommended): Install the PayerMax MCP Server:
+   #   npx -y payermax-developer-mcp-server@latest
+   #   Then ask your AI agent to run: sandbox_generate_keypair
+   #
+   # Option B: Generate keypair locally and upload public key:
+   #   Generate RSA 2048-bit keypair, fill private key below,
+   #   then upload public key via developer.payermax.com or sandbox_upload_merchant_public_key
+   #
+   # Option C: Manually obtain from PayerMax Developer Center:
+   #   https://developer.payermax.com
+   ```
 
-**Step 3: Decision**
+2. Do NOT attempt local keypair generation via openssl (deprecated — unreliable across environments).
 
-- If ALL THREE checks pass (`PRIVATE_KEY_VALID`, `PUBLIC_KEY_VALID`, `KEYPAIR_MATCH`): fill the `$PRIVATE_KEY` and `$PUBLIC_KEY` values into the config file, then delete the `.pem` files.
-- If ANY check fails OR if `openssl` is not available: leave `merchant-private-key` and `merchant-public-key` as empty strings with the comment:
-  ```
-  # TODO: Generate keypair using one of these methods:
-  #   1. Online: https://developer.payermax.com/devtool/generate
-  #   2. SDK: Java/PHP SDK createKeyPair method
-  #   3. OpenSSL: see https://docs.payermax.com/en/202506-version/developer/config-settings.md
-  ```
+**Step 4 (MCP available): Post-acceptance diagnostics**
+
+After triggering acceptance tests via `sandbox_trigger_acceptance`, if tests fail:
+
+1. Use `sandbox_query_orders` (type: "trade" or "pay") to check order status.
+2. Use `sandbox_resend_notification` if the webhook notification was not received.
+3. Use `sandbox_dispute_create` if acceptance requires dispute/chargeback testing.
+4. Use `sandbox_subscription_mock_period` if acceptance requires subscription billing cycle testing.
 
 **Hard rules:**
-- Do NOT manually concatenate Base64 lines by reading file content character by character — use `grep -v | tr -d '\n'`
-- Do NOT assume the key is valid without running the validation commands
-- Do NOT fill a key value that failed validation into the config
-- Always clean up `.pem` files after use (whether successful or not)
+- If MCP is available, ALWAYS use it — do not generate keys locally
+- If MCP is available, the config file must be fully filled (zero placeholders)
+- If MCP is NOT available, do NOT attempt openssl generation — point to MCP Server installation instead
 
-Set `payermax-public-key` to empty string — developer downloads it from the PayerMax Developer Center.
 
 #### Key format specification
 
@@ -628,8 +692,13 @@ Key format reference: https://docs.payermax.com/en/202506-version/developer/conf
 #### Mandatory inline code comments (paste verbatim)
 
 Complete the configuration file:
-- For `appId`/`merchantNo`/payermax-public-key: `Obtain sandbox appId, merchantNo, and the PayerMax public key from the PayerMax Developer Center; see https://docs.payermax.com/en/202506-version/acquiring/integration-guide.md#_3-2-%E6%B3%A8%E5%86%8C%E6%88%90%E4%B8%BA%E5%BC%80%E5%8F%91%E8%80%85`
-- For `merchant-public-key`/`merchant-private-key`: generate your key pair, and upload your public key in the PayerMax Developer Center; see https://docs.payermax.com/en/202506-version/acquiring/integration-guide.md#_3-4-1-%E9%85%8D%E7%BD%AE%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E7%9A%84%E5%AF%86%E9%92%A5%E4%BF%A1%E6%81%AF`
+- If MCP Server was used to fill values: add a single comment at the top of the PayerMax config block:
+  ```
+  # PayerMax sandbox credentials (auto-configured via MCP Server)
+  # To regenerate keypair: ask your AI agent to run sandbox_generate_keypair
+  # To reconfigure: ask your AI agent to run get_sandbox_config
+  ```
+- If fallback (MCP not available): attach the credential TODO comment block from "Step 3 (MCP NOT available)" above to the empty `appId` / `merchantNo` / `payermax-public-key` / `merchant-public-key` / `merchant-private-key` fields.
 
 #### Pre-call request validation (mandatory)
 
@@ -638,18 +707,9 @@ Every outbound PayerMax API call must have a validation layer:
 2. Type/constraint check (string length, numeric range, enum, date format)
 3. Fail fast — block the API call on validation failure
 
-#### Pre-test configuration block
+#### Pre-test configuration and go-live steps
 
-> Before running connectivity tests, sign in to the PayerMax Developer Center (https://developer.payermax.com):
-> 1. Configure test merchant number and appId
-> 2. Upload merchant test public key
-> 3. Download PayerMax test public key
-
-#### Production go-live checklist
-
-1. Fill production credentials in the primary config file
-2. Ensure `notifyUrl` is reachable from overseas networks
-3. Enable payment methods in the PayerMax Developer Center
+Both belong to the generated Setup Guide (`references/output/setup-guide-template.md`). If MCP filled the config, say so and run the tests directly.
 
 #### Do not
 
@@ -662,6 +722,30 @@ Every outbound PayerMax API call must have a validation layer:
 ### Generate Setup Guide
 
 After all code is generated, produce a `SETUP_GUIDE.md` file based on `references/output/setup-guide-template.md`. Fill all `{placeholder}` sections with actual values from the implementation. Only include sections relevant to the selected product, integration mode, and payment methods. Remove HTML comments and conditional markers — output a clean, ready-to-use guide.
+
+### Post-code key configuration guidance
+
+After code generation is complete, if merchant private key is not yet configured (MCP was not used, or MCP is available but keypair was not yet generated), present the following guidance to the user:
+
+> ✅ Code generation complete! Next step: configure the merchant keypair. Please choose one option:
+>
+> **Option 1️⃣: Auto-generate keypair (Recommended)**
+> I'll call `sandbox_generate_keypair` to generate an RSA keypair for you. The public key is automatically uploaded to PayerMax, and the private key is written to your config file.
+>
+> **Option 2️⃣: Use an existing keypair**
+> If you already have an RSA 2048-bit keypair, paste the private key into the config file, then I'll call `sandbox_upload_merchant_public_key` to upload your public key.
+>
+> **Option 3️⃣: Manual setup via Developer Center**
+> Sign in to [developer.payermax.com](https://developer.payermax.com), go to Settings → Developer Info → Key Management, and upload your public key.
+>
+> Please choose: **1** / **2** / **3**
+
+**Rules:**
+- If MCP is available and `sandbox_generate_keypair` was already called during Step 2, skip this prompt (config is complete)
+- If project already has a non-empty merchant-private-key in config, skip this prompt (keypair already configured)
+- If user selects 1: call `sandbox_generate_keypair`, write private key to config file, confirm completion
+- If user selects 2: ask user to paste their public key, then call `sandbox_upload_merchant_public_key`
+- If user selects 3: skip — user will handle manually
 
 ### Self-check before presenting result
 
@@ -676,6 +760,8 @@ Before presenting the implementation to the user, verify against the deliverable
 - [ ] Run instructions provided (how to configure, test, and start)?
 - [ ] Setup Guide generated (`SETUP_GUIDE.md` with configuration steps, test instructions, production checklist)?
 - [ ] If dispute capability requested: chargeback notification handler + `/caseSearch` + `/caseReplay` implemented?
+- [ ] If tokenization: `/inquirePaymentToken` + `/removePaymentToken`, saved-card list with remove + confirmation, empty-list fallback, ownership check?
+- [ ] If drop_in: 3DS via `create3DSPopup` (not `window.open`), `frontCallbackUrl` allowlisted?
 
 **If any item is unchecked, generate it now before responding to the user.**
 
@@ -695,7 +781,6 @@ Fetch official API Markdown only for lines explicitly flagged as `verify-in-open
 - Ask the fewest questions possible
 - Never skip the confirmation gate after generating the solution
 - Prefer official API-facing field names (`merchantNo`, `paymentDetail.paymentMethodType`)
-- Do not invent CDN URLs, SDK parameters, or field names from memory
 - If the profile is inconsistent with constraints, stop and explain
 
 ## References
@@ -706,6 +791,7 @@ Fetch official API Markdown only for lines explicitly flagged as `verify-in-open
 | `references/variants/*.md` | Branch-specific stance per integration mode (standard acquiring) |
 | `references/variants/subscription/*.md` | Branch-specific stance per subscription scenario |
 | `references/shared/drop-in-frontend.md` | Drop-In frontend SDK guide (shared across all scenarios) |
+| `references/shared/tokenization.md` | Token query, second payment, unbinding (shared across all integration modes) |
 | `references/shared/dispute.md` | Dispute/chargeback capability (optional, cross-scenario) |
 | `references/output/` | Solution and summary templates |
 | `shared-models/scenario-profile.yaml` | Canonical scenario profile schema |

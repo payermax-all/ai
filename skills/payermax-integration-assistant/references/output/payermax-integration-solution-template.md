@@ -62,6 +62,10 @@ scenario_profile:
 <!-- Include for subscription (merchant_manage / auto_debit): -->
 - `/removePaymentToken`
 
+<!-- Include when tokenization_enabled = true (any integration mode): -->
+- `/inquirePaymentToken`
+- `/removePaymentToken`
+
 <!-- Include for drop-in mode: -->
 - `/applyDropinSession`
 
@@ -76,7 +80,6 @@ scenario_profile:
 ### Optional Related APIs
 
 - `refundResultNotifyUrl` — refund result notify
-- tokenization-related APIs
 
 ## 5. Required Capabilities
 
@@ -98,6 +101,13 @@ scenario_profile:
 - token storage and management
 - token unbind flow
 - merchant-initiated deduction logic
+
+<!-- Include when tokenization_enabled = true: -->
+- token storage and lifecycle management
+- token ownership verification (server-side)
+- saved payment method list UI
+- token unbind flow with confirmation
+- empty-token-list fallback to first-payment flow
 
 <!-- Include for subscription (pmx_manage_plan): -->
 - subscription plan creation and configuration

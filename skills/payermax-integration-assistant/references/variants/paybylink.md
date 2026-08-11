@@ -4,7 +4,7 @@ Use this variant when the merchant wants to generate payment links for customers
 
 ## Choose this branch when
 
-- `integration_mode: paybylink`
+- `integration_mode: pay_by_link`
 - No payment method type restrictions (all supported)
 
 ## Fetch docs before writing code

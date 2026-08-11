@@ -12,6 +12,12 @@ Drop-In currently supports:
 
 Specified via `componentList` in the `/applyDropinSession` request.
 
+## Drop-In session
+
+The merchant backend calls `/applyDropinSession` to obtain `clientKey` and `sessionKey` before the frontend can render anything. Fetch the request and response schema — including where the order amount is carried — from `https://docs.payermax.com/api/New%20Version/en/v1.0/aggregate-pay_api_gateway_applyDropinSession.md`. Do not infer the fields.
+
+**`notSupportedComponent` handling:** any component the response lists here is unavailable for this session. Hide its tab / mount point rather than attempting to mount it. Do not treat it as an error.
+
 ## Frontend flow
 
 1. Load PayerMax Drop-In JS SDK via CDN:
@@ -193,6 +199,17 @@ googlepayInstance.on('payButtonClick', async () => {
 
 **Hard rule:** Do NOT call `emit('canMakePayment')` on Google Pay / Apple Pay from an external button click handler. The SDK will reject it. Always trigger from `payButtonClick` event.
 
+### Terminating the wallet processing state
+
+Apple Pay and Google Pay components enter a processing state after `payButtonClick`. The merchant MUST end it explicitly once the backend result is known:
+
+- `component.emit('paySuccess')` — backend reported success
+- `component.emit('payFail')` — backend reported failure, or the request threw
+
+Omitting these leaves the wallet sheet spinning indefinitely. Always call one of them in a `finally`-equivalent path, and re-enable the component with `emit('setDisabled', false)`.
+
+**Hard rule:** the decision to emit `paySuccess` must be based on the merchant backend's payment status, never on the component result alone.
+
 ### Subscription-specific: Google Pay canMakePayment parameters
 
 When `customer_product == receipt_subscription` AND `payment_method_type` includes GOOGLEPAY, the `emit('canMakePayment')` call **MUST** include `subscriptionPlan` and `mitManagementUrl` parameters. Calling without these parameters will result in `MIT_PARAMS_VALIDATION_ERROR`.
@@ -302,10 +319,45 @@ Unlike cashier mode (where the user is redirected and result always comes via ca
 
 - After receiving the backend response from the pay endpoint:
   1. If `data.status === 'SUCCESS'` → show payment success immediately.
-  2. If `data.redirectUrl` is present → redirect for 3DS verification.
+  2. If `data.redirectUrl` is present → 3DS is required. Call `component.create3DSPopup({ url })` (see "3DS authentication" below) and start polling once the popup resolves. Do NOT redirect the page.
   3. If `data.status === 'FAILED'` or `'CLOSED'` → show failure.
   4. Otherwise (`PENDING` without redirect) → start polling for result.
 - Do NOT unconditionally enter polling after a successful API response.
+
+### Polling parameters
+
+Suggested defaults, which the merchant may tune to their business: poll the **merchant** order-status endpoint every **2 seconds**, at most **5 times** — orders normally receive their callback within 10 seconds. If it is still `PENDING` after the last attempt, stop polling and tell the user to check the order later; do not poll indefinitely, and never poll PayerMax directly from the browser.
+
+## 3DS authentication
+
+When `/orderAndPay` returns `data.redirectUrl`, the payment requires 3DS. Use the component SDK's popup — not `window.open`, not a full-page redirect.
+
+```javascript
+function handle3DS(threeDSUrl, component) {
+  return component.create3DSPopup({ url: threeDSUrl })
+    .then((result) => {
+      if (result.code === '3DS_PROCESSED') {
+        // Authentication finished — NOT the same as payment success.
+        startPollingPaymentStatus(result.data?.outTradeNo);
+      }
+    })
+    .catch((error) => {
+      if (error.code === 'USER_CANCEL') {
+        showMessage('您已关闭认证窗口');
+      } else {
+        showMessage('认证出现异常，请重试');
+      }
+      // Always re-enable the pay button so the user can retry.
+    });
+}
+```
+
+**State rules:**
+
+- `3DS_PROCESSED` means the authentication flow completed — it does **not** mean the payment succeeded.
+- On `USER_CANCEL`, restore the pay button to an enabled state.
+- The final state must come from the merchant backend (notify callback or `/orderQuery`).
+- The 3DS request and the payment request must share the same `outTradeNo`.
 
 ## Frontend test helper panel
 
@@ -450,7 +502,7 @@ Source: https://docs.payermax.com/en/202506-version/receipt/test-cases.md (secti
 
 - Do not confuse with `direct_api` — drop-in uses `Direct_Payment` as the integrate value but does NOT require PCI-DSS because the component handles card data
 - `paymentToken` and `sessionKey` are mandatory in the `/orderAndPay` request; without them the payment will fail
-- 3DS authentication may be triggered for card payments; the component handles the redirect flow
+- 3DS authentication may be triggered for card payments. The SDK does not do it for you — when `redirectUrl` comes back, call `create3DSPopup`, never `window.open` or a page redirect
 - Do not ignore `data.status` in the `/orderAndPay` synchronous response — for Drop-In card payments without 3DS, the final result (`SUCCESS`) may arrive synchronously without callback
 - `expireTime` must be ≥ 1800 and ≤ 86400
 - Google Pay / Apple Pay in subscription mode: `emit('canMakePayment')` MUST include `mitManagementUrl` (always required). Additionally, `subscriptionPlan` is required for SCHEDULED (merchant-manage) but not for UNSCHEDULED (auto-debit). Calling without required parameters will result in `MIT_PARAMS_VALIDATION_ERROR`.

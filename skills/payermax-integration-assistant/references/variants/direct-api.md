@@ -58,8 +58,12 @@ Use this variant when the merchant builds their own checkout page and calls Paye
 
 `/orderAndPay` (with full paymentDetail) → redirectUrl (if needed) → user authentication → `collectResultNotifyUrl` callback → `/orderQuery` if needed.
 
+## Tokenization
+
+If `tokenization_enabled: true`, route to `references/variants/tokenization-api.md` instead. Note that direct-API tokenization still requires PCI-DSS for the first payment, since the merchant collects raw card data.
+
 ## Do not use this branch when
 
 - the merchant wants PayerMax to host the checkout page → `full_payment_method` or `specified_payment_method`
 - the merchant wants embedded UI components without PCI-DSS → `drop_in`
-- the merchant wants payment links for offline/sharing → `paybylink`
+- the merchant wants payment links for offline/sharing → `pay_by_link`

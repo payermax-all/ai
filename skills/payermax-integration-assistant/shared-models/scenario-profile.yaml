@@ -206,6 +206,21 @@ validation_rules:
       - token_type
     on_fail: Tokenization requires token_type.
 
+  - id: tokenization_dropin_forbids_apm
+    when:
+      integration_mode: drop_in
+      tokenization_enabled: true
+    assert_not_contains:
+      payment_method_type: APM
+    on_fail: Drop-in tokenization does not support APM. Use cashier or direct_api.
+
+  - id: pay_by_link_forbids_tokenization
+    when:
+      integration_mode: pay_by_link
+    assert_not_equals:
+      tokenization_enabled: true
+    on_fail: Pay-by-link has no signed-in session, so it cannot carry tokenization. Ask the user to drop tokenization or switch to specified-payment-method cashier. Never resolve this silently.
+
   - id: card_scheme_only_for_card
     when_contains:
       card_org: true
@@ -264,5 +279,6 @@ defaults:
   integration_mode: cashier
   transaction_mode: sales
   tokenization_enabled: false
+  token_type: payermax_token   # only applies when tokenization_enabled is true
   payment_method_selection_level: none
   notes: []

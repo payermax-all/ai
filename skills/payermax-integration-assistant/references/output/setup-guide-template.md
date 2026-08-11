@@ -5,6 +5,42 @@
 This project integrates PayerMax **{product}** using **{integration_mode}** mode with **{payment_methods}** payment method(s).
 Tech stack: **{tech_stack}**.
 
+## Prerequisites
+
+### Option A: Automatic Setup (Recommended)
+
+Install the PayerMax Developer MCP Server for zero-configuration sandbox setup:
+
+1. Add to your IDE's MCP configuration:
+   ```json
+   {
+     "mcpServers": {
+       "payermax-developer": {
+         "command": "npx",
+         "args": ["-y", "payermax-developer-mcp-server@latest"]
+       }
+     }
+   }
+   ```
+
+2. Ask your AI agent to authenticate:
+   > "Authenticate with PayerMax Developer Center"
+
+3. The browser opens PayerMax Developer Center automatically. Sign in if required.
+   Sandbox authorization completes automatically after sign-in; no verification
+   code or additional confirmation is required. If the browser cannot be opened,
+   copy the complete verification URL returned by the agent into your browser.
+
+4. All sandbox credentials will be automatically configured.
+
+### Option B: Manual Setup
+
+If not using the MCP Server, obtain credentials from the [PayerMax Developer Center](https://developer.payermax.com):
+1. Sign in and navigate to the dashboard
+2. Copy merchantNo and appId
+3. View or download your sandbox keypair
+4. Download the PayerMax public key
+
 ## ✅ What has been generated
 
 ### Completed deliverables
@@ -35,7 +71,7 @@ Public Key:  ⚠️ TODO — generate via https://developer.payermax.com/devtool
 
 1. **Register account**: Visit [PayerMax Developer Center](https://developer.payermax.com)
 2. **Create application**: Obtain `app-id` and `merchant-no`
-3. **Uploadhttps://docs.payermax.com/en/202506-version/receipt/test-cases.html public key**: Copy the merchant public key from your config to the Developer Center
+3. **Upload merchant public key**: Copy the merchant public key from your config to the Developer Center
 4. **Download PayerMax public key**: Fill into `payermax-public-key` in your config
 <!-- Include if product = Subscription -->
 5. **Enable subscription capability**: Contact PayerMax support to enable subscription for your merchant account
@@ -94,6 +130,13 @@ Expected: each API endpoint returns a response (business-level errors are OK —
 3. Enter test card details in the Drop-In component
 4. Submit payment and verify status updates
 5. Test refund flow if applicable
+
+#### For Tokenization (any integration mode):
+1. Complete a first payment with the "save payment method" option accepted
+2. Verify `paymentTokenID` is present in the payment result callback
+3. Query the saved token list for that user and confirm the new card appears
+4. Start a second payment using `paymentTokenID` only (no card details)
+5. Remove the token and confirm the list updates and the token can no longer be used
 
 #### For Subscription (PMX Manage):
 1. Create a subscription plan (call your create-plan endpoint)
@@ -156,6 +199,9 @@ Key points:
 - Verify CDN script loaded: `https://cdn.payermax.com/dropin/js/pmdropin.min.js`
 - Confirm `clientKey` and `sessionKey` from `/applyDropinSession` are valid
 - Ensure `mount()`, `on()`, `emit()` are called on the instance returned by `PMdropin.create()`, not on the global `PMdropin` object
+- 3DS popup blocked by the browser — `create3DSPopup` must be called directly in the user-gesture path, not after an unrelated async gap
+- Pay button stays disabled after the user closes the 3DS window — handle `USER_CANCEL` and re-enable it
+- Order marked paid too early — `3DS_PROCESSED` means authentication finished, not that the payment succeeded; wait for the callback or `/orderQuery`
 
 ### Debug steps
 ```bash
@@ -168,9 +214,9 @@ curl -v https://pay-gate-uat.payermax.com/aggregate-pay/api/gateway/orderQuery
 
 ### Additional help
 
-- FAQ - Cashier & Direct API: https://docs-v2.payermax.com/202506-version/appendix/faq/collection/cashier-direct-api.html
-- FAQ - Technical Problems: https://docs-v2.payermax.com/202506-version/appendix/faq/collection/technical-problem.html
-- Submit a support ticket: https://docs-v2.payermax.com/202506-version/appendix/faq/ticket.html
+- FAQ - Cashier & Direct API: https://docs.payermax.com/en/202506-version/appendix/faq/collection/cashier-direct-api.html
+- FAQ - Technical Problems: https://docs.payermax.com/en/202506-version/appendix/faq/collection/technical-problem.html
+- Submit a support ticket: https://docs.payermax.com/en/202506-version/appendix/faq/ticket.html
 
 ## 🏗️ Production go-live checklist
 
@@ -179,5 +225,15 @@ curl -v https://pay-gate-uat.payermax.com/aggregate-pay/api/gateway/orderQuery
 - [ ] Update `notify-url` to production callback endpoint
 - [ ] Confirm callback URL is reachable from overseas networks
 - [ ] Enable payment methods in PayerMax Developer Center
+- [ ] Payment methods enabled via `sandbox_update_payment_methods` in sandbox are separately contracted for production
+- [ ] Payment state in shared DB/cache, not process memory (multi-instance safe)
+- [ ] Logs mask `paymentTokenID`, card masks, email, and signatures
+<!-- Include if integration_mode = drop_in -->
+- [ ] `sandbox` set to `false` in production (Drop-In SDK)
+<!-- Include if payment methods include APPLEPAY -->
+- [ ] Apple Pay domain verification file publicly reachable
+<!-- Include when tokenization_enabled = true -->
+- [ ] Token queries scoped to the authenticated user
+- [ ] Saved-card removal available to end users
 <!-- Include if product = Subscription -->
 - [ ] Confirm subscription capability enabled for production merchant

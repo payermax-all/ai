@@ -67,6 +67,32 @@ Then copy `skills/payermax-integration-assistant` to your agent's skills directo
 .trae/skills/payermax-integration-assistant
 ```
 
+## Recommended: Install PayerMax MCP Server
+
+The Integration Skill works best when paired with the **PayerMax Developer MCP Server**. With both installed:
+
+- ✅ Sandbox credentials auto-filled (no manual copy-paste from Developer Center)
+- ✅ RSA keypair generated and uploaded automatically
+- ✅ Payment methods enabled programmatically
+- ✅ Acceptance tests triggered and verified from IDE
+
+Without the MCP Server, the skill will generate code with placeholder credentials and guide you to configure them manually.
+
+**Install the MCP Server** — add to your IDE's MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "payermax-developer": {
+      "command": "npx",
+      "args": ["-y", "payermax-developer-mcp-server@latest"]
+    }
+  }
+}
+```
+
+→ [MCP Server documentation](https://github.com/payermax-all/ai/tree/main/mcp/payermax-developer-mcp-server)
+
 ## Usage
 
 Describe your payment needs to the AI agent:
