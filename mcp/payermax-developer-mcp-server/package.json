@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "payermax-developer-mcp": "./bin/payermax-mcp.js"
+    "payermax-developer-mcp": "bin/payermax-mcp.js"
   },
   "scripts": {
     "build": "tsc",
@@ -15,6 +15,17 @@
     "verify:prod-config": "node scripts/verify-prod-config.js",
     "prepack": "npm run verify:prod-config && npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/payermax-all/ai.git",
+    "directory": "mcp/payermax-developer-mcp-server"
+  },
+  "homepage": "https://github.com/payermax-all/ai/tree/main/mcp/payermax-developer-mcp-server",
+  "bugs": {
+    "url": "https://github.com/payermax-all/ai/issues"
+  },
+  "author": "PayerMax <github@payermax.com>",
+  "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
     "semver": "^7.6.3"
@@ -30,6 +41,16 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "files": ["dist", "bin"],
-  "keywords": ["mcp", "payermax", "payment", "developer", "sandbox"]
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "keywords": [
+    "mcp",
+    "payermax",
+    "payment",
+    "developer",
+    "sandbox",
+    "model-context-protocol"
+  ]
 }

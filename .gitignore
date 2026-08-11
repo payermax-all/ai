@@ -21,3 +21,4 @@ design/
 scripts/
 validate_skills.py
 TODO.md
+*.tgz

@@ -90,8 +90,8 @@ This MCP Server is designed to work alongside the **PayerMax Integration Assista
 | `sandbox_query_orders` | Query orders by type (trade, pay, disburse, paylink, subscription) — exact lookup or the latest 15 records. Note: `type=subscription` returns subscription **plans**, not deduction orders |
 | `sandbox_query_subscription_detail` | Query all deduction orders (per-period transaction records) under a subscription plan |
 | `sandbox_resend_notification` | Resend webhook notification for a trade order |
-| `sandbox_dispute_query` | Query dispute case info for a payment order |
-| `sandbox_dispute_create` | Create mock dispute/chargeback case (DISPUTE, CHARGEBACK, FRAUD, CUSTOMER_COMPLAINT) |
+| `sandbox_dispute_query` | Query dispute case info by merchant order number (outTradeNo) |
+| `sandbox_dispute_create` | Create mock dispute/chargeback case by merchant order number (DISPUTE, CHARGEBACK, FRAUD, CUSTOMER_COMPLAINT) |
 | `sandbox_dispute_reply` | Reply to (defend against) a dispute case |
 | `sandbox_dispute_close` | Close a dispute case with a judgement result |
 | `sandbox_subscription_mock_period` | Mock a subscription deduction period result (success/failure) |
@@ -156,11 +156,11 @@ Recent order queries return the latest **15** records ordered by creation time d
 ### Disputes and subscription simulations
 
 ```text
-Find the dispute case for payment request PAY_REQUEST_001.
+Find the dispute case for merchant order TEST-e1e92e62-c4a.
 
-Create a mock DISPUTE case for payment request PAY_REQUEST_001.
+Create a mock DISPUTE case for merchant order TEST-e1e92e62-c4a.
 
-Reply to dispute case CASE_001 with this defense and evidence summary: <SUMMARY>.
+Reply to dispute case CASE_001.
 
 Close dispute case CASE_001 with the appropriate judgement result.
 
