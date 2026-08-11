@@ -621,9 +621,14 @@ Check if the `payermax-developer` MCP server is connected and accessible. If ava
    - payermaxPublicKey
    - notifyUrl, frameworkVersion
 
-2. Call `sandbox_generate_keypair` tool to generate a new RSA key pair:
-   - Returns merchantPublicKey + merchantPrivateKey (private key returned once only, not saved server-side)
-   - Public key is automatically uploaded to PayerMax platform
+2. **Keypair handling (conditional — do NOT overwrite existing keys):**
+   - Search the project for existing config files (e.g. `application.yml`, `application.properties`, `.env`, `config.ts/js`) that contain a non-empty `merchant-private-key` or `MERCHANT_PRIVATE_KEY` value (not a placeholder, not a TODO comment, not an empty string).
+   - **If a valid private key already exists:** Do NOT call `sandbox_generate_keypair`. Reuse the existing private key and public key values from the config file. Log to the user: "Existing merchant keypair found — reusing without regeneration."
+   - **If no valid private key exists (empty, placeholder, or not found):** Call `sandbox_generate_keypair` tool to generate a new RSA key pair:
+     - Returns merchantPublicKey + merchantPrivateKey (private key returned once only, not saved server-side)
+     - Public key is automatically uploaded to PayerMax platform
+   
+   ⚠️ NEVER overwrite an existing valid merchant private key unless the user explicitly requests regeneration (e.g. "regenerate my keypair", "create a new keypair", "generate new keys").
 
 3. Fill ALL configuration values from the above responses directly into the config file. No placeholders, no TODOs for credentials.
 
@@ -737,6 +742,7 @@ After code generation is complete, if merchant private key is not yet configured
 
 **Rules:**
 - If MCP is available and `sandbox_generate_keypair` was already called during Step 2, skip this prompt (config is complete)
+- If project already has a non-empty merchant-private-key in config, skip this prompt (keypair already configured)
 - If user selects 1: call `sandbox_generate_keypair`, write private key to config file, confirm completion
 - If user selects 2: ask user to paste their public key, then call `sandbox_upload_merchant_public_key`
 - If user selects 3: skip — user will handle manually
