@@ -228,18 +228,21 @@ describe('Developer Center backed MCP tools', () => {
     registerDisputeTools(harness.server, harness.apiClient);
     harness.post.mockResolvedValueOnce({
       code: 'APPLY_SUCCESS',
-      data: [{ txnSptPayRequestNos: ['PAY-RESOLVED-001'], txnOrdOutTradeNo: 'MERCHANT-ORDER-001' }],
+      data: [{ txnSptPayRequestNos: ['PAY-RESOLVED-001'], txnOrdOutTradeNo: 'MERCHANT-ORDER-001', txnOrdTotalAmount: '100', txnOrdCurrency: 'USD' }],
     });
     harness.post.mockResolvedValueOnce({
       code: 'APPLY_SUCCESS',
-      data: { caseId: 'CASE-001', status: 'OPEN' },
+      data: { caseId: 'CASE-001', status: 'DISPUTE_INQUIRY', reasonCodes: [] },
     });
 
     const result = await harness.getTool('sandbox_dispute_query').handler({ outTradeNo: 'MERCHANT-ORDER-001' });
 
     expect(harness.post).toHaveBeenCalledWith('/order/trade', { outTradeNo: 'MERCHANT-ORDER-001' });
     expect(harness.post).toHaveBeenCalledWith('/dispute/case/query', { payOrderNo: 'PAY-RESOLVED-001' });
-    expectJsonText(result, { caseId: 'CASE-001', status: 'OPEN' });
+    const output = JSON.parse(result.content[0].text);
+    expect(output.caseId).toBe('CASE-001');
+    expect(output.status).toBe('DISPUTE_INQUIRY');
+    expect(output.nextAction).toContain('sandbox_dispute_reply');
   });
 
   it('sandbox_dispute_create with outTradeNo', async () => {
@@ -247,50 +250,186 @@ describe('Developer Center backed MCP tools', () => {
     registerDisputeTools(harness.server, harness.apiClient);
     harness.post.mockResolvedValueOnce({
       code: 'APPLY_SUCCESS',
-      data: [{ txnSptPayRequestNos: ['PAY-001'] }],
+      data: [{ txnSptPayRequestNos: ['PAY-001'], txnOrdTotalAmount: '50', txnOrdCurrency: 'SGD' }],
     });
     harness.post.mockResolvedValueOnce({ code: 'APPLY_SUCCESS', data: 'CASE-001' });
 
     const input = {
-      outTradeNo: 'MY-ORDER-001', disputeType: 'DISPUTE', reason: 'Product not received',
+      outTradeNo: 'MY-ORDER-001', disputeType: 'Dispute' as const, reason: 'Product not received',
       frozenAmount: 12.5, frozenCurrency: 'USD',
     };
     const result = await harness.getTool('sandbox_dispute_create').handler(input);
 
     expect(harness.post).toHaveBeenCalledWith('/order/trade', { outTradeNo: 'MY-ORDER-001' });
     expect(harness.post).toHaveBeenCalledWith('/dispute/case/create', {
-      payOrderNo: 'PAY-001', disputeType: 'DISPUTE', reason: 'Product not received',
+      payOrderNo: 'PAY-001', disputeType: 'Dispute', reason: 'Product not received',
       frozenAmount: 12.5, frozenCurrency: 'USD',
     });
-    expect(result.content[0].text).toBe('Dispute case created. Case ID: CASE-001');
+    expect(result.content[0].text).toContain('Case ID: CASE-001');
+    expect(result.content[0].text).toContain('sandbox_dispute_reply');
   });
 
-  it('sandbox_dispute_reply', async () => {
-    // 1. 准备数据
+  it('sandbox_dispute_create auto-fills amount and currency from order', async () => {
     const harness = createToolHarness();
-    const input = { caseId: 'CASE-001' };
     registerDisputeTools(harness.server, harness.apiClient);
-    // 2. mock Developer Center API
-    harness.post.mockResolvedValue({ code: 'APPLY_SUCCESS' });
-    // 3. 调用 MCP tool 接口
-    const result = await harness.getTool('sandbox_dispute_reply').handler(input);
-    // 4. 校验 tool 返回及远端调用
-    expect(harness.post).toHaveBeenCalledWith('/dispute/case/reply', input);
-    expect(result.content[0].text).toBe('Dispute case CASE-001 replied successfully.');
+    // /order/trade
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: [{ txnSptPayRequestNos: ['PAY-002'], txnOrdTotalAmount: '99.99', txnOrdCurrency: 'EUR' }],
+    });
+    // /dispute/case/query (for reason code)
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: { caseId: null, status: null, reasonCodes: [{ value: '10.4', label: 'Fraud' }] },
+    });
+    // /dispute/case/create
+    harness.post.mockResolvedValueOnce({ code: 'APPLY_SUCCESS', data: 'CASE-AUTO' });
+
+    const input = { outTradeNo: 'MY-ORDER-002', disputeType: 'Chargeback' as const };
+    const result = await harness.getTool('sandbox_dispute_create').handler(input);
+
+    expect(harness.post).toHaveBeenCalledWith('/dispute/case/create', {
+      payOrderNo: 'PAY-002', disputeType: 'Chargeback', reason: '10.4',
+      frozenAmount: 99.99, frozenCurrency: 'EUR',
+    });
+    expect(result.content[0].text).toContain('CASE-AUTO');
   });
 
-  it('sandbox_dispute_close', async () => {
-    // 1. 准备数据
+  it('sandbox_dispute_reply with outTradeNo', async () => {
     const harness = createToolHarness();
-    const input = { caseId: 'CASE-001', sentenceResult: 'win' };
     registerDisputeTools(harness.server, harness.apiClient);
-    // 2. mock Developer Center API
-    harness.post.mockResolvedValue({ code: 'APPLY_SUCCESS' });
-    // 3. 调用 MCP tool 接口
-    const result = await harness.getTool('sandbox_dispute_close').handler(input);
-    // 4. 校验 tool 返回及远端调用
-    expect(harness.post).toHaveBeenCalledWith('/dispute/case/close', input);
-    expect(result.content[0].text).toBe('Dispute case CASE-001 closed. Result: win');
+    // /order/trade
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: [{ txnSptPayRequestNos: ['PAY-001'], txnOrdTotalAmount: '100', txnOrdCurrency: 'USD' }],
+    });
+    // /dispute/case/query
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: { caseId: 'CASE-001', status: 'DISPUTE_INQUIRY' },
+    });
+    // /dispute/case/reply
+    harness.post.mockResolvedValueOnce({ code: 'APPLY_SUCCESS' });
+
+    const result = await harness.getTool('sandbox_dispute_reply').handler({ outTradeNo: 'MY-ORDER-001' });
+
+    expect(harness.post).toHaveBeenCalledWith('/dispute/case/reply', { caseId: 'CASE-001' });
+    expect(result.content[0].text).toContain('CASE-001 replied successfully');
+    expect(result.content[0].text).toContain('sandbox_dispute_close');
+  });
+
+  it('sandbox_dispute_reply with explicit caseId', async () => {
+    const harness = createToolHarness();
+    registerDisputeTools(harness.server, harness.apiClient);
+    // /order/trade
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: [{ txnSptPayRequestNos: ['PAY-001'], txnOrdTotalAmount: '100', txnOrdCurrency: 'USD' }],
+    });
+    // /dispute/case/query
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: { caseId: 'CASE-001', status: 'DISPUTE_INQUIRY' },
+    });
+    // /dispute/case/reply
+    harness.post.mockResolvedValueOnce({ code: 'APPLY_SUCCESS' });
+
+    const result = await harness.getTool('sandbox_dispute_reply').handler({ outTradeNo: 'MY-ORDER-001', caseId: 'CASE-EXPLICIT' });
+
+    // When caseId is explicitly provided, it is used directly
+    expect(harness.post).toHaveBeenCalledWith('/dispute/case/reply', { caseId: 'CASE-EXPLICIT' });
+    expect(result.content[0].text).toContain('CASE-EXPLICIT replied successfully');
+  });
+
+  it('sandbox_dispute_reply throws when no case exists', async () => {
+    const harness = createToolHarness();
+    registerDisputeTools(harness.server, harness.apiClient);
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: [{ txnSptPayRequestNos: ['PAY-001'], txnOrdTotalAmount: '100', txnOrdCurrency: 'USD' }],
+    });
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: { caseId: null, status: null },
+    });
+
+    await expect(harness.getTool('sandbox_dispute_reply').handler({ outTradeNo: 'MY-ORDER-001' }))
+      .rejects.toThrow('No dispute case found');
+  });
+
+  it('sandbox_dispute_reply throws when status is not DISPUTE_INQUIRY', async () => {
+    const harness = createToolHarness();
+    registerDisputeTools(harness.server, harness.apiClient);
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: [{ txnSptPayRequestNos: ['PAY-001'], txnOrdTotalAmount: '100', txnOrdCurrency: 'USD' }],
+    });
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: { caseId: 'CASE-001', status: 'DISPUTE_RECEIVED' },
+    });
+
+    await expect(harness.getTool('sandbox_dispute_reply').handler({ outTradeNo: 'MY-ORDER-001' }))
+      .rejects.toThrow('already been replied');
+  });
+
+  it('sandbox_dispute_close with outTradeNo', async () => {
+    const harness = createToolHarness();
+    registerDisputeTools(harness.server, harness.apiClient);
+    // /order/trade
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: [{ txnSptPayRequestNos: ['PAY-001'], txnOrdTotalAmount: '100', txnOrdCurrency: 'USD' }],
+    });
+    // /dispute/case/query
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: { caseId: 'CASE-001', status: 'DISPUTE_RECEIVED' },
+    });
+    // /dispute/case/close
+    harness.post.mockResolvedValueOnce({ code: 'APPLY_SUCCESS' });
+
+    const result = await harness.getTool('sandbox_dispute_close').handler({
+      outTradeNo: 'MY-ORDER-001', sentenceResult: 'win',
+    });
+
+    expect(harness.post).toHaveBeenCalledWith('/dispute/case/close', { caseId: 'CASE-001', sentenceResult: 'win' });
+    expect(result.content[0].text).toContain('CASE-001 closed successfully');
+    expect(result.content[0].text).toContain('Merchant wins');
+  });
+
+  it('sandbox_dispute_close throws when status is DISPUTE_INQUIRY', async () => {
+    const harness = createToolHarness();
+    registerDisputeTools(harness.server, harness.apiClient);
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: [{ txnSptPayRequestNos: ['PAY-001'], txnOrdTotalAmount: '100', txnOrdCurrency: 'USD' }],
+    });
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: { caseId: 'CASE-001', status: 'DISPUTE_INQUIRY' },
+    });
+
+    await expect(harness.getTool('sandbox_dispute_close').handler({
+      outTradeNo: 'MY-ORDER-001', sentenceResult: 'fail',
+    })).rejects.toThrow('sandbox_dispute_reply');
+  });
+
+  it('sandbox_dispute_close throws when case is already closed', async () => {
+    const harness = createToolHarness();
+    registerDisputeTools(harness.server, harness.apiClient);
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: [{ txnSptPayRequestNos: ['PAY-001'], txnOrdTotalAmount: '100', txnOrdCurrency: 'USD' }],
+    });
+    harness.post.mockResolvedValueOnce({
+      code: 'APPLY_SUCCESS',
+      data: { caseId: 'CASE-001', status: 'DISPUTE_COMPLETED' },
+    });
+
+    await expect(harness.getTool('sandbox_dispute_close').handler({
+      outTradeNo: 'MY-ORDER-001', sentenceResult: 'win',
+    })).rejects.toThrow('already closed');
   });
 
   it('sandbox_subscription_mock_period', async () => {
