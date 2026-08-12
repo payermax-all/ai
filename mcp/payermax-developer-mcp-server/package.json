@@ -1,6 +1,6 @@
 {
   "name": "payermax-developer-mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "PayerMax Developer Center MCP Server - Automate sandbox integration setup",
   "type": "module",
   "main": "dist/index.js",
