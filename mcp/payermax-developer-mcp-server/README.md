@@ -77,7 +77,7 @@ This MCP Server is designed to work alongside the **PayerMax Integration Assista
 
 → [Install the Integration Skill](https://github.com/payermax-all/ai/tree/main/skills/payermax-integration-assistant)
 
-## Available Tools (19)
+## Available Tools (20)
 
 | Tool | Description |
 |------|-------------|
@@ -98,6 +98,7 @@ This MCP Server is designed to work alongside the **PayerMax Integration Assista
 | `sandbox_dispute_create` | Create mock dispute/chargeback case by merchant order number (DISPUTE, CHARGEBACK, FRAUD, CUSTOMER_COMPLAINT) |
 | `sandbox_dispute_reply` | Reply to (defend against) a dispute case |
 | `sandbox_dispute_close` | Close a dispute case with a judgement result |
+| `sandbox_dispute_run_full_flow` | Run the complete dispute simulation flow (create → reply → close) in one call with automatic state transitions and polling |
 | `sandbox_subscription_mock_period` | Mock a subscription deduction period result (success/failure) |
 | `sandbox_subscription_mock_resend` | Resend a subscription deduction notification |
 
@@ -168,6 +169,8 @@ Reply to dispute case CASE_001.
 
 Close dispute case CASE_001 with the appropriate judgement result.
 
+Run the full dispute flow (create, reply, close) for merchant order TEST-e1e92e62-c4a.
+
 Simulate a successful deduction result for the next period of subscription SUB_001.
 
 Resend the notification for subscription deduction order DEDUCT_001.
@@ -179,7 +182,7 @@ Resend the notification for subscription deduction order DEDUCT_001.
 |----------|-------|----------|
 | Read-only | Authentication status, sandbox configuration, payment-method query, acceptance status, order query, subscription-detail query, and dispute query | Safe for inspection; no sandbox state is changed. |
 | Configuration changes | Keypair generation/upload, notification URL update, and payment-method updates | Confirm the intended merchant and configuration before proceeding. |
-| Stateful sandbox actions | Token revocation, notification resend, dispute create/reply/close, and subscription mock/resend | Changes sandbox state or sends an event. Confirm the target identifier and intended result. |
+| Stateful sandbox actions | Token revocation, notification resend, dispute create/reply/close/run-full-flow, and subscription mock/resend | Changes sandbox state or sends an event. Confirm the target identifier and intended result. |
 
 ## Key Management
 
