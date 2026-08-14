@@ -3,6 +3,10 @@
 An MCP server that connects AI coding agents to PayerMax Developer Center.
 Automate sandbox integration — auth, keypairs, config, payments, acceptance — without leaving your IDE.
 
+## Developer preview
+
+PayerMax Developer MCP Server is currently in developer preview and is iterating rapidly. THERE WILL BE COMPATIBILITY-BREAKING CHANGES.
+
 ## Prerequisites
 
 - Node.js 18+
