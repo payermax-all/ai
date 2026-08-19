@@ -2,10 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { ApiClient } from '../api/client.js';
 import { z } from 'zod';
 
-const httpsUrlSchema = z.string().url().refine(
-  (value) => new URL(value).protocol === 'https:',
-  'notifyUrl must use HTTPS',
-);
+const urlSchema = z.string().url();
 
 const NOTIFY_TYPES = [
   'PAYMENT',
@@ -30,7 +27,7 @@ export function registerNotifyUrlTool(server: McpServer, apiClient: ApiClient) {
       notifyUrls: z.array(
         z.object({
           notifyType: z.enum(NOTIFY_TYPES).describe('Notification type, e.g. PAYMENT, REFUND, PAYOUT, SUBSCRIPTION.'),
-          notifyUrl: httpsUrlSchema.describe('The HTTPS callback URL for this notification type.'),
+          notifyUrl: urlSchema.describe('The callback URL for this notification type.'),
         }),
       ).min(1).max(12).describe('Array of notification URL configurations.'),
     },
