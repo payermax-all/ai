@@ -1,6 +1,12 @@
-# Direct API
+~# Direct API
 
 Use this variant when the merchant builds their own checkout page and calls PayerMax APIs directly.
+
+## Prerequisite: PCI-DSS (Card only)
+
+When `payment_method_type` includes CARD, the merchant must hold PCI-DSS certification (raw card data flows through merchant systems). APM / Apple Pay / Google Pay do not trigger this requirement. Sandbox development is not blocked — certification is required before production go-live.
+
+Ref: https://docs.payermax.com/en/202506-version/acquiring/start-integration/integrate-by-payment-method/card/pcidss.html
 
 ## Choose this branch when
 

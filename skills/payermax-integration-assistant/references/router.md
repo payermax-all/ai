@@ -46,6 +46,7 @@ After Phase 1 completes, use the rules below to validate the combination and pro
 | 11 | `tokenization` + `drop_in` + APM | Reject → APM has no drop-in component; use `tokenization-cashier` or `tokenization-api` |
 | 12 | `tokenization` + `pay_by_link` | **Ask, do not auto-rewrite** → no semantically equivalent target; the user chooses between dropping tokenization or switching to specified-payment-method cashier (see the conflict guard in `SKILL.md`) |
 | 13 | `tokenization_enabled: true` without `token_type` | Default to `payermax_token`; use `external_token` only when the merchant explicitly operates their own vault |
+| 14 | `direct_api` + CARD + user states not certified and unwilling | **Ask, do not auto-rewrite** → present `drop_in` / `cashier-specified_payment_method` as alternatives; user decides |
 
 ### Tokenization variant selection
 
