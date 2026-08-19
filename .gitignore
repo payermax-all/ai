@@ -19,6 +19,7 @@ dist/
 # Internal development files (not part of the skill distribution)
 design/
 scripts/
+!mcp/payermax-developer-mcp-server/scripts/
 validate_skills.py
 TODO.md
 *.tgz
