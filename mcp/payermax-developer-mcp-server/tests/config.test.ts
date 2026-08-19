@@ -1,3 +1,4 @@
+import { describe, expect, it, jest, afterEach } from '@jest/globals';
 import { PROD_API_BASE_URL } from '../src/config.js';
 
 describe('config', () => {

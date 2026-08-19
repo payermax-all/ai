@@ -4,21 +4,6 @@ import { z } from 'zod';
 
 const urlSchema = z.string().url();
 
-const NOTIFY_TYPES = [
-  'PAYMENT',
-  'REFUND',
-  'DISPUTE',
-  'AUTHORIZATION',
-  'ACCOUNT_SERVICE',
-  'VA_COLLECTION',
-  'PAYOUT',
-  'SUBSCRIPTION',
-  'TOP_UP',
-  'RISK_BUSINESS_DATA_CALLBACK',
-  'SUB_MERCHANT_REGISTRATION',
-  'PAYMENT_LINK',
-] as const;
-
 export function registerNotifyUrlTool(server: McpServer, apiClient: ApiClient) {
   server.tool(
     'sandbox_configure_notify_url',
@@ -26,7 +11,11 @@ export function registerNotifyUrlTool(server: McpServer, apiClient: ApiClient) {
     {
       notifyUrls: z.array(
         z.object({
-          notifyType: z.enum(NOTIFY_TYPES).describe('Notification type, e.g. PAYMENT, REFUND, PAYOUT, SUBSCRIPTION.'),
+          notifyType: z.string().describe(
+            'Notification type. Recommended values: PAYMENT, REFUND, DISPUTE, AUTHORIZATION, ' +
+            'ACCOUNT_SERVICE, VA_COLLECTION, PAYOUT, SUBSCRIPTION, TOP_UP, ' +
+            'RISK_BUSINESS_DATA_CALLBACK, SUB_MERCHANT_REGISTRATION, PAYMENT_LINK.',
+          ),
           notifyUrl: urlSchema.describe('The callback URL for this notification type.'),
         }),
       ).min(1).max(12).describe('Array of notification URL configurations.'),
