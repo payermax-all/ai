@@ -76,7 +76,7 @@ Public Key:  ⚠️ TODO — generate via https://developer.payermax.com/devtool
 <!-- Include if product = Subscription -->
 5. **Enable subscription capability**: Contact PayerMax support to enable subscription for your merchant account
 
-Reference: https://docs.payermax.com/en/202506-version/acquiring/integration-guide.html
+Reference: https://docs.payermax.com/en/202606-version/developer/integration-guide.html
 
 ### Step 2: Update configuration
 
@@ -113,7 +113,7 @@ Expected: each API endpoint returns a response (business-level errors are OK —
 - **Control payment result**: Use the `subject` field in the `/orderAndPay` request to simulate different outcomes (`SUCCESS` / `FAILED` / `PENDING` / `3DS`)
 - **Refund simulation**: Use local currency amount `10000` or `102` to trigger refund failure, `20000` or `202` to trigger refund pending; other amounts default to refund success
 - **Full test card numbers, APM simulation rules, Apple Pay / Google Pay sandbox setup** — see:
-  https://docs.payermax.com/en/202506-version/receipt/test-cases.html
+  https://docs.payermax.com/en/202606-version/acquiring/integration-testing-and-troubleshooting/start-a-test.html
 
 <!-- Include the section matching the integration mode / product -->
 
@@ -156,7 +156,7 @@ Expected: each API endpoint returns a response (business-level errors are OK —
 
 Full sandbox testing guide (test card numbers, APM simulation, Apple Pay / Google Pay sandbox setup, refund simulation rules):
 
-👉 https://docs.payermax.com/en/202506-version/receipt/test-cases.html
+👉 https://docs.payermax.com/en/202606-version/acquiring/integration-testing-and-troubleshooting/start-a-test.html
 
 Key points:
 - The `subject` field controls payment result simulation (applies to all payment methods)
@@ -214,9 +214,9 @@ curl -v https://pay-gate-uat.payermax.com/aggregate-pay/api/gateway/orderQuery
 
 ### Additional help
 
-- FAQ - Cashier & Direct API: https://docs.payermax.com/en/202506-version/appendix/faq/collection/cashier-direct-api.html
-- FAQ - Technical Problems: https://docs.payermax.com/en/202506-version/appendix/faq/collection/technical-problem.html
-- Submit a support ticket: https://docs.payermax.com/en/202506-version/appendix/faq/ticket.html
+- FAQ - Cashier & Direct API: https://docs.payermax.com/en/202606-version/appendix/faq/collection/cashier-direct-api.html
+- FAQ - Technical Problems: https://docs.payermax.com/en/202606-version/appendix/faq/collection/technical-problem.html
+- Submit a support ticket: https://docs.payermax.com/en/202606-version/appendix/faq/ticket.html
 
 ## 🏗️ Production go-live checklist
 

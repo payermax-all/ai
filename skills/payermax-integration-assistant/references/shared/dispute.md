@@ -8,11 +8,8 @@ Optional capability for handling payment disputes and chargebacks.
 
 | Topic | URL to fetch |
 |---|---|
-| Dispute introduction | `https://docs.payermax.com/en/202506-version/receipt/chargeback/introduction.md` |
-| Backend notification | `https://docs.payermax.com/en/202506-version/receipt/chargeback/backend-notification.md` |
-| Inquiry handling | `https://docs.payermax.com/en/202506-version/receipt/chargeback/inquiry.md` |
-| Retrieval response | `https://docs.payermax.com/en/202506-version/receipt/chargeback/retrieval-response.md` |
-| Response codes | `https://docs.payermax.com/en/202506-version/receipt/chargeback/response-code.md` |
+| Chargeback introduction | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/related-capabilities-integration/chargeback/chargeback-introduction.md` |
+| Chargeback integration | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/related-capabilities-integration/chargeback/chargeback-integration.md` |
 
 ### Step 2: Fetch API docs
 
