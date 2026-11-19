@@ -6,7 +6,7 @@ Use this variant when the merchant builds their own checkout page and calls Paye
 
 When `payment_method_type` includes CARD, the merchant must hold PCI-DSS certification (raw card data flows through merchant systems). APM / Apple Pay / Google Pay do not trigger this requirement. Sandbox development is not blocked — certification is required before production go-live.
 
-Ref: https://docs.payermax.com/en/202506-version/acquiring/start-integration/integrate-by-payment-method/card/pcidss.html
+Ref: https://docs.payermax.com/en/202606-version/acquiring/start-integration/payment-acceptance/API/pcidss.html
 
 ## Choose this branch when
 
@@ -20,12 +20,11 @@ Ref: https://docs.payermax.com/en/202506-version/acquiring/start-integration/int
 
 | Topic | URL to fetch |
 |---|---|
-| Direct API integration overview | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/create-payment/direct-api.md` |
-| Card direct API | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/integrate-by-payment-method/card/direct-api.md` |
-| GooglePay direct API | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/integrate-by-payment-method/googlepay/direct-api.md` |
-| ApplePay direct API | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/integrate-by-payment-method/applepay/direct-api.md` |
-| Payment result (callback + query) | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/payment-result.md` |
-| Refund | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/refund.md` |
+| Card direct API | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/payment-acceptance/API/card.md` |
+| GooglePay direct API | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/payment-acceptance/API/googlepay.md` |
+| ApplePay direct API | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/payment-acceptance/API/applepay.md` |
+| Payment result (callback + query) | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/related-capabilities-integration/payment-result.md` |
+| Refund | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/related-capabilities-integration/refund-integration.md` |
 
 **Conditional fetch based on payment method type:**
 - If Card selected → must fetch Card direct API doc

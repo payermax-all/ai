@@ -18,10 +18,10 @@ Cashier tokenization supports only `specified_payment_method` (optionally narrow
 
 | Topic | URL to fetch |
 |---|---|
-| Tokenization introduction | `https://docs.payermax.com/en/202506-version/receipt/tokenization/introduction.md` |
-| Tokenization — cashier payment | `https://docs.payermax.com/en/202506-version/receipt/tokenization/cashier.md` |
-| Payment result (callback + query) | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/payment-result.md` |
-| Refund | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/refund.md` |
+| Tokenization introduction | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/advanced-capabilities-integration/tokenization.md` |
+| Tokenization — cashier payment | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/advanced-capabilities-integration/tokenization/cash-payment-integration.md` |
+| Payment result (callback + query) | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/related-capabilities-integration/payment-result.md` |
+| Refund | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/related-capabilities-integration/refund-integration.md` |
 
 ### Step 2: Fetch API docs
 

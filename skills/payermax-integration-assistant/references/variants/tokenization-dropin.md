@@ -17,18 +17,19 @@ The merchant hosts the checkout page, PayerMax components collect the payment de
 
 | Topic | URL to fetch |
 |---|---|
-| Tokenization introduction | `https://docs.payermax.com/en/202506-version/receipt/tokenization/introduction.md` |
-| Tokenization — drop-in payment | `https://docs.payermax.com/en/202506-version/receipt/tokenization/frontend-component.md` |
-| Payment result (callback + query) | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/payment-result.md` |
-| Refund | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/refund.md` |
+| Tokenization introduction | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/advanced-capabilities-integration/tokenization.md` |
+| Tokenization — drop-in payment | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/advanced-capabilities-integration/tokenization/drop-in-integration.md` |
+| Payment result (callback + query) | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/related-capabilities-integration/payment-result.md` |
+| Refund | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/related-capabilities-integration/refund-integration.md` |
+| Dropin Error Code Reference | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/payment-acceptance/drop-in/dropin-errorcode.md` |
 
 Plus one component configuration doc per selected payment method:
 
 | Payment method | URL to fetch |
 |---|---|
-| CARD | `https://docs.payermax.com/en/202506-version/receipt/front-end-component/configuration-card.md` |
-| GOOGLEPAY | `https://docs.payermax.com/en/202506-version/receipt/front-end-component/configuration-googlepay.md` |
-| APPLEPAY | `https://docs.payermax.com/en/202506-version/receipt/front-end-component/configuration-applepay.md` |
+| CARD | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/payment-acceptance/drop-in/card.md` |
+| GOOGLEPAY | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/payment-acceptance/drop-in/googlepay.md` |
+| APPLEPAY | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/payment-acceptance/drop-in/applepay.md` |
 
 ### Step 2: Fetch API docs
 

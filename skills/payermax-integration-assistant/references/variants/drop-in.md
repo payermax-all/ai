@@ -14,9 +14,12 @@ Use this variant when the merchant wants to embed PayerMax's pre-built payment U
 
 | Topic | URL to fetch |
 |---|---|
-| Drop-In payment creation | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/create-payment/frontend-component.md` |
-| Payment result (callback + query) | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/payment-result.md` |
-| Refund | `https://docs.payermax.com/en/202506-version/acquiring/start-integration/related-capabilities/refund.md` |
+| CARD | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/payment-acceptance/drop-in/card.md` |
+| GOOGLEPAY | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/payment-acceptance/drop-in/googlepay.md` |
+| APPLEPAY | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/payment-acceptance/drop-in/applepay.md` |
+| Dropin Error Code Reference | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/payment-acceptance/drop-in/dropin-errorcode.md` |
+| Payment result (callback + query) | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/related-capabilities-integration/payment-result.md` |
+| Refund | `https://docs.payermax.com/en/202606-version/acquiring/start-integration/related-capabilities-integration/refund-integration.md` |
 
 ### Step 2: Fetch API docs
 
