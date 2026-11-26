@@ -26,7 +26,10 @@ export class DeviceFlow {
   async requestDeviceCode(): Promise<DeviceCodeResponse> {
     const resp = await fetch(`${CONFIG.API_BASE_URL}/oauth2/device/code`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        platformTenantId: String(CONFIG.PLATFORM_TENANT_ID),
+      },
       body: JSON.stringify({ clientId: CONFIG.CLIENT_ID }),
     });
     const json = await resp.json() as any;
@@ -54,7 +57,10 @@ export class DeviceFlow {
 
       const resp = await fetch(`${CONFIG.API_BASE_URL}/oauth2/device/token`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          platformTenantId: String(CONFIG.PLATFORM_TENANT_ID),
+        },
         body: JSON.stringify({ deviceCode, clientId: CONFIG.CLIENT_ID }),
       });
 

@@ -35,6 +35,7 @@ export class ApiClient {
     const url = `${CONFIG.API_BASE_URL}${path}`;
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      platformTenantId: String(CONFIG.PLATFORM_TENANT_ID),
       ...options?.headers,
     };
 
