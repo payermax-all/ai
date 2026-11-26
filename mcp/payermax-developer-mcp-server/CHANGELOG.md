@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.4 (2026-11-26)
+
+### Changes
+
+- All requests now send the `platformTenantId: 4` header, required by the mmc gateway.
+
 ## 1.0.0 (2026-08-11)
 
 Initial release.

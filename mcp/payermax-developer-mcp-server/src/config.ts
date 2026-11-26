@@ -8,6 +8,7 @@ export const PROD_API_BASE_URL = 'https://mmc-gateway-uat.payermax.com/developer
 export const CONFIG = {
   API_BASE_URL: process.env.PAYERMAX_MCP_API_BASE_URL || PROD_API_BASE_URL,
   CLIENT_ID: 'payermax-mcp-server',
+  PLATFORM_TENANT_ID: 4,
   CREDENTIALS_DIR: '.payermax',
   CREDENTIALS_FILE: 'credentials.json',
   POLL_INTERVAL_MS: 5000,
